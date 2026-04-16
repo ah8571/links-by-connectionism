@@ -261,7 +261,7 @@ function bindSignup() {
 
   // Auto-lowercase and strip invalid chars + live availability check
   usernameInput.addEventListener("input", () => {
-    usernameInput.value = usernameInput.value.toLowerCase().replace(/[^a-z0-9_-]/g, "");
+    usernameInput.value = usernameInput.value.toLowerCase().replace(/[^a-z0-9._-]/g, "");
     const val = usernameInput.value;
 
     if (val.length < 3) {
