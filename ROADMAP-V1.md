@@ -75,7 +75,7 @@ Each creator = **one JSON file** in R2. No database required for V1.
   - `links[]` — array of `{ title, url, icon?, enabled }`
   - `socialLinks[]` — array of `{ platform, url }`
   - `createdAt`, `updatedAt`
-- [ ] Add `defaultView` field to schema (controls what `cnxt.to/username` displays)
+- [x] Add `defaultView` field to schema (controls what `cnxt.to/username` displays)
 - [x] Write R2 helper: `putProfile(username, json)` → writes `profiles/{username}.json` to R2
 - [x] Write R2 helper: `getProfile(username)` → reads JSON from R2
 - [x] Add JSON schema validation (Zod)
@@ -86,7 +86,7 @@ Each creator = **one JSON file** in R2. No database required for V1.
 ## Phase 2: Public Page Rendering (the core product)
 
 - [x] Create Worker route: `GET /:username`
-- [ ] Add Worker route: `GET /:username/links` (explicit links path)
+- [x] Add Worker route: `GET /:username/links` (explicit links path)
 - [x] Worker logic: fetch `profiles/{username}.json` from R2 → render HTML
 - [x] Build server-side HTML renderer (plain string templates — no framework needed)
 - [x] Design 2–3 minimal themes (HTML + inline CSS, no JS required):
@@ -116,41 +116,42 @@ Each creator = **one JSON file** in R2. No database required for V1.
 - [x] Username uniqueness check (check R2 key existence)
 - [x] Reserve system slugs (`api`, `admin`, `dashboard`, `login`, `settings`, etc.)
 - [ ] Rate limiting on write endpoints (Cloudflare rate limiting or simple KV counter)
-- [ ] CORS configuration for `links.cnxt.to` dashboard origin
+- [x] CORS configuration for `links.cnxt.to` dashboard origin
 
 ---
 
 ## Phase 4: Authentication (keep it minimal)
 
-- [ ] Choose V1 auth strategy — recommended: **passwordless email magic links**
+- [x] Choose V1 auth strategy — recommended: **passwordless email magic links**
   - Alternative: OAuth (Google/GitHub) via Cloudflare Access or simple OAuth flow
-- [ ] Implement magic link flow:
+- [x] Implement magic link flow:
   - `POST /api/auth/send-link` → generate token, store in KV (TTL 15min), send email
   - `GET /api/auth/verify?token=xxx` → validate token, issue session
-- [ ] Session management: signed JWT or opaque token stored in KV
-- [ ] Middleware: auth guard on `/api/profile/*` write routes
-- [ ] Email sending: Cloudflare Email Workers, Resend, or Mailgun (free tiers)
-- [ ] Store minimal user record in KV or R2: `{ email, username, createdAt }`
+- [x] Session management: signed JWT or opaque token stored in KV
+- [x] Middleware: auth guard on `/api/profile/*` write routes
+- [x] Email sending: Cloudflare Email Workers, Resend, or Mailgun (free tiers)
+- [x] Store minimal user record in KV or R2: `{ email, username, createdAt }`
+- [ ] **Future: Migrate to [Better Auth](https://www.better-auth.com/)** when adding mobile app or social login (Google/Apple/GitHub). Current magic link system is sufficient for web launch.
 
 ---
 
 ## Phase 5: Creator Dashboard at `links.cnxt.to` (frontend)
 
-- [ ] Scaffold lightweight SPA (Preact, Solid, or plain vanilla JS — keep bundle tiny)
-- [ ] Host on Cloudflare Pages at `links.cnxt.to`
-- [ ] **Landing page**: explain what cnxt to links is, "claim your link" CTA, open source pitch
-- [ ] Login / magic link request screen
-- [ ] **Signup flow**: claim a username → create profile → redirect to editor
-- [ ] Profile editor:
+- [x] Scaffold lightweight SPA (Preact, Solid, or plain vanilla JS — keep bundle tiny)
+- [x] Host on Cloudflare Pages at `links.cnxt.to`
+- [x] **Landing page**: explain what cnxt to links is, "claim your link" CTA, open source pitch
+- [x] Login / magic link request screen
+- [x] **Signup flow**: claim a username → create profile → redirect to editor
+- [x] Profile editor:
   - Display name, bio, avatar URL
   - Add / remove / reorder links (drag-and-drop optional in V1)
   - Toggle link enabled/disabled
   - Social links editor
   - Theme selector (visual preview)
 - [ ] Live preview panel (shows what the public page looks like)
-- [ ] Save button → calls `PUT /api/profile/:username`
-- [ ] Show creator's public URL: `cnxt.to/username` (with copy button)
-- [ ] Basic form validation + error handling
+- [x] Save button → calls `PUT /api/profile/:username`
+- [x] Show creator's public URL: `cnxt.to/username` (with copy button)
+- [x] Basic form validation + error handling
 - [ ] Mobile-responsive layout
 
 ---
