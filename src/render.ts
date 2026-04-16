@@ -26,18 +26,33 @@ const THEMES: Record<string, { bg: string; card: string; text: string; accent: s
 export function renderProfilePage(profile: Profile): string {
   const t = THEMES[profile.theme] ?? THEMES["minimal-light"];
 
-  const linksHtml = profile.links
-    .filter((l) => l.enabled !== false)
-    .map(
-      (l) =>
-        `<a href="${escapeHtml(l.url)}" target="_blank" rel="noopener noreferrer" class="link" data-idx="${profile.links.indexOf(l)}">${escapeHtml(l.title)}</a>`
-    )
+  // Migrate legacy socialLinks into links array if present
+  const allLinks = [...(profile.links || [])];
+  if ((profile as any).socialLinks?.length) {
+    for (const s of (profile as any).socialLinks) {
+      allLinks.push({ title: s.platform, url: s.url, platform: s.platform, enabled: true });
+    }
+  }
+
+  const regularLinks = allLinks.filter((l) => l.enabled !== false && !l.platform);
+  const socialLinks = allLinks.filter((l) => l.enabled !== false && l.platform);
+
+  const linksHtml = regularLinks
+    .map((l) => {
+      const idx = allLinks.indexOf(l);
+      const hasDesc = l.description && l.description.trim();
+      return `<div class="link-wrapper">
+        <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener noreferrer" class="link" data-idx="${idx}">${escapeHtml(l.title)}</a>
+        ${hasDesc ? `<button class="link-desc-toggle" data-desc="${idx}" aria-label="More info">&#9662;</button>
+        <div class="link-desc" id="desc-${idx}">${escapeHtml(l.description!)}</div>` : ""}
+      </div>`;
+    })
     .join("\n      ");
 
-  const socialsHtml = profile.socialLinks
+  const socialsHtml = socialLinks
     .map(
       (s) =>
-        `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener noreferrer" class="social" title="${escapeHtml(s.platform)}">${socialIcon(s.platform) || escapeHtml(s.platform)}</a>`
+        `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener noreferrer" class="social" title="${escapeHtml(s.platform!)}">${socialIcon(s.platform!) || escapeHtml(s.title)}</a>`
     )
     .join("\n        ");
 
@@ -69,13 +84,31 @@ export function renderProfilePage(profile: Profile): string {
     }
     h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
     .bio { opacity: 0.8; margin-bottom: 1.5rem; font-size: 0.95rem; line-height: 1.4; }
+    .link-wrapper { position: relative; margin-bottom: 0.75rem; }
     .link {
-      display: block; padding: 0.875rem 1.25rem; margin-bottom: 0.75rem;
+      display: block; padding: 0.875rem 1.25rem;
       background: ${t.accent}; color: ${t.link}; text-decoration: none;
       border-radius: 8px; font-weight: 500; font-size: 1rem;
       transition: opacity 0.15s;
     }
     .link:hover { opacity: 0.85; }
+    .link-desc-toggle {
+      position: absolute; right: 0.5rem; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; color: ${t.link}; cursor: pointer;
+      font-size: 0.75rem; padding: 0.25rem 0.5rem;
+      opacity: 0.7; transition: transform 0.2s, opacity 0.15s;
+      z-index: 1;
+    }
+    .link-desc-toggle:hover { opacity: 1; }
+    .link-desc-toggle.expanded { transform: translateY(-50%) rotate(180deg); }
+    .link-desc {
+      display: none; padding: 0.625rem 1rem; margin-top: 0.25rem;
+      background: ${t.card}; border-radius: 6px;
+      font-size: 0.85rem; text-align: left; line-height: 1.5;
+      opacity: 0.9;
+    }
+    .link-desc.open { display: block; }
     .socials { display: flex; justify-content: center; gap: 1rem; margin-top: 1.5rem; }
     .social { color: ${t.text}; opacity: 0.7; transition: opacity 0.15s; }
     .social:hover { opacity: 1; }
@@ -105,6 +138,16 @@ export function renderProfilePage(profile: Profile): string {
             timestamp: new Date().toISOString()
           }));
         }
+      });
+    });
+    document.querySelectorAll('.link-desc-toggle').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var idx = btn.getAttribute('data-desc');
+        var desc = document.getElementById('desc-' + idx);
+        var isOpen = desc.classList.contains('open');
+        desc.classList.toggle('open', !isOpen);
+        btn.classList.toggle('expanded', !isOpen);
       });
     });
   </script>

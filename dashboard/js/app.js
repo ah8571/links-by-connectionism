@@ -211,16 +211,26 @@ let usernameAvailable = false;
 
 function renderEditor() {
   const isNewUser = !currentUser;
-  const profile = currentUser || { displayName: "", bio: "", avatarUrl: "", theme: "minimal-dark", links: [], socialLinks: [] };
+  const profile = currentUser || { displayName: "", bio: "", avatarUrl: "", theme: "minimal-dark", links: [] };
   const publicUrl = currentUser ? `${PUBLIC_BASE.replace("http://127.0.0.1:8787", "cnxt.to")}/${profile.username}` : null;
   const displayUrl = currentUser ? `cnxt.to/${profile.username}` : null;
 
-  const linksHtml = (profile.links || []).map((link, i) => `
+  const PLATFORM_LABELS = { twitter: "Twitter / X", instagram: "Instagram", youtube: "YouTube", tiktok: "TikTok", github: "GitHub", linkedin: "LinkedIn" };
+
+  const linksHtml = (profile.links || []).map((link, i) => {
+    const isFirst = i === 0;
+    const isLast = i === (profile.links.length - 1);
+    const platformLabel = link.platform ? (PLATFORM_LABELS[link.platform] || link.platform) : "";
+    return `
     <div class="link-item-wrapper" data-index="${i}">
       <div class="link-item">
+        <div class="link-reorder">
+          <button class="reorder-btn" data-move-up="${i}" ${isFirst ? "disabled" : ""} title="Move up">&#9650;</button>
+          <button class="reorder-btn" data-move-down="${i}" ${isLast ? "disabled" : ""} title="Move down">&#9660;</button>
+        </div>
         <button class="link-chevron" data-expand="${i}" title="Edit link">&#9662;</button>
         <div class="link-item-content">
-          <div class="link-item-title">${escapeHtml(link.title)}</div>
+          <div class="link-item-title">${escapeHtml(link.title)}${platformLabel ? ` <span class="link-platform-badge">${escapeHtml(platformLabel)}</span>` : ""}</div>
           <div class="link-item-url">${escapeHtml(link.url)}</div>
         </div>
         <label class="toggle">
@@ -232,9 +242,19 @@ function renderEditor() {
       <div class="link-edit-panel" id="link-edit-${i}" style="display:none;">
         <input type="text" class="form-input" data-edit-title="${i}" value="${escapeAttr(link.title)}" placeholder="Link title" maxlength="100">
         <input type="url" class="form-input" data-edit-url="${i}" value="${escapeAttr(link.url)}" placeholder="https://...">
+        <textarea class="form-input" data-edit-desc="${i}" placeholder="Description (optional — shown as expandable on your page)" maxlength="500" rows="2" style="resize:vertical;min-height:50px;">${escapeHtml(link.description || "")}</textarea>
+        <select class="form-select" data-edit-platform="${i}">
+          <option value="">No platform (regular link)</option>
+          <option value="twitter" ${link.platform === "twitter" ? "selected" : ""}>Twitter / X</option>
+          <option value="instagram" ${link.platform === "instagram" ? "selected" : ""}>Instagram</option>
+          <option value="youtube" ${link.platform === "youtube" ? "selected" : ""}>YouTube</option>
+          <option value="tiktok" ${link.platform === "tiktok" ? "selected" : ""}>TikTok</option>
+          <option value="github" ${link.platform === "github" ? "selected" : ""}>GitHub</option>
+          <option value="linkedin" ${link.platform === "linkedin" ? "selected" : ""}>LinkedIn</option>
+        </select>
       </div>
     </div>
-  `).join("");
+  `}).join("");
 
   return `
     <header class="header">
@@ -314,26 +334,9 @@ function renderEditor() {
         <div class="form-group" style="margin-bottom:0.5rem;">
           <input type="url" class="form-input" id="new-link-url" placeholder="https://...">
         </div>
-        <button class="btn btn-secondary btn-sm" id="add-link-btn">+ Add Link</button>
-      </div>
-
-      <!-- Social Links -->
-      <p class="section-title">Social Profiles</p>
-      <div id="socials-list" style="margin-bottom:0.75rem;">
-        ${(profile.socialLinks || []).map((s, i) => `
-          <div class="link-item" style="margin-bottom:0.5rem;">
-            <div class="link-item-content">
-              <div class="link-item-title">${escapeHtml(s.platform)}</div>
-              <div class="link-item-url">${escapeHtml(s.url)}</div>
-            </div>
-            <button class="btn btn-danger btn-sm" data-delete-social="${i}">✕</button>
-          </div>
-        `).join("")}
-      </div>
-      <div class="card" style="margin-bottom:1.5rem;">
         <div class="form-group" style="margin-bottom:0.5rem;">
-          <select class="form-select" id="new-social-platform">
-            <option value="">Select platform...</option>
+          <select class="form-select" id="new-link-platform">
+            <option value="">Regular link</option>
             <option value="twitter">Twitter / X</option>
             <option value="instagram">Instagram</option>
             <option value="youtube">YouTube</option>
@@ -342,10 +345,7 @@ function renderEditor() {
             <option value="linkedin">LinkedIn</option>
           </select>
         </div>
-        <div class="form-group" style="margin-bottom:0.5rem;">
-          <input type="url" class="form-input" id="new-social-url" placeholder="https://...">
-        </div>
-        <button class="btn btn-secondary btn-sm" id="add-social-btn">+ Add Social</button>
+        <button class="btn btn-secondary btn-sm" id="add-link-btn">+ Add Link</button>
       </div>
 
       <!-- Save -->
@@ -473,7 +473,10 @@ function bindEditor() {
       // Update the displayed title
       const wrapper = el.closest(".link-item-wrapper");
       const titleEl = wrapper.querySelector(".link-item-title");
-      if (titleEl) titleEl.textContent = el.value;
+      if (titleEl) {
+        const badge = currentUser.links[i].platform ? ` <span class="link-platform-badge">${escapeHtml({"twitter":"Twitter / X","instagram":"Instagram","youtube":"YouTube","tiktok":"TikTok","github":"GitHub","linkedin":"LinkedIn"}[currentUser.links[i].platform] || currentUser.links[i].platform)}</span>` : "";
+        titleEl.innerHTML = escapeHtml(el.value) + badge;
+      }
     });
   });
   document.querySelectorAll("[data-edit-url]").forEach((el) => {
@@ -485,6 +488,58 @@ function bindEditor() {
       const wrapper = el.closest(".link-item-wrapper");
       const urlEl = wrapper.querySelector(".link-item-url");
       if (urlEl) urlEl.textContent = el.value;
+    });
+  });
+
+  // Inline edit description
+  document.querySelectorAll("[data-edit-desc]").forEach((el) => {
+    el.addEventListener("input", () => {
+      if (!currentUser) return;
+      const i = parseInt(el.dataset.editDesc);
+      currentUser.links[i].description = el.value || undefined;
+    });
+  });
+
+  // Inline edit platform
+  document.querySelectorAll("[data-edit-platform]").forEach((el) => {
+    el.addEventListener("change", () => {
+      if (!currentUser) return;
+      const i = parseInt(el.dataset.editPlatform);
+      const val = el.value || undefined;
+      currentUser.links[i].platform = val;
+      // If platform selected and title was empty or was old platform name, auto-fill
+      const labels = {"twitter":"Twitter / X","instagram":"Instagram","youtube":"YouTube","tiktok":"TikTok","github":"GitHub","linkedin":"LinkedIn"};
+      const titleInput = document.querySelector(`[data-edit-title="${i}"]`);
+      const oldTitle = currentUser.links[i].title;
+      const oldLabels = Object.values(labels);
+      if (val && (!oldTitle || oldLabels.includes(oldTitle))) {
+        const newTitle = labels[val] || val;
+        currentUser.links[i].title = newTitle;
+        if (titleInput) titleInput.value = newTitle;
+      }
+      render(); // re-render to update badge
+    });
+  });
+
+  // Reorder links
+  document.querySelectorAll("[data-move-up]").forEach((el) => {
+    el.addEventListener("click", () => {
+      if (!currentUser) return;
+      const i = parseInt(el.dataset.moveUp);
+      if (i < 1) return;
+      const links = currentUser.links;
+      [links[i - 1], links[i]] = [links[i], links[i - 1]];
+      render();
+    });
+  });
+  document.querySelectorAll("[data-move-down]").forEach((el) => {
+    el.addEventListener("click", () => {
+      if (!currentUser) return;
+      const i = parseInt(el.dataset.moveDown);
+      if (i >= currentUser.links.length - 1) return;
+      const links = currentUser.links;
+      [links[i], links[i + 1]] = [links[i + 1], links[i]];
+      render();
     });
   });
 
@@ -507,39 +562,22 @@ function bindEditor() {
     });
   });
 
-  // Delete social
-  document.querySelectorAll("[data-delete-social]").forEach((el) => {
-    el.addEventListener("click", () => {
-      if (!currentUser) return;
-      const i = parseInt(el.dataset.deleteSocial);
-      currentUser.socialLinks.splice(i, 1);
-      render();
-    });
-  });
-
   // Add link (works for both new and existing users)
   document.getElementById("add-link-btn").addEventListener("click", () => {
     const title = document.getElementById("new-link-title").value.trim();
     const url = document.getElementById("new-link-url").value.trim();
-    if (!title || !url) return;
+    const platform = document.getElementById("new-link-platform").value || undefined;
+    if (!url) return;
+    const labels = {"twitter":"Twitter / X","instagram":"Instagram","youtube":"YouTube","tiktok":"TikTok","github":"GitHub","linkedin":"LinkedIn"};
+    const finalTitle = title || (platform ? (labels[platform] || platform) : "");
+    if (!finalTitle) return;
     if (!currentUser) {
-      currentUser = { displayName: "", bio: "", avatarUrl: "", theme: "minimal-dark", links: [], socialLinks: [] };
+      currentUser = { displayName: "", bio: "", avatarUrl: "", theme: "minimal-dark", links: [] };
     }
     currentUser.links = currentUser.links || [];
-    currentUser.links.push({ title, url, enabled: true });
-    render();
-  });
-
-  // Add social (works for both new and existing users)
-  document.getElementById("add-social-btn").addEventListener("click", () => {
-    const platform = document.getElementById("new-social-platform").value;
-    const url = document.getElementById("new-social-url").value.trim();
-    if (!platform || !url) return;
-    if (!currentUser) {
-      currentUser = { displayName: "", bio: "", avatarUrl: "", theme: "minimal-dark", links: [], socialLinks: [] };
-    }
-    currentUser.socialLinks = currentUser.socialLinks || [];
-    currentUser.socialLinks.push({ platform, url });
+    const newLink = { title: finalTitle, url, enabled: true };
+    if (platform) newLink.platform = platform;
+    currentUser.links.push(newLink);
     render();
   });
 
@@ -610,9 +648,8 @@ async function handleCreate() {
   btn.disabled = true;
   btn.textContent = "Creating...";
 
-  // Gather links/socials that may have been added before creating
+  // Gather links that may have been added before creating
   const links = currentUser?.links || [];
-  const socialLinks = currentUser?.socialLinks || [];
 
   try {
     const now = new Date().toISOString();
@@ -623,7 +660,6 @@ async function handleCreate() {
       avatarUrl: currentUser?.avatarUrl || undefined,
       theme,
       links,
-      socialLinks,
       createdAt: now,
       updatedAt: now,
     });
@@ -667,6 +703,14 @@ async function handleSave() {
 async function loadProfile(username) {
   try {
     const profile = await apiGet(`/api/profile/${username}`);
+    // Migrate legacy socialLinks into unified links array
+    if (profile.socialLinks && profile.socialLinks.length) {
+      profile.links = profile.links || [];
+      for (const s of profile.socialLinks) {
+        profile.links.push({ title: s.platform, url: s.url, platform: s.platform, enabled: true });
+      }
+      delete profile.socialLinks;
+    }
     currentUser = profile;
     navigate("editor");
   } catch (err) {

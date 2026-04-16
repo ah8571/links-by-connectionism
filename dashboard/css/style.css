@@ -88,6 +88,16 @@ a:hover { color: var(--accent-hover); }
   padding: 0.75rem 1rem;
 }
 .link-item:hover { }
+.link-reorder {
+  display: flex; flex-direction: column; gap: 2px; flex-shrink: 0;
+}
+.reorder-btn {
+  background: none; border: none; color: var(--text-muted); cursor: pointer;
+  font-size: 0.6rem; padding: 0.1rem 0.3rem; line-height: 1;
+  transition: color 0.15s;
+}
+.reorder-btn:hover:not(:disabled) { color: var(--accent); }
+.reorder-btn:disabled { opacity: 0.25; cursor: not-allowed; }
 .link-chevron {
   background: none; border: none; color: var(--text-muted); cursor: pointer;
   font-size: 0.9rem; padding: 0.25rem; transition: transform 0.2s;
@@ -103,6 +113,12 @@ a:hover { color: var(--accent-hover); }
 .link-item-title { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .link-item-url { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .link-item-actions { display: flex; gap: 0.375rem; flex-shrink: 0; }
+.link-platform-badge {
+  display: inline-block; font-size: 0.65rem; font-weight: 600;
+  background: var(--accent); color: white; padding: 0.1rem 0.4rem;
+  border-radius: 4px; margin-left: 0.4rem; vertical-align: middle;
+  text-transform: uppercase; letter-spacing: 0.03em;
+}
 
 /* --- Toggle Switch --- */
 .toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
