@@ -1,6 +1,13 @@
 name = "links-by-cnxt"
 main = "src/index.ts"
 compatibility_date = "2024-12-01"
+workers_dev = true
+
+# Custom domains — cnxt.to is the root, links.cnxt.to for the link-in-bio app
+routes = [
+  { pattern = "links.cnxt.to/*", zone_name = "cnxt.to" },
+  { pattern = "cnxt.to/*", zone_name = "cnxt.to" }
+]
 
 # R2 bucket for storing creator profile JSON files
 [[r2_buckets]]
