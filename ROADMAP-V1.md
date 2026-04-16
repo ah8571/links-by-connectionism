@@ -5,11 +5,46 @@
 
 ---
 
+## URL Architecture
+
+### Public URLs (what creators share in bios)
+
+| URL | Behavior |
+|---|---|
+| `cnxt.to/username` | Creator's **default view** — shows links page in V1. Later, creators can set this to contractor profile, hub page, etc. via `defaultView` preference. |
+| `cnxt.to/username/links` | Always shows the links page explicitly |
+| `cnxt.to/username/about` | (Future) Contractor profile |
+| `cnxt.to/username/portfolio` | (Future) Portfolio page |
+
+### App URLs (where creators edit)
+
+| URL | What it is |
+|---|---|
+| `links.cnxt.to` | Standalone links editor/dashboard (Cloudflare Pages SPA) |
+| `hire.cnxt.to` | (Future) Contractor profile editor |
+| `app.cnxt.to` | (Future) Unified dashboard if needed |
+
+### Why this structure works
+
+- `cnxt.to/jd` is **10 characters** — shorter than `linktr.ee/jd`. No wasted URL real estate.
+- `cnxt.to/jd/links` reads like a sentence — permanent, explicit URL that works even when default view changes.
+- **Editor is separate** from public pages — `links.cnxt.to` is its own deploy with its own release cycle. The public Worker on `cnxt.to` stays lean.
+- **Adding future products = adding paths** — `cnxt.to/jd/about`, `cnxt.to/jd/portfolio`, etc. The `cnxt.to` Worker is a lightweight router.
+
+### Technical mapping
+
+| Domain | Infrastructure | Purpose |
+|---|---|---|
+| `cnxt.to/*` | Cloudflare Worker | Public page rendering + API |
+| `links.cnxt.to` | Cloudflare Pages (SPA) | Links editor/dashboard |
+
+---
+
 ## Architecture Summary
 
 ```
-Creator edits profile → Tiny API (Worker) → Writes JSON to R2
-Visitor hits yourapp.com/username → Worker fetches JSON from R2 → Renders page (or serves pre-rendered HTML from CDN)
+Creator edits profile → links.cnxt.to (SPA) → API on cnxt.to → Writes JSON to R2
+Visitor hits cnxt.to/username → Worker fetches JSON from R2 → Renders page instantly
 Click events → Batched writes to KV → Simple analytics
 ```
 
@@ -19,18 +54,19 @@ Each creator = **one JSON file** in R2. No database required for V1.
 
 ## Phase 0: Project Scaffolding
 
-- [ ] Initialize monorepo structure (`/packages/worker`, `/packages/dashboard`, `/packages/shared`)
-- [ ] Set up TypeScript + Wrangler (Cloudflare Workers CLI)
-- [ ] Configure R2 bucket (`cnxt-profiles`) via `wrangler.toml`
-- [ ] Configure KV namespace (`cnxt-analytics`) via `wrangler.toml`
-- [ ] Set up local dev environment (`wrangler dev`)
-- [ ] Define the creator JSON schema (`/packages/shared/schema.ts`)
+- [x] Set up TypeScript + Wrangler (Cloudflare Workers CLI)
+- [x] Configure R2 bucket (`cnxt-profiles`) via `wrangler.toml`
+- [x] Configure KV namespace (`cnxt-analytics`) via `wrangler.toml`
+- [x] Set up local dev environment (`wrangler dev`)
+- [x] Define the creator JSON schema (`src/schema.ts`)
+- [x] Deploy Worker to Cloudflare
+- [x] Configure `cnxt.to` and `links.cnxt.to` custom domain routes
 
 ---
 
 ## Phase 1: Creator JSON Schema & Storage
 
-- [ ] Design V1 creator profile JSON schema:
+- [x] Design V1 creator profile JSON schema (Zod-validated):
   - `username` (slug, unique)
   - `displayName`
   - `bio`
@@ -39,27 +75,29 @@ Each creator = **one JSON file** in R2. No database required for V1.
   - `links[]` — array of `{ title, url, icon?, enabled }`
   - `socialLinks[]` — array of `{ platform, url }`
   - `createdAt`, `updatedAt`
-- [ ] Write R2 helper: `putProfile(username, json)` → writes `profiles/{username}.json` to R2
-- [ ] Write R2 helper: `getProfile(username)` → reads JSON from R2
-- [ ] Add JSON schema validation (lightweight — Zod or manual)
+- [ ] Add `defaultView` field to schema (controls what `cnxt.to/username` displays)
+- [x] Write R2 helper: `putProfile(username, json)` → writes `profiles/{username}.json` to R2
+- [x] Write R2 helper: `getProfile(username)` → reads JSON from R2
+- [x] Add JSON schema validation (Zod)
 - [ ] Write integration test: round-trip write/read of a profile
 
 ---
 
 ## Phase 2: Public Page Rendering (the core product)
 
-- [ ] Create Worker route: `GET /:username`
-- [ ] Worker logic: fetch `profiles/{username}.json` from R2 → render HTML
-- [ ] Build server-side HTML renderer (plain string templates — no framework needed)
-- [ ] Design 2–3 minimal themes (HTML + inline CSS, no JS required):
+- [x] Create Worker route: `GET /:username`
+- [ ] Add Worker route: `GET /:username/links` (explicit links path)
+- [x] Worker logic: fetch `profiles/{username}.json` from R2 → render HTML
+- [x] Build server-side HTML renderer (plain string templates — no framework needed)
+- [x] Design 2–3 minimal themes (HTML + inline CSS, no JS required):
   - `minimal-light`
   - `minimal-dark`
   - `bold`
-- [ ] Render social icons (inline SVGs for Twitter/X, Instagram, TikTok, YouTube, GitHub, etc.)
-- [ ] Add `<meta>` tags for SEO + Open Graph (title, description, image)
-- [ ] Handle 404 for unknown usernames
-- [ ] Add `Cache-Control` headers (CDN caching, e.g. `s-maxage=60`)
-- [ ] Test: verify page renders correctly from a fresh profile JSON
+- [x] Render social icons (inline SVGs for Twitter/X, Instagram, TikTok, YouTube, GitHub, etc.)
+- [x] Add `<meta>` tags for SEO + Open Graph (title, description, image)
+- [x] Handle 404 for unknown usernames
+- [x] Add `Cache-Control` headers (CDN caching, e.g. `s-maxage=60`)
+- [x] Test: verify page renders correctly from a fresh profile JSON
 
 ### Stretch: Static Pre-rendering (zero compute at runtime)
 - [ ] On profile save, generate static HTML and write to R2 alongside the JSON
@@ -70,15 +108,15 @@ Each creator = **one JSON file** in R2. No database required for V1.
 
 ## Phase 3: Tiny Profile API (edit profiles)
 
-- [ ] Create Worker route: `POST /api/profile` — create profile
-- [ ] Create Worker route: `PUT /api/profile/:username` — update profile
-- [ ] Create Worker route: `GET /api/profile/:username` — get profile JSON (authenticated)
-- [ ] Input validation + sanitization on all writes (prevent XSS in links/bio)
-- [ ] Username validation: lowercase alphanumeric + hyphens, 3–30 chars
-- [ ] Username uniqueness check (check R2 key existence)
-- [ ] Reserve system slugs (`api`, `admin`, `dashboard`, `login`, `settings`, etc.)
+- [x] Create Worker route: `POST /api/profile` — create profile
+- [x] Create Worker route: `PUT /api/profile/:username` — update profile
+- [x] Create Worker route: `GET /api/profile/:username` — get profile JSON (authenticated)
+- [x] Input validation + sanitization on all writes (prevent XSS in links/bio)
+- [x] Username validation: lowercase alphanumeric + hyphens, 3–30 chars
+- [x] Username uniqueness check (check R2 key existence)
+- [x] Reserve system slugs (`api`, `admin`, `dashboard`, `login`, `settings`, etc.)
 - [ ] Rate limiting on write endpoints (Cloudflare rate limiting or simple KV counter)
-- [ ] CORS configuration for dashboard origin
+- [ ] CORS configuration for `links.cnxt.to` dashboard origin
 
 ---
 
@@ -96,11 +134,13 @@ Each creator = **one JSON file** in R2. No database required for V1.
 
 ---
 
-## Phase 5: Creator Dashboard (frontend)
+## Phase 5: Creator Dashboard at `links.cnxt.to` (frontend)
 
 - [ ] Scaffold lightweight SPA (Preact, Solid, or plain vanilla JS — keep bundle tiny)
-- [ ] Host on Cloudflare Pages (`dashboard.yourdomain.com` or `/dashboard` path)
+- [ ] Host on Cloudflare Pages at `links.cnxt.to`
+- [ ] **Landing page**: explain what Links by cnxt is, "claim your link" CTA, open source pitch
 - [ ] Login / magic link request screen
+- [ ] **Signup flow**: claim a username → create profile → redirect to editor
 - [ ] Profile editor:
   - Display name, bio, avatar URL
   - Add / remove / reorder links (drag-and-drop optional in V1)
@@ -109,6 +149,7 @@ Each creator = **one JSON file** in R2. No database required for V1.
   - Theme selector (visual preview)
 - [ ] Live preview panel (shows what the public page looks like)
 - [ ] Save button → calls `PUT /api/profile/:username`
+- [ ] Show creator's public URL: `cnxt.to/username` (with copy button)
 - [ ] Basic form validation + error handling
 - [ ] Mobile-responsive layout
 
@@ -116,13 +157,12 @@ Each creator = **one JSON file** in R2. No database required for V1.
 
 ## Phase 6: Analytics (cheap & simple)
 
-- [ ] Create Worker route: `POST /api/event` — log a click event
-- [ ] Event payload: `{ username, linkIndex, timestamp }`
-- [ ] **Option A (V1 recommended):** Batch writes to KV
-  - Key: `analytics:{username}:{date}` → value: `{ totalViews, clicks: { [linkIndex]: count } }`
+- [x] Create Worker route: `POST /api/event` — log a click event
+- [x] Event payload: `{ username, linkIndex, timestamp }`
+- [x] **Option A (V1 recommended):** Batch writes to KV
   - Increment counters atomically (read-modify-write with KV)
-- [ ] Add a tiny inline `<script>` to public pages: on link click, fire `POST /api/event` (or `navigator.sendBeacon`)
-- [ ] Track page views: fire event on page load
+- [x] Add a tiny inline `<script>` to public pages: on link click, fire `POST /api/event` (via `navigator.sendBeacon`)
+- [x] Track page views: fire event on page load
 - [ ] Dashboard: simple analytics view (views + clicks per link, last 7/30 days)
 - [ ] Rate limit event endpoint to prevent abuse
 
@@ -184,13 +224,13 @@ Each creator = **one JSON file** in R2. No database required for V1.
 
 ## Suggested Build Order (shortest path to demo)
 
-1. **Phase 0** → scaffolding
-2. **Phase 1** → JSON schema + R2 read/write
-3. **Phase 2** → public page rendering ← *this is your "show it off" moment*
-4. **Phase 3** → API for editing
-5. **Phase 4** → auth
-6. **Phase 5** → dashboard
-7. **Phase 6** → analytics
+1. ~~**Phase 0** → scaffolding~~ ✅
+2. ~~**Phase 1** → JSON schema + R2 read/write~~ ✅
+3. ~~**Phase 2** → public page rendering~~ ✅ (live at `links-by-cnxt.workers.dev`)
+4. ~~**Phase 3** → API for editing~~ ✅ (profile CRUD working)
+5. **Phase 5** → dashboard at `links.cnxt.to` ← **we are here**
+6. **Phase 4** → auth (magic links)
+7. **Phase 6** → analytics dashboard
 8. **Phase 7–8** → custom domains + polish
 
-After Phase 2, you have a working public demo. After Phase 5, you have a usable product.
+After Phase 5, creators can sign up, build their page, and share `cnxt.to/username`.

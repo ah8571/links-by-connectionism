@@ -18,8 +18,9 @@ export default {
     }
 
     // --- Public profile page ---
-    // /:username
-    const usernameMatch = path.match(/^\/([a-z0-9-]{3,30})$/);
+    // /:username or /:username/links
+    const linksMatch = path.match(/^\/([a-z0-9-]{3,30})\/links$/);
+    const usernameMatch = linksMatch || path.match(/^\/([a-z0-9-]{3,30})$/);
     if (usernameMatch && request.method === "GET") {
       const username = usernameMatch[1];
 
@@ -62,8 +63,11 @@ async function handleApi(
   env: Env,
   path: string
 ): Promise<Response> {
+  const allowedOrigins = ["https://links.cnxt.to", "https://links-cnxt-dashboard.pages.dev", "http://localhost:5173", "http://localhost:3000"];
+  const origin = request.headers.get("Origin") ?? "";
+  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
   const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Origin": corsOrigin,
     "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };

@@ -1,0 +1,4 @@
+/* Cloudflare Pages SPA routing: all paths serve index.html */
+/*  /editor    200
+/*  /signup    200
+/*  /*         /index.html   200
