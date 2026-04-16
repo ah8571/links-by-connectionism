@@ -5,6 +5,7 @@ import {
   createMagicLink,
   verifyMagicToken,
   validateSession,
+  updateSessionUsername,
   setEmailMapping,
   getUsernameByEmail,
   sendMagicEmail,
@@ -264,8 +265,9 @@ async function handleApi(
       const profile = { ...parsed, createdAt: now, updatedAt: now };
       await putProfile(env.PROFILES, profile);
 
-      // Store email→username mapping
+      // Store email→username mapping + update session with new username
       await setEmailMapping(env.ANALYTICS, session.email, parsed.username);
+      await updateSessionUsername(env.ANALYTICS, request.headers.get("Authorization"), parsed.username);
 
       // Strip email from response
       const { email: _email, ...publicProfile } = profile;

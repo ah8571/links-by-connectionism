@@ -69,6 +69,23 @@ export async function validateSession(
   return data;
 }
 
+/** Update a session token in KV with a new username (e.g. after profile creation) */
+export async function updateSessionUsername(
+  kv: KVNamespace,
+  authHeader: string | null,
+  username: string
+): Promise<void> {
+  if (!authHeader?.startsWith("Bearer ")) return;
+  const token = authHeader.slice(7);
+  const raw = await kv.get(`session:${token}`);
+  if (!raw) return;
+  const data = JSON.parse(raw) as { username: string | null; email: string };
+  data.username = username;
+  await kv.put(`session:${token}`, JSON.stringify(data), {
+    expirationTtl: 60 * 60 * 24 * 30,
+  });
+}
+
 /** Store an email→username mapping for login lookups */
 export async function setEmailMapping(
   kv: KVNamespace,
