@@ -6,18 +6,16 @@ const API_BASE = location.hostname === "localhost" || location.hostname === "127
 const PUBLIC_BASE = API_BASE.replace("http://127.0.0.1:8787", "http://127.0.0.1:8787");
 
 // --- State ---
-let currentUser = null; // { username, ...profile }
+let currentUser = null; // { username, ...profile } or null
 let sessionToken = localStorage.getItem("cnxt_session") || null;
-let pendingEmail = null; // email captured from landing page, carried to signup
-let signupMagicUrl = null; // dev-mode magic link shown after signup
-let justSignedUp = false; // flag to show welcome banner in editor
+let sessionEmail = null; // email from verified session (for new users)
 let currentView = "landing";
 
 // --- Router ---
 function navigate(view, pushState = true) {
   currentView = view;
   if (pushState) {
-    const paths = { landing: "/", editor: "/editor", signup: "/signup" };
+    const paths = { landing: "/", editor: "/editor", "magic-sent": "/magic-sent" };
     history.pushState(null, "", paths[view] || "/");
   }
   render();
@@ -26,7 +24,7 @@ function navigate(view, pushState = true) {
 window.addEventListener("popstate", () => {
   const path = location.pathname;
   if (path === "/editor") navigate("editor", false);
-  else if (path === "/signup") navigate("signup", false);
+  else if (path === "/magic-sent") navigate("magic-sent", false);
   else navigate("landing", false);
 });
 
@@ -72,11 +70,10 @@ async function apiPut(path, data) {
 function render() {
   const app = document.getElementById("app");
   switch (currentView) {
-    case "landing":  app.innerHTML = renderLanding(); bindLanding(); break;
-    case "signup":   app.innerHTML = renderSignup(); bindSignup(); break;
+    case "landing":    app.innerHTML = renderLanding(); bindLanding(); break;
     case "magic-sent": app.innerHTML = renderMagicSent(); bindMagicSent(); break;
-    case "editor":   app.innerHTML = renderEditor(); bindEditor(); break;
-    default:         app.innerHTML = renderLanding(); bindLanding();
+    case "editor":     app.innerHTML = renderEditor(); bindEditor(); break;
+    default:           app.innerHTML = renderLanding(); bindLanding();
   }
 }
 
@@ -91,7 +88,16 @@ async function handleVerifyOnLoad() {
     if (result.sessionToken) {
       sessionToken = result.sessionToken;
       localStorage.setItem("cnxt_session", sessionToken);
-      await loadProfile(result.username);
+
+      if (result.needsSetup) {
+        // New user — go straight to editor in setup mode
+        sessionEmail = result.email;
+        currentUser = null;
+        navigate("editor");
+      } else {
+        // Existing user — load their profile
+        await loadProfile(result.username);
+      }
       return;
     }
   } catch (err) {
@@ -108,7 +114,7 @@ function renderLanding() {
     <header class="header">
       <div class="header-logo"><span style="color:var(--accent)">cnxt to</span> links</div>
       <nav class="header-nav">
-        <a href="https://github.com/ah8571/links-by-connectionism" target="_blank" class="btn btn-secondary btn-sm">GitHub</a>
+        <a href="https://github.com/ah8571/cnxt-to-links" target="_blank" class="btn btn-secondary btn-sm">GitHub</a>
       </nav>
     </header>
     <div class="container">
@@ -182,18 +188,13 @@ async function handleStart(input, errorEl, infoEl, btn) {
   try {
     const result = await apiPost("/api/auth/start", { email });
 
-    if (result.newUser) {
-      // New user — go to signup with email prefilled
-      pendingEmail = email;
-      navigate("signup");
-    } else {
-      // Existing user — magic link sent (or returned in dev mode)
-      if (result.magicUrl) {
-        infoEl.innerHTML = `Welcome back! <a href="${escapeHtml(result.magicUrl)}" style="color:var(--accent);">Click here to log in</a> <span style="font-size:0.8rem;">(dev mode)</span>`;
-      } else {
-        infoEl.textContent = "Welcome back! Check your email for a login link.";
-      }
+    if (result.magicUrl) {
+      // Dev mode — show clickable link
+      infoEl.innerHTML = `Check your email! <a href="${escapeHtml(result.magicUrl)}" style="color:var(--accent);">Click here to log in</a> <span style="font-size:0.8rem;">(dev mode)</span>`;
       infoEl.style.display = "block";
+    } else {
+      // Production — email sent, go to confirmation page
+      navigate("magic-sent");
     }
   } catch (err) {
     errorEl.textContent = err.message;
@@ -202,187 +203,6 @@ async function handleStart(input, errorEl, infoEl, btn) {
 
   btn.disabled = false;
   btn.textContent = "Get Started";
-}
-
-// ========================
-//  SIGNUP PAGE — username claim + profile setup
-// ========================
-function renderSignup() {
-  const email = pendingEmail || "";
-  return `
-    <header class="header">
-      <a href="/" class="header-logo" id="nav-home"><span style="color:var(--accent)">cnxt to</span> links</a>
-    </header>
-    <div class="container" style="max-width: 440px;">
-      <h2 style="margin-bottom: 0.5rem;">Create your page</h2>
-      <p style="color:var(--text-muted); margin-bottom: 1.5rem;">Signing up as <strong style="color:var(--text);">${escapeHtml(email)}</strong></p>
-
-      <div id="signup-error" class="alert alert-error" style="display:none;"></div>
-
-      <div class="form-group">
-        <label class="form-label">Choose your URL</label>
-        <div class="claim-form" style="margin-bottom:0;">
-          <div class="claim-prefix">cnxt.to/</div>
-          <input type="text" class="form-input" id="signup-username" placeholder="yourname" maxlength="30" pattern="[a-z0-9-]+" style="border-radius:0 var(--radius) var(--radius) 0;">
-        </div>
-        <p id="username-status" style="font-size:0.8rem; margin-top:0.35rem; min-height:1.2em;">&nbsp;</p>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Display Name</label>
-        <input type="text" class="form-input" id="signup-name" placeholder="Jane Doe" maxlength="100">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Bio (optional)</label>
-        <textarea class="form-textarea" id="signup-bio" placeholder="Designer & content creator" maxlength="500" rows="2"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Add your first link (optional)</label>
-        <input type="text" class="form-input" id="signup-link-title" placeholder="Link title" maxlength="100" style="margin-bottom:0.5rem;">
-        <input type="url" class="form-input" id="signup-link-url" placeholder="https://...">
-      </div>
-
-      <button class="btn btn-primary btn-block" id="signup-submit" style="margin-top:0.5rem;" disabled>Create My Page</button>
-    </div>
-  `;
-}
-
-let usernameCheckTimer = null;
-let lastCheckedUsername = "";
-
-function bindSignup() {
-  document.getElementById("nav-home").addEventListener("click", (e) => {
-    e.preventDefault();
-    navigate("landing");
-  });
-
-  const usernameInput = document.getElementById("signup-username");
-  const statusEl = document.getElementById("username-status");
-  const submitBtn = document.getElementById("signup-submit");
-
-  // Auto-lowercase and strip invalid chars + live availability check
-  usernameInput.addEventListener("input", () => {
-    usernameInput.value = usernameInput.value.toLowerCase().replace(/[^a-z0-9._-]/g, "");
-    const val = usernameInput.value;
-
-    if (val.length < 3) {
-      statusEl.textContent = val.length > 0 ? "Must be at least 3 characters" : " ";
-      statusEl.style.color = "var(--text-muted)";
-      submitBtn.disabled = true;
-      return;
-    }
-
-    statusEl.textContent = "Checking...";
-    statusEl.style.color = "var(--text-muted)";
-    submitBtn.disabled = true;
-
-    clearTimeout(usernameCheckTimer);
-    usernameCheckTimer = setTimeout(() => checkUsername(val, statusEl, submitBtn), 350);
-  });
-
-  submitBtn.addEventListener("click", handleSignup);
-}
-
-async function checkUsername(username, statusEl, submitBtn) {
-  if (username === lastCheckedUsername) return;
-  lastCheckedUsername = username;
-
-  try {
-    const res = await apiGet(`/api/username/check/${username}`);
-    // Make sure the input hasn't changed since we started
-    if (document.getElementById("signup-username").value !== username) return;
-
-    if (res.available) {
-      statusEl.textContent = "✓ cnxt.to/" + username + " is available!";
-      statusEl.style.color = "var(--success)";
-      submitBtn.disabled = false;
-    } else {
-      statusEl.textContent = res.reason === "reserved" ? "This name is reserved" : "Already taken";
-      statusEl.style.color = "var(--danger)";
-      submitBtn.disabled = true;
-    }
-  } catch {
-    statusEl.textContent = "Could not check availability";
-    statusEl.style.color = "var(--danger)";
-    submitBtn.disabled = true;
-  }
-}
-
-async function handleSignup() {
-  const errorEl = document.getElementById("signup-error");
-  const btn = document.getElementById("signup-submit");
-  errorEl.style.display = "none";
-  btn.disabled = true;
-  btn.textContent = "Creating...";
-
-  const username = document.getElementById("signup-username").value.trim();
-  const email = pendingEmail;
-  const displayName = document.getElementById("signup-name").value.trim();
-  const bio = document.getElementById("signup-bio").value.trim();
-  const linkTitle = document.getElementById("signup-link-title").value.trim();
-  const linkUrl = document.getElementById("signup-link-url").value.trim();
-
-  if (!username || username.length < 3) {
-    errorEl.textContent = "Please choose a username";
-    errorEl.style.display = "block";
-    btn.disabled = false;
-    btn.textContent = "Create My Page";
-    return;
-  }
-
-  if (!email) {
-    errorEl.textContent = "Missing email — please start over";
-    errorEl.style.display = "block";
-    btn.disabled = false;
-    btn.textContent = "Create My Page";
-    return;
-  }
-
-  if (!displayName) {
-    errorEl.textContent = "Display name is required";
-    errorEl.style.display = "block";
-    btn.disabled = false;
-    btn.textContent = "Create My Page";
-    return;
-  }
-
-  const links = [];
-  if (linkTitle && linkUrl) {
-    links.push({ title: linkTitle, url: linkUrl, enabled: true });
-  }
-
-  try {
-    const now = new Date().toISOString();
-    const result = await apiPost("/api/profile", {
-      username,
-      email,
-      displayName,
-      bio,
-      theme: "minimal-dark",
-      links,
-      socialLinks: [],
-      createdAt: now,
-      updatedAt: now,
-    });
-
-    // Store session token from signup response
-    if (result.sessionToken) {
-      sessionToken = result.sessionToken;
-      localStorage.setItem("cnxt_session", sessionToken);
-    }
-
-    // Capture magic link for the welcome banner
-    justSignedUp = true;
-    signupMagicUrl = result.magicUrl || null;
-
-    currentUser = result;
-    pendingEmail = null;
-    navigate("editor");
-  } catch (err) {
-    errorEl.textContent = err.message;
-    errorEl.style.display = "block";
-    btn.disabled = false;
-    btn.textContent = "Create My Page";
-  }
 }
 
 // ========================
@@ -412,14 +232,17 @@ function bindMagicSent() {
 }
 
 // ========================
-//  PROFILE EDITOR
+//  PROFILE EDITOR (handles both new + existing users)
 // ========================
-function renderEditor() {
-  if (!currentUser) return renderLanding();
+let usernameCheckTimer = null;
+let lastCheckedUsername = "";
+let usernameAvailable = false;
 
-  const profile = currentUser;
-  const publicUrl = `${PUBLIC_BASE.replace("http://127.0.0.1:8787", "cnxt.to")}/${profile.username}`;
-  const displayUrl = `cnxt.to/${profile.username}`;
+function renderEditor() {
+  const isNewUser = !currentUser;
+  const profile = currentUser || { displayName: "", bio: "", avatarUrl: "", theme: "minimal-dark", links: [], socialLinks: [] };
+  const publicUrl = currentUser ? `${PUBLIC_BASE.replace("http://127.0.0.1:8787", "cnxt.to")}/${profile.username}` : null;
+  const displayUrl = currentUser ? `cnxt.to/${profile.username}` : null;
 
   const linksHtml = (profile.links || []).map((link, i) => `
     <div class="link-item" data-index="${i}">
@@ -439,37 +262,44 @@ function renderEditor() {
     <header class="header">
       <a href="/" class="header-logo" id="nav-home"><span style="color:var(--accent)">cnxt to</span> links</a>
       <nav class="header-nav">
-        <a href="${publicUrl.startsWith("cnxt") ? "https://" + publicUrl : publicUrl}" target="_blank" class="btn btn-secondary btn-sm">View Page</a>
+        ${currentUser ? `<a href="${publicUrl.startsWith("cnxt") ? "https://" + publicUrl : publicUrl}" target="_blank" class="btn btn-secondary btn-sm">View Page</a>` : ""}
         <button class="btn btn-secondary btn-sm" id="logout-btn">Log out</button>
       </nav>
     </header>
     <div class="container">
-      <div class="url-bar">
-        <span class="url-bar-link">${escapeHtml(displayUrl)}</span>
-        <button class="btn btn-sm btn-secondary" id="copy-url">Copy</button>
-      </div>
+      ${isNewUser ? `
+        <h2 style="margin-bottom: 0.25rem;">Set up your page</h2>
+        <p style="color:var(--text-muted); margin-bottom: 1.5rem;">Choose a URL and fill in your details below.</p>
+      ` : `
+        <div class="url-bar">
+          <span class="url-bar-link">${escapeHtml(displayUrl)}</span>
+          <button class="btn btn-sm btn-secondary" id="copy-url">Copy</button>
+        </div>
+      `}
 
       <div id="save-status"></div>
 
-      ${justSignedUp ? `
-        <div class="alert alert-success" id="welcome-banner" style="margin-bottom:1.5rem;">
-          <strong>Your page is live!</strong> 🎉<br>
-          ${signupMagicUrl
-            ? `<span style="font-size:0.85rem;">Save this link to log back in later: <a href="${escapeHtml(signupMagicUrl)}" style="color:#166534; word-break:break-all;">${escapeHtml(signupMagicUrl)}</a></span><br><span style="font-size:0.8rem; opacity:0.7;">(Dev mode — once email is configured, this link will be emailed to you automatically.)</span>`
-            : `<span style="font-size:0.85rem;">We sent a login link to your email — save it to come back and edit anytime.</span>`
-          }
+      ${isNewUser ? `
+        <!-- Username claim (new users only) -->
+        <div class="form-group">
+          <label class="form-label">Choose your URL</label>
+          <div class="claim-form" style="margin-bottom:0;">
+            <div class="claim-prefix">cnxt.to/</div>
+            <input type="text" class="form-input" id="edit-username" placeholder="yourname" maxlength="30" style="border-radius:0 var(--radius) var(--radius) 0;">
+          </div>
+          <p id="username-status" style="font-size:0.8rem; margin-top:0.35rem; min-height:1.2em;">&nbsp;</p>
         </div>
-      ` : ''}
+      ` : ""}
 
       <!-- Profile Details -->
       <p class="section-title">Profile</p>
       <div class="form-group">
         <label class="form-label">Display Name</label>
-        <input type="text" class="form-input" id="edit-name" value="${escapeAttr(profile.displayName)}" maxlength="100">
+        <input type="text" class="form-input" id="edit-name" value="${escapeAttr(profile.displayName)}" maxlength="100" placeholder="Jane Doe">
       </div>
       <div class="form-group">
         <label class="form-label">Bio</label>
-        <textarea class="form-textarea" id="edit-bio" maxlength="500" rows="2">${escapeHtml(profile.bio || "")}</textarea>
+        <textarea class="form-textarea" id="edit-bio" maxlength="500" rows="2" placeholder="Designer & content creator">${escapeHtml(profile.bio || "")}</textarea>
       </div>
       <div class="form-group">
         <label class="form-label">Avatar URL</label>
@@ -532,7 +362,7 @@ function renderEditor() {
       </div>
 
       <!-- Save -->
-      <button class="btn btn-primary btn-block" id="save-btn" style="margin-bottom:2rem;">Save Changes</button>
+      <button class="btn btn-primary btn-block" id="save-btn" style="margin-bottom:2rem;">${isNewUser ? "Create My Page" : "Save Changes"}</button>
 
       <footer class="footer">
         <p>cnxt to links — open source, free forever</p>
@@ -542,38 +372,63 @@ function renderEditor() {
 }
 
 function bindEditor() {
-  if (!currentUser) return;
-
-  // Clear signup flags after rendering
-  justSignedUp = false;
-  signupMagicUrl = null;
+  const isNewUser = !currentUser;
 
   document.getElementById("nav-home").addEventListener("click", (e) => {
     e.preventDefault();
     navigate("landing");
   });
 
-  // Copy URL
-  document.getElementById("copy-url").addEventListener("click", () => {
-    const url = `https://cnxt.to/${currentUser.username}`;
-    navigator.clipboard.writeText(url).then(() => {
-      document.getElementById("copy-url").textContent = "Copied!";
-      setTimeout(() => { document.getElementById("copy-url").textContent = "Copy"; }, 2000);
+  // Copy URL (existing users only)
+  const copyBtn = document.getElementById("copy-url");
+  if (copyBtn) {
+    copyBtn.addEventListener("click", () => {
+      const url = `https://cnxt.to/${currentUser.username}`;
+      navigator.clipboard.writeText(url).then(() => {
+        copyBtn.textContent = "Copied!";
+        setTimeout(() => { copyBtn.textContent = "Copy"; }, 2000);
+      });
     });
-  });
+  }
+
+  // Username availability check (new users only)
+  const usernameInput = document.getElementById("edit-username");
+  if (usernameInput) {
+    usernameAvailable = false;
+    usernameInput.addEventListener("input", () => {
+      usernameInput.value = usernameInput.value.toLowerCase().replace(/[^a-z0-9._-]/g, "");
+      const val = usernameInput.value;
+      const statusEl = document.getElementById("username-status");
+
+      if (val.length < 3) {
+        statusEl.textContent = val.length > 0 ? "Must be at least 3 characters" : " ";
+        statusEl.style.color = "var(--text-muted)";
+        usernameAvailable = false;
+        return;
+      }
+
+      statusEl.textContent = "Checking...";
+      statusEl.style.color = "var(--text-muted)";
+      usernameAvailable = false;
+
+      clearTimeout(usernameCheckTimer);
+      usernameCheckTimer = setTimeout(() => checkUsername(val, statusEl), 350);
+    });
+  }
 
   // Theme selection
   document.querySelectorAll("[data-theme]").forEach((el) => {
     el.addEventListener("click", () => {
       document.querySelectorAll("[data-theme]").forEach((e) => e.classList.remove("active"));
       el.classList.add("active");
-      currentUser.theme = el.dataset.theme;
+      if (currentUser) currentUser.theme = el.dataset.theme;
     });
   });
 
   // Toggle link enabled
   document.querySelectorAll("[data-toggle]").forEach((el) => {
     el.addEventListener("change", () => {
+      if (!currentUser) return;
       const i = parseInt(el.dataset.toggle);
       currentUser.links[i].enabled = el.checked;
     });
@@ -582,6 +437,7 @@ function bindEditor() {
   // Delete link
   document.querySelectorAll("[data-delete]").forEach((el) => {
     el.addEventListener("click", () => {
+      if (!currentUser) return;
       const i = parseInt(el.dataset.delete);
       currentUser.links.splice(i, 1);
       render();
@@ -591,42 +447,135 @@ function bindEditor() {
   // Delete social
   document.querySelectorAll("[data-delete-social]").forEach((el) => {
     el.addEventListener("click", () => {
+      if (!currentUser) return;
       const i = parseInt(el.dataset.deleteSocial);
       currentUser.socialLinks.splice(i, 1);
       render();
     });
   });
 
-  // Add link
+  // Add link (works for both new and existing users)
   document.getElementById("add-link-btn").addEventListener("click", () => {
     const title = document.getElementById("new-link-title").value.trim();
     const url = document.getElementById("new-link-url").value.trim();
     if (!title || !url) return;
+    if (!currentUser) {
+      currentUser = { displayName: "", bio: "", avatarUrl: "", theme: "minimal-dark", links: [], socialLinks: [] };
+    }
     currentUser.links = currentUser.links || [];
     currentUser.links.push({ title, url, enabled: true });
     render();
   });
 
-  // Add social
+  // Add social (works for both new and existing users)
   document.getElementById("add-social-btn").addEventListener("click", () => {
     const platform = document.getElementById("new-social-platform").value;
     const url = document.getElementById("new-social-url").value.trim();
     if (!platform || !url) return;
+    if (!currentUser) {
+      currentUser = { displayName: "", bio: "", avatarUrl: "", theme: "minimal-dark", links: [], socialLinks: [] };
+    }
     currentUser.socialLinks = currentUser.socialLinks || [];
     currentUser.socialLinks.push({ platform, url });
     render();
   });
 
-  // Save
-  document.getElementById("save-btn").addEventListener("click", handleSave);
+  // Save / Create
+  document.getElementById("save-btn").addEventListener("click", isNewUser ? handleCreate : handleSave);
 
   // Logout
   document.getElementById("logout-btn").addEventListener("click", () => {
     sessionToken = null;
     currentUser = null;
+    sessionEmail = null;
     localStorage.removeItem("cnxt_session");
     navigate("landing");
   });
+}
+
+async function checkUsername(username, statusEl) {
+  if (username === lastCheckedUsername) return;
+  lastCheckedUsername = username;
+
+  try {
+    const res = await apiGet(`/api/username/check/${username}`);
+    const input = document.getElementById("edit-username");
+    if (!input || input.value !== username) return;
+
+    if (res.available) {
+      statusEl.textContent = "\u2713 cnxt.to/" + username + " is available!";
+      statusEl.style.color = "var(--success)";
+      usernameAvailable = true;
+    } else {
+      statusEl.textContent = res.reason === "reserved" ? "This name is reserved" : "Already taken";
+      statusEl.style.color = "var(--danger)";
+      usernameAvailable = false;
+    }
+  } catch {
+    statusEl.textContent = "Could not check availability";
+    statusEl.style.color = "var(--danger)";
+    usernameAvailable = false;
+  }
+}
+
+async function handleCreate() {
+  const btn = document.getElementById("save-btn");
+  const statusEl = document.getElementById("save-status");
+  statusEl.innerHTML = "";
+
+  const username = document.getElementById("edit-username")?.value.trim();
+  const displayName = document.getElementById("edit-name").value.trim();
+  const bio = document.getElementById("edit-bio").value.trim();
+  const avatar = document.getElementById("edit-avatar").value.trim();
+  const activeTheme = document.querySelector("[data-theme].active");
+  const theme = activeTheme ? activeTheme.dataset.theme : "minimal-dark";
+
+  if (!username || username.length < 3) {
+    statusEl.innerHTML = '<div class="alert alert-error">Please choose a username (at least 3 characters)</div>';
+    return;
+  }
+
+  if (!usernameAvailable) {
+    statusEl.innerHTML = '<div class="alert alert-error">Please choose an available username</div>';
+    return;
+  }
+
+  if (!displayName) {
+    statusEl.innerHTML = '<div class="alert alert-error">Display name is required</div>';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Creating...";
+
+  // Gather links/socials that may have been added before creating
+  const links = currentUser?.links || [];
+  const socialLinks = currentUser?.socialLinks || [];
+
+  try {
+    const now = new Date().toISOString();
+    const result = await apiPost("/api/profile", {
+      username,
+      displayName,
+      bio,
+      avatarUrl: avatar || undefined,
+      theme,
+      links,
+      socialLinks,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    currentUser = result;
+    sessionEmail = null;
+    statusEl.innerHTML = '<div class="alert alert-success">Your page is live! \ud83c\udf89</div>';
+    // Re-render to switch to the existing-user editor view
+    render();
+  } catch (err) {
+    statusEl.innerHTML = `<div class="alert alert-error">${escapeHtml(err.message)}</div>`;
+    btn.disabled = false;
+    btn.textContent = "Create My Page";
+  }
 }
 
 async function handleSave() {
@@ -636,7 +585,6 @@ async function handleSave() {
   btn.textContent = "Saving...";
   statusEl.innerHTML = "";
 
-  // Read form values into currentUser
   currentUser.displayName = document.getElementById("edit-name").value.trim();
   currentUser.bio = document.getElementById("edit-bio").value.trim();
   const avatar = document.getElementById("edit-avatar").value.trim();
@@ -690,19 +638,23 @@ function escapeAttr(str) {
   // Try to restore session from stored token
   if (sessionToken && !currentUser) {
     try {
-      const profile = await apiGet("/api/auth/me");
-      currentUser = profile;
+      const result = await apiGet("/api/auth/me");
+      if (result.needsSetup) {
+        sessionEmail = result.email;
+        currentUser = null;
+        navigate("editor", false);
+        return;
+      }
+      currentUser = result;
       navigate("editor", false);
       return;
     } catch {
-      // Token expired or invalid — clear it
       sessionToken = null;
       localStorage.removeItem("cnxt_session");
     }
   }
 
-  if (path === "/editor" && !currentUser) navigate("landing", false);
+  if (path === "/editor" && !currentUser && !sessionToken) navigate("landing", false);
   else if (path === "/editor") navigate("editor", false);
-  else if (path === "/signup" && pendingEmail) navigate("signup", false);
   else navigate("landing", false);
 })();

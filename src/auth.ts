@@ -12,7 +12,7 @@ function generateToken(): string {
 /** Create a magic-link token, store it in KV, return the full URL */
 export async function createMagicLink(
   kv: KVNamespace,
-  username: string,
+  username: string | null,
   email: string,
   dashboardOrigin: string
 ): Promise<string> {
@@ -28,15 +28,15 @@ export async function createMagicLink(
   return `${dashboardOrigin}/verify?token=${token}`;
 }
 
-/** Verify a magic-link token → exchange for a session token. Returns { sessionToken, username } or null. */
+/** Verify a magic-link token → exchange for a session token. Returns { sessionToken, username, email } or null. */
 export async function verifyMagicToken(
   kv: KVNamespace
 , token: string
-): Promise<{ sessionToken: string; username: string } | null> {
+): Promise<{ sessionToken: string; username: string | null; email: string } | null> {
   const raw = await kv.get(`magic:${token}`);
   if (!raw) return null;
 
-  const data = JSON.parse(raw) as { username: string; email: string; expiresAt: number };
+  const data = JSON.parse(raw) as { username: string | null; email: string; expiresAt: number };
   if (Date.now() > data.expiresAt) {
     await kv.delete(`magic:${token}`);
     return null;
@@ -53,20 +53,20 @@ export async function verifyMagicToken(
     { expirationTtl: 60 * 60 * 24 * 30 }
   );
 
-  return { sessionToken, username: data.username };
+  return { sessionToken, username: data.username, email: data.email };
 }
 
-/** Validate a session token → returns username or null */
+/** Validate a session token → returns { username, email } or null */
 export async function validateSession(
   kv: KVNamespace,
   authHeader: string | null
-): Promise<string | null> {
+): Promise<{ username: string | null; email: string } | null> {
   if (!authHeader?.startsWith("Bearer ")) return null;
   const token = authHeader.slice(7);
   const raw = await kv.get(`session:${token}`);
   if (!raw) return null;
-  const data = JSON.parse(raw) as { username: string };
-  return data.username;
+  const data = JSON.parse(raw) as { username: string | null; email: string };
+  return data;
 }
 
 /** Store an email→username mapping for login lookups */

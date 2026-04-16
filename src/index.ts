@@ -103,7 +103,7 @@ async function handleApi(
 
   // ---- Auth routes ----
 
-  // POST /api/auth/start — unified entry: email new? → { newUser:true } / email exists? → sends magic link
+  // POST /api/auth/start — always sends a magic link (new or existing user)
   if (path === "/api/auth/start" && request.method === "POST") {
     try {
       const body = (await request.json()) as { email?: string };
@@ -113,21 +113,15 @@ async function handleApi(
       }
 
       const username = await getUsernameByEmail(env.ANALYTICS, email);
-      if (!username) {
-        // New user — let the client show the signup form
-        return jsonResponse({ newUser: true }, 200, corsHeaders);
-      }
-
-      // Existing user — send magic link
       const dashboardOrigin = corsOrigin.includes("localhost") ? corsOrigin : "https://links.cnxt.to";
       const magicUrl = await createMagicLink(env.ANALYTICS, username, email, dashboardOrigin);
       const emailSent = await sendMagicEmail(env, email, magicUrl);
 
       if (emailSent) {
-        return jsonResponse({ newUser: false, message: "Login link sent to your email." }, 200, corsHeaders);
+        return jsonResponse({ message: "Check your email for a login link." }, 200, corsHeaders);
       }
       // Dev mode
-      return jsonResponse({ newUser: false, message: "Magic link created (dev mode)", magicUrl }, 200, corsHeaders);
+      return jsonResponse({ message: "Magic link created (dev mode)", magicUrl }, 200, corsHeaders);
     } catch {
       return jsonResponse({ error: "bad request" }, 400, corsHeaders);
     }
@@ -186,7 +180,13 @@ async function handleApi(
         return jsonResponse({ error: "Invalid or expired link" }, 401, corsHeaders);
       }
 
-      return jsonResponse({ ok: true, sessionToken: result.sessionToken, username: result.username }, 200, corsHeaders);
+      return jsonResponse({
+        ok: true,
+        sessionToken: result.sessionToken,
+        username: result.username,
+        email: result.email,
+        needsSetup: !result.username,
+      }, 200, corsHeaders);
     } catch {
       return jsonResponse({ error: "bad request" }, 400, corsHeaders);
     }
@@ -194,13 +194,18 @@ async function handleApi(
 
   // GET /api/auth/me — get current user from session token
   if (path === "/api/auth/me" && request.method === "GET") {
-    const username = await validateSession(env.ANALYTICS, request.headers.get("Authorization"));
-    if (!username) {
+    const session = await validateSession(env.ANALYTICS, request.headers.get("Authorization"));
+    if (!session) {
       return jsonResponse({ error: "unauthorized" }, 401, corsHeaders);
     }
-    const profile = await getProfile(env.PROFILES, username);
+    if (!session.username) {
+      // New user who verified email but hasn't created a profile yet
+      return jsonResponse({ needsSetup: true, email: session.email }, 200, corsHeaders);
+    }
+    const profile = await getProfile(env.PROFILES, session.username);
     if (!profile) {
-      return jsonResponse({ error: "profile not found" }, 404, corsHeaders);
+      // Email mapped but profile deleted — treat as new
+      return jsonResponse({ needsSetup: true, email: session.email }, 200, corsHeaders);
     }
     const { email: _email, ...publicProfile } = profile;
     return jsonResponse(publicProfile, 200, corsHeaders);
@@ -217,11 +222,17 @@ async function handleApi(
     return jsonResponse(publicProfile, 200, corsHeaders);
   }
 
-  // POST /api/profile — create new profile (public, but stores email + returns session)
+  // POST /api/profile — create new profile (requires authenticated session)
   if (path === "/api/profile" && request.method === "POST") {
+    // Require auth
+    const session = await validateSession(env.ANALYTICS, request.headers.get("Authorization"));
+    if (!session) {
+      return jsonResponse({ error: "unauthorized" }, 401, corsHeaders);
+    }
+
     try {
       const body = await request.json();
-      const parsed = ProfileSchema.parse(body);
+      const parsed = ProfileSchema.parse({ ...(body as Record<string, unknown>), email: session.email });
 
       if (RESERVED_SLUGS.has(parsed.username)) {
         return jsonResponse({ error: "username reserved" }, 400, corsHeaders);
@@ -232,7 +243,7 @@ async function handleApi(
       }
 
       // Check if email is already in use
-      const existingUsername = await getUsernameByEmail(env.ANALYTICS, parsed.email);
+      const existingUsername = await getUsernameByEmail(env.ANALYTICS, session.email);
       if (existingUsername) {
         return jsonResponse({ error: "email already associated with another account" }, 409, corsHeaders);
       }
@@ -242,31 +253,11 @@ async function handleApi(
       await putProfile(env.PROFILES, profile);
 
       // Store email→username mapping
-      await setEmailMapping(env.ANALYTICS, parsed.email, parsed.username);
-
-      // Create a session token so user is logged in immediately
-      const dashboardOrigin = corsOrigin.includes("localhost") ? corsOrigin : "https://links.cnxt.to";
-      const magicUrl = await createMagicLink(env.ANALYTICS, parsed.username, parsed.email, dashboardOrigin);
-      // Immediately verify it to get a session token (skip email for signup)
-      const token = magicUrl.split("token=")[1];
-      const session = await verifyMagicToken(env.ANALYTICS, token);
-
-      // Send a separate magic link so the user can come back later
-      const returnUrl = await createMagicLink(env.ANALYTICS, parsed.username, parsed.email, dashboardOrigin);
-      const emailSent = await sendMagicEmail(env, parsed.email, returnUrl);
+      await setEmailMapping(env.ANALYTICS, session.email, parsed.username);
 
       // Strip email from response
       const { email: _email, ...publicProfile } = profile;
-      const response: Record<string, unknown> = {
-        ...publicProfile,
-        sessionToken: session?.sessionToken,
-        emailSent,
-      };
-      // Dev mode: include magic link so user can save/test it
-      if (!emailSent) {
-        response.magicUrl = returnUrl;
-      }
-      return jsonResponse(response, 201, corsHeaders);
+      return jsonResponse(publicProfile, 201, corsHeaders);
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "invalid request";
@@ -279,8 +270,8 @@ async function handleApi(
     const username = profileMatch[1];
 
     // Validate session
-    const sessionUser = await validateSession(env.ANALYTICS, request.headers.get("Authorization"));
-    if (!sessionUser || sessionUser !== username) {
+    const session = await validateSession(env.ANALYTICS, request.headers.get("Authorization"));
+    if (!session || session.username !== username) {
       return jsonResponse({ error: "unauthorized" }, 401, corsHeaders);
     }
 
