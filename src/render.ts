@@ -50,7 +50,7 @@ export function renderProfilePage(profile: Profile): string {
   <meta name="description" content="${escapeHtml(profile.bio || profile.displayName)}">
   <meta property="og:title" content="${escapeHtml(profile.displayName)}">
   <meta property="og:description" content="${escapeHtml(profile.bio || "")}">
-  ${profile.avatarUrl ? `<meta property="og:image" content="${escapeHtml(profile.avatarUrl)}">` : ""}
+  ${profile.avatarUrl ? `<meta property="og:image" content="https://cnxt.to/avatar/${escapeHtml(profile.username)}">` : ""}
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -85,7 +85,7 @@ export function renderProfilePage(profile: Profile): string {
 </head>
 <body>
   <div class="container">
-    ${profile.avatarUrl ? `<img src="${escapeHtml(profile.avatarUrl)}" alt="${escapeHtml(profile.displayName)}" class="avatar">` : ""}
+    ${profile.avatarUrl ? `<img src="/avatar/${escapeHtml(profile.username)}" alt="${escapeHtml(profile.displayName)}" class="avatar">` : ""}
     <h1>${escapeHtml(profile.displayName)}</h1>
     ${profile.bio ? `<p class="bio">${escapeHtml(profile.bio)}</p>` : ""}
     <div class="links">

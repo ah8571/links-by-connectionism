@@ -25,6 +25,18 @@ export default {
       return new Response("ok", { status: 200 });
     }
 
+    // --- Avatar image ---
+    const avatarMatch = path.match(/^\/avatar\/([a-z0-9._-]{3,30})$/);
+    if (avatarMatch) {
+      const key = `avatars/${avatarMatch[1]}`;
+      const obj = await env.PROFILES.get(key);
+      if (!obj) return notFound();
+      const headers = new Headers();
+      headers.set("Content-Type", obj.httpMetadata?.contentType || "image/jpeg");
+      headers.set("Cache-Control", "public, max-age=3600");
+      return new Response(obj.body, { headers });
+    }
+
     // --- Public profile page ---
     // /:username or /:username/links
     const linksMatch = path.match(/^\/([a-z0-9._-]{3,30})\/links$/);
@@ -297,6 +309,41 @@ async function handleApi(
         err instanceof Error ? err.message : "invalid request";
       return jsonResponse({ error: message }, 400, corsHeaders);
     }
+  }
+
+  // POST /api/avatar — upload avatar image (requires auth)
+  if (path === "/api/avatar" && request.method === "POST") {
+    const session = await validateSession(env.ANALYTICS, request.headers.get("Authorization"));
+    if (!session || !session.username) {
+      return jsonResponse({ error: "unauthorized" }, 401, corsHeaders);
+    }
+
+    const contentType = request.headers.get("Content-Type") || "";
+    const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!ALLOWED_TYPES.includes(contentType)) {
+      return jsonResponse({ error: "Only JPEG, PNG, WebP, and GIF images are allowed" }, 400, corsHeaders);
+    }
+
+    const body = await request.arrayBuffer();
+    const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
+    if (body.byteLength > MAX_SIZE) {
+      return jsonResponse({ error: "Image must be under 2 MB" }, 400, corsHeaders);
+    }
+
+    const key = `avatars/${session.username}`;
+    await env.PROFILES.put(key, body, {
+      httpMetadata: { contentType },
+    });
+
+    // Update profile to store avatar reference
+    const profile = await getProfile(env.PROFILES, session.username);
+    if (profile) {
+      profile.avatarUrl = `/avatar/${session.username}`;
+      profile.updatedAt = new Date().toISOString();
+      await putProfile(env.PROFILES, profile);
+    }
+
+    return jsonResponse({ avatarUrl: `/avatar/${session.username}` }, 200, corsHeaders);
   }
 
   return jsonResponse({ error: "not found" }, 404, corsHeaders);

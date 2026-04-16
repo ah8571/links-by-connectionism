@@ -21,7 +21,7 @@ export const ProfileSchema = z.object({
   email: z.string().email().max(320),
   displayName: z.string().min(1).max(100),
   bio: z.string().max(500).default(""),
-  avatarUrl: z.string().url().max(2000).optional(),
+  avatarUrl: z.string().max(200).optional(),
   theme: z.enum(["minimal-light", "minimal-dark", "bold"]).default("minimal-light"),
   defaultView: z.enum(["links", "about", "hub"]).default("links"),
   links: z.array(LinkSchema).max(50).default([]),

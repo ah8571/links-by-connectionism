@@ -273,8 +273,17 @@ function renderEditor() {
         <textarea class="form-textarea" id="edit-bio" maxlength="500" rows="2" placeholder="Designer & content creator">${escapeHtml(profile.bio || "")}</textarea>
       </div>
       <div class="form-group">
-        <label class="form-label">Avatar URL</label>
-        <input type="url" class="form-input" id="edit-avatar" value="${escapeAttr(profile.avatarUrl || "")}" placeholder="https://...">
+        <label class="form-label">Photo</label>
+        <div class="avatar-upload" style="display:flex; align-items:center; gap:1rem;">
+          ${profile.avatarUrl
+            ? `<img src="${escapeAttr(API_BASE + profile.avatarUrl)}" class="avatar-preview" style="width:56px;height:56px;border-radius:50%;object-fit:cover;">`
+            : `<div class="avatar-preview" style="width:56px;height:56px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.8rem;">No photo</div>`}
+          <label class="btn btn-secondary btn-sm" style="cursor:pointer;">
+            Upload
+            <input type="file" id="edit-avatar" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none;">
+          </label>
+          <span id="avatar-status" style="font-size:0.8rem;color:var(--text-muted);"></span>
+        </div>
       </div>
 
       <!-- Theme -->
@@ -359,6 +368,47 @@ function bindEditor() {
         copyBtn.textContent = "Copied!";
         setTimeout(() => { copyBtn.textContent = "Copy"; }, 2000);
       });
+    });
+  }
+
+  // Avatar file upload
+  const avatarInput = document.getElementById("edit-avatar");
+  if (avatarInput) {
+    avatarInput.addEventListener("change", async () => {
+      const file = avatarInput.files[0];
+      if (!file) return;
+      const statusEl = document.getElementById("avatar-status");
+      if (file.size > 2 * 1024 * 1024) {
+        statusEl.textContent = "Image must be under 2 MB";
+        statusEl.style.color = "#ef4444";
+        return;
+      }
+      statusEl.textContent = "Uploading...";
+      statusEl.style.color = "var(--text-muted)";
+      try {
+        const res = await fetch(`${API_BASE}/api/avatar`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${sessionToken}`, "Content-Type": file.type },
+          body: file,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Upload failed");
+        if (currentUser) currentUser.avatarUrl = data.avatarUrl;
+        // Update the preview
+        const preview = document.querySelector(".avatar-preview");
+        if (preview) {
+          const img = document.createElement("img");
+          img.src = `${API_BASE}${data.avatarUrl}?t=${Date.now()}`;
+          img.className = "avatar-preview";
+          img.style.cssText = "width:56px;height:56px;border-radius:50%;object-fit:cover;";
+          preview.replaceWith(img);
+        }
+        statusEl.textContent = "Uploaded!";
+        statusEl.style.color = "#22c55e";
+      } catch (err) {
+        statusEl.textContent = err.message;
+        statusEl.style.color = "#ef4444";
+      }
     });
   }
 
@@ -497,7 +547,6 @@ async function handleCreate() {
   const username = document.getElementById("edit-username")?.value.trim();
   const displayName = document.getElementById("edit-name").value.trim();
   const bio = document.getElementById("edit-bio").value.trim();
-  const avatar = document.getElementById("edit-avatar").value.trim();
   const activeTheme = document.querySelector("[data-theme].active");
   const theme = activeTheme ? activeTheme.dataset.theme : "minimal-dark";
 
@@ -529,7 +578,7 @@ async function handleCreate() {
       username,
       displayName,
       bio,
-      avatarUrl: avatar || undefined,
+      avatarUrl: currentUser?.avatarUrl || undefined,
       theme,
       links,
       socialLinks,
@@ -558,8 +607,6 @@ async function handleSave() {
 
   currentUser.displayName = document.getElementById("edit-name").value.trim();
   currentUser.bio = document.getElementById("edit-bio").value.trim();
-  const avatar = document.getElementById("edit-avatar").value.trim();
-  currentUser.avatarUrl = avatar || undefined;
 
   try {
     const updated = await apiPut(`/api/profile/${currentUser.username}`, currentUser);
