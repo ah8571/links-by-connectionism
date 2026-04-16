@@ -1,0 +1,16 @@
+name = "links-by-cnxt"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+# R2 bucket for storing creator profile JSON files
+[[r2_buckets]]
+binding = "PROFILES"
+bucket_name = "cnxt-profiles"
+
+# KV namespace for analytics counters + auth tokens
+[[kv_namespaces]]
+binding = "ANALYTICS"
+id = "83e2a67160b44b1495e4d00519e5a38a"
+
+[vars]
+ENVIRONMENT = "production"

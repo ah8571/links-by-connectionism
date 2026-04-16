@@ -1,0 +1,30 @@
+{
+  "name": "links-by-cnxt",
+  "version": "0.1.0",
+  "description": "Free, open-source link-in-bio platform — alternative to Linktree & Stan Store",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ah8571/links-by-connectionism.git"
+  },
+  "keywords": ["linktree", "link-in-bio", "cloudflare-workers", "open-source"],
+  "author": "connectionism",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/ah8571/links-by-connectionism/issues"
+  },
+  "homepage": "https://github.com/ah8571/links-by-connectionism#readme",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260416.2",
+    "typescript": "^6.0.2",
+    "wrangler": "^4.83.0"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
+  }
+}
