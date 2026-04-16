@@ -324,3 +324,136 @@ Since we're GNU licensed and free for most users, potential revenue:
 | **Self-Host** | $0 | Deploy your own. Full control. Community support only. |
 
 The key: **never paywall features that are free elsewhere.** Only charge for genuinely premium infrastructure (custom domains cost us money) and commerce features (payment processing has real costs).
+
+---
+
+## Deep Dive: What They Charge For vs. What It Actually Costs
+
+This is the core thesis of cnxt to links. Most "premium" features in the link-in-bio space are **artificially paywalled**. The actual infrastructure cost to provide them is pennies — or literally zero on Cloudflare's free/cheap tiers. Here's the breakdown:
+
+---
+
+### TIER 1: Features That Cost Literally $0 to Provide
+
+These are pure software features. No infrastructure cost. Competitors charge for them purely because they can.
+
+| Feature | Who Charges | What They Charge | Real Cost | How We Do It Free |
+|---------|-------------|------------------|-----------|-------------------|
+| **Custom theme colors** (pick your own accent, background, text) | Linktree Starter | **$6/mo ($72/yr)** | $0 — it's CSS variables | Store 3 hex values in the profile JSON. Render them inline. Already have the theme system. |
+| **Custom fonts** | Linktree Pro | **$12/mo ($144/yr)** | $0 — Google Fonts is free | Add a `fontFamily` field. Load from Google Fonts CDN in the rendered page. Zero bandwidth cost to us. |
+| **Hide platform branding** | Linktree Pro | **$12/mo ($144/yr)** | $0 | We already don't show branding. Footer is optional. Literally nothing to implement. |
+| **Link scheduling** (show/hide links by date) | Linktree Starter | **$6/mo ($72/yr)** | $0 — date comparison in JS | Add `startDate`/`endDate` to LinkSchema. Filter at render time. Same CPU cost as rendering normally. |
+| **Featured / spotlight links** | Linktree Pro | **$12/mo ($144/yr)** | $0 — CSS styling | Add a `featured: boolean` to LinkSchema. Render with larger/highlighted style. |
+| **Animated links** | Linktree Pro | **$12/mo ($144/yr)** | $0 — CSS animations | A few CSS keyframe animations. Stored as a setting. |
+| **Link thumbnails / icons** | Linktree Pro | **$12/mo ($144/yr)** | ~$0 — tiny images in R2 | Upload small icon per link to R2. We already have avatar upload infrastructure. Cost: fractions of a penny. |
+| **Link groups / section headers** | Linktree (all tiers have basic) | Locked customization | $0 | Add a `type: "link" | "header"` field. Render headers differently. |
+| **SEO settings** (custom title, meta description) | Linktree Pro | **$12/mo ($144/yr)** | $0 — HTML meta tags | We already render og:title, og:description. Just let users edit them in dashboard. |
+| **UTM parameters** (auto-append to links) | Linktree Pro | **$12/mo ($144/yr)** | $0 — string concatenation | Append `?utm_source=cnxt&utm_medium=linkinbio` to outbound links. Zero cost. |
+| **QR code generation** | Linktree Free (but limited) | $0 but upsells | $0 — client-side JS library | Use `qrcode.js` (4KB). Generate in browser. No server cost. |
+| **Drag-and-drop reordering** | Most competitors | Table stakes | $0 — frontend JS | Use SortableJS or native drag API. Reorder the array, save. |
+| **Social icon analytics** | Linktree Pro | **$12/mo ($144/yr)** | $0 — same click tracking | We already track link clicks. Add same tracking to social icons. Same KV write. |
+| **Custom button styles** (rounded, sharp, outline, fill) | Linktree Pro | **$12/mo ($144/yr)** | $0 — CSS border-radius | Store button style preference. Apply via CSS class. |
+| **Video profile image** | Linktree Pro | **$12/mo** | ~$0.01/user — short video in R2 | Upload a small video loop. Render as `<video>` tag instead of `<img>`. R2 cost negligible. |
+
+**Total annual revenue Linktree extracts from these $0-cost features: $72–$360/yr per user.**
+
+---
+
+### TIER 2: Features That Cost Pennies to Provide
+
+These involve real infrastructure but the per-user cost is trivially small on Cloudflare.
+
+| Feature | Who Charges | What They Charge | Real Cost (per user/mo) | How We Do It Free |
+|---------|-------------|------------------|------------------------|-------------------|
+| **Detailed analytics** (referrer, device, country) | Linktree Pro | **$12/mo** | **$0** — Cloudflare gives us this in request headers: `CF-IPCountry`, `User-Agent` | Parse CF headers on each page view. Store in KV: `views:{user}:{date}:{country}`. No extra API calls. |
+| **Analytics date ranges** (custom) | Linktree Pro: 90 days. Premium: all time | **$12–30/mo** | **~$0.005/mo** — KV reads | We already store daily analytics keys. Query by date prefix. KV reads are $0.50/million. A user checking analytics costs ~$0.001. |
+| **Analytics CSV export** | Linktree Premium | **$30/mo ($360/yr)** | **$0** — client-side | Read KV data, format as CSV string, trigger browser download. Zero server cost. |
+| **Email collection** (subscriber list) | Linktree Starter | **$6/mo ($72/yr)** | **~$0.01/mo** — KV writes | Store emails in KV: `subscribers:{username}:{email}`. KV writes are $5/million. A creator getting 100 subs/mo = $0.0005. |
+| **Email list CSV export** | Linktree Starter | **$6/mo** | **$0** — same as analytics export | List KV keys with prefix, format as CSV. Client-side download. |
+| **Redirect links** (temporarily send all traffic to one link) | Linktree Starter | **$6/mo** | **$0** — conditional in Worker | Add a `redirectUrl` field to profile. If set, return 302 redirect instead of rendering page. |
+| **Conversion tracking** | Linktree Pro | **$12/mo** | **~$0.01/mo** | Track click-throughs to specific links. We already have click tracking. Add a "conversion" event type. |
+| **Contact form** | Carrd Pro | **$19/yr** | **~$0.01/mo** — KV write + optional email | Store submissions in KV. Optional webhook to email. Resend is already integrated. |
+| **Link click-through rate** | Linktree Pro | **$12/mo** | **$0** — math | `CTR = clicks / views`. We already have both numbers. Division is free. |
+| **Video / music embeds** (YouTube, Spotify) | Linktree Free (limited) | Free but upsold | **$0** — iframe | Store embed URL. Render as `<iframe>`. YouTube/Spotify serve the bandwidth, not us. |
+| **Location-based analytics** (top countries) | Linktree Pro: top 10. Premium: full | **$12–30/mo** | **$0** — `CF-IPCountry` header | Cloudflare literally sends us the country code on every request. We just need to store it. |
+| **Device-based analytics** | Linktree Pro | **$12/mo** | **$0** — User-Agent parsing | Parse `User-Agent` header (mobile/desktop/tablet). Store alongside view data. |
+| **Referrer-based analytics** | Linktree Pro | **$12/mo** | **$0** — `Referer` header | Standard HTTP header. Parse and store. Know if traffic comes from Instagram, Twitter, Google, etc. |
+
+**Cloudflare free tier limits (what we get for $0):**
+- Workers: 100,000 requests/day (free), then $0.50/million
+- KV: 100,000 reads/day, 1,000 writes/day (free)
+- R2: 10GB storage free, then $0.015/GB/mo. No egress fees ever.
+- No bandwidth charges on Workers.
+
+**For a typical creator with 1,000 page views/day, our infrastructure cost is literally $0/mo.** Even at 10,000 views/day we'd be well within free tier. A creator would need 100,000+ daily views before we'd pay anything — and that would be ~$0.50/day.
+
+---
+
+### TIER 3: Features With Real (But Small) Costs
+
+These features have genuine infrastructure or third-party costs, but are still dramatically cheaper than what competitors charge.
+
+| Feature | Who Charges | What They Charge | Real Cost | How We Could Handle It |
+|---------|-------------|------------------|-----------|----------------------|
+| **Custom domains** | Linktree Premium | **$30/mo ($360/yr)** | **~$0.10/mo** per domain — Cloudflare for SaaS (custom hostname) or free with CNAME + Worker route | Cloudflare for SaaS: $0.10/active hostname after the first 100. Or: user points CNAME to us, Worker checks `Host` header. Could offer free for all users and it costs us pennies. |
+| **Email integrations** (Mailchimp, Kit, Klaviyo sync) | Linktree Pro | **$12/mo** | **$0** — outbound HTTP POST | When we collect a subscriber email, fire a webhook to Mailchimp/Kit API. It's one HTTP request. The user provides their own API key. Zero cost to us. |
+| **Digital product sales** (file downloads) | Stan Store | **$29–99/mo** | **~$0.01–0.10/sale** — R2 storage + Stripe fees (2.9% + $0.30, paid by buyer) | Upload file to R2. On purchase, generate signed URL. Stripe handles payment. We never touch money — Stripe pays the creator directly. Our cost: R2 storage (pennies) + one KV write per sale. |
+| **Tip jar / donations** | Beacons Free, Stan $29/mo | $0–$29/mo | **$0 from us** — Stripe fee on transaction (paid by donor/buyer) | Embed Stripe payment link or use Stripe Checkout. Creator connects their own Stripe account. We just render the button. |
+| **Newsletter delivery** (actually sending emails) | ConvertKit $15/mo+, Mailchimp $13/mo+ | $13–300/mo | **$0.40/1,000 emails** via Resend (which we already use) | We already have Resend integrated for magic links. Same API. But: this is genuinely expensive at scale. Better approach: collect emails (free), let creators export to their email tool of choice. |
+| **Course hosting** (video-heavy) | Stan Store | **$29–99/mo** | **R2 storage: $0.015/GB/mo**, no egress | A 10-video course (~5GB) costs us $0.075/mo to host. Cloudflare R2 has zero egress fees. Stan charges $348–1,188/yr for this. |
+| **Calendar / booking** | Stan Store | **$29/mo** | **$0** — embed Cal.com (open source) | Cal.com is open source and has a free hosted tier. We just embed their widget. Or integrate their API. |
+| **Google Analytics integration** | Linktree/Carrd Pro | **$12/mo / $49/yr** | **$0** — inject GA snippet | User gives us their GA measurement ID. We add `<script>` tag to their rendered page. Zero cost. Linktree charges $12/mo for this. |
+| **Facebook Conversion API** | Linktree Pro | **$12/mo** | **$0** — outbound HTTP POST | On page view / link click, POST event to Facebook's API. User provides their pixel ID. One HTTP call. |
+
+---
+
+### TIER 4: The Real Math — What Would 10,000 Users Cost Us?
+
+Let's model actual Cloudflare costs for 10,000 active creators:
+
+| Resource | Usage Estimate | Monthly Cost |
+|----------|---------------|--------------|
+| **Workers requests** | 10K users × 500 views/day × 30 = 150M requests | $75 ($0.50/million after free 3M/mo on paid plan) |
+| **KV reads** | Analytics + sessions: ~200M reads/mo | $100 ($0.50/million) |
+| **KV writes** | Analytics + signups: ~20M writes/mo | $100 ($5/million) |
+| **R2 storage** | Profiles + avatars: ~5GB | $0.075 |
+| **R2 reads** | Avatar images: ~50M reads/mo | $18 ($0.36/million Class B) |
+| **Resend emails** | Magic links: ~50K/mo | $20 (first 3K free, then $0.40/1K) |
+| **Domain (cnxt.to)** | Annual | ~$2/mo amortized |
+| **Workers Paid plan** | Required at this scale | $5/mo |
+| **Total** | | **~$320/mo** |
+
+That's **$0.032/user/month** to run the entire platform. Linktree charges $6–30/user/month.
+
+Even if only 5% of users (500) paid $5/mo for a Pro tier, that's **$2,500/mo revenue** against **$320/mo costs**. The unit economics are absurd in our favor because Cloudflare's pricing is designed for this exact use case.
+
+---
+
+### What This Means Strategically
+
+The link-in-bio market is built on **artificial scarcity**. Linktree's marginal cost per user is probably similar to ours — pennies. They charge $6–30/mo because:
+
+1. **They were first** and set the pricing anchor
+2. **Creators don't know** these features are cheap to provide
+3. **Investors demand revenue growth** — Linktree raised $170M+ in funding, so they need to extract value
+4. **Lock-in** — once your page is set up, switching costs feel high (they're not)
+
+**Our opportunity:** Be the tool that treats creators with respect. Give away what costs nothing. Charge only for what has real costs. Be transparent about it.
+
+| What Competitors Sell | Annual Price | What It Actually Costs | cnxt to links |
+|----------------------|-------------|----------------------|---------------|
+| Custom colors | $72/yr | $0 | **Free** |
+| Email collection | $72/yr | $0.006/yr | **Free** |
+| Detailed analytics | $144/yr | $0 | **Free** |
+| Hide branding | $144/yr | $0 | **Free** (never added) |
+| Analytics export | $360/yr | $0 | **Free** |
+| Custom fonts | $144/yr | $0 | **Free** |
+| Link scheduling | $72/yr | $0 | **Free** |
+| SEO settings | $144/yr | $0 | **Free** |
+| Email integrations | $144/yr | $0 | **Free** |
+| Custom domain | $360/yr | $1.20/yr | **Free or ~$5/mo** |
+| Digital product sales | $348–1,188/yr | Stripe fees only | **Free (Stripe fees pass-through)** |
+| Course hosting | $348–1,188/yr | $0.90/yr (for 5GB) | **Free** |
+| **Total if you used all features** | **$1,152–$3,252/yr** | **< $5/yr** | **$0–60/yr** |
+
+A creator paying Linktree Pro ($12/mo) is paying **$144/year for features that cost $0–$2/year to provide.** That's the gap we exploit.
