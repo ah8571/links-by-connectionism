@@ -43,7 +43,7 @@ export function renderProfilePage(profile: Profile): string {
       const hasDesc = l.description && l.description.trim();
       return `<div class="link-wrapper">
         <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener noreferrer" class="link" data-idx="${idx}">${escapeHtml(l.title)}</a>
-        ${hasDesc ? `<button class="link-desc-toggle" data-desc="${idx}" aria-label="More info">&#9662;</button>
+        ${hasDesc ? `<button class="link-desc-toggle" data-desc="${idx}" aria-label="More info"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button>
         <div class="link-desc" id="desc-${idx}">${escapeHtml(l.description!)}</div>` : ""}
       </div>`;
     })
@@ -93,15 +93,15 @@ export function renderProfilePage(profile: Profile): string {
     }
     .link:hover { opacity: 0.85; }
     .link-desc-toggle {
-      position: absolute; right: 0.5rem; top: 50%;
+      position: absolute; right: 0.625rem; top: 50%;
       transform: translateY(-50%);
       background: none; border: none; color: ${t.link}; cursor: pointer;
-      font-size: 0.75rem; padding: 0.25rem 0.5rem;
-      opacity: 0.7; transition: transform 0.2s, opacity 0.15s;
-      z-index: 1;
+      padding: 0.4rem; display: flex; align-items: center; justify-content: center;
+      opacity: 0.6; transition: opacity 0.15s;
+      z-index: 1; border-radius: 50%;
     }
     .link-desc-toggle:hover { opacity: 1; }
-    .link-desc-toggle.expanded { transform: translateY(-50%) rotate(180deg); }
+    .link-desc-toggle.expanded { opacity: 1; }
     .link-desc {
       display: none; padding: 0.625rem 1rem; margin-top: 0.25rem;
       background: ${t.card}; border-radius: 6px;
