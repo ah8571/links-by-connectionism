@@ -125,7 +125,7 @@ export function renderProfilePage(profile: Profile): string {
       ${linksHtml}
     </div>
     ${socialsHtml ? `<div class="socials">${socialsHtml}</div>` : ""}
-    <p class="footer"><a href="/">cnxt to links</a></p>
+    <p class="footer"><a href="https://links.cnxt.to">cnxt to links</a></p>
   </div>
   <script>
     document.querySelectorAll('.link').forEach(function(a) {
