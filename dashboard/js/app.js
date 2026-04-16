@@ -228,7 +228,6 @@ function renderEditor() {
           <button class="reorder-btn" data-move-up="${i}" ${isFirst ? "disabled" : ""} title="Move up">&#9650;</button>
           <button class="reorder-btn" data-move-down="${i}" ${isLast ? "disabled" : ""} title="Move down">&#9660;</button>
         </div>
-        <button class="link-chevron" data-expand="${i}" title="Edit link">&#9662;</button>
         <div class="link-item-content">
           <div class="link-item-title">${escapeHtml(link.title)}${platformLabel ? ` <span class="link-platform-badge">${escapeHtml(platformLabel)}</span>` : ""}</div>
           <div class="link-item-url">${escapeHtml(link.url)}</div>
@@ -237,6 +236,7 @@ function renderEditor() {
           <input type="checkbox" ${link.enabled !== false ? "checked" : ""} data-toggle="${i}">
           <span class="toggle-slider"></span>
         </label>
+        <button class="link-edit-btn" data-expand="${i}" title="Edit link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 20 14"/><path d="M15 9h.01"/><path d="M17.8 6.2 20 4"/><path d="m3 21 9-9"/><path d="M12.2 6.2 10 4"/></svg></button>
         <button class="btn btn-danger btn-sm" data-delete="${i}">✕</button>
       </div>
       <div class="link-edit-panel" id="link-edit-${i}" style="display:none;">
@@ -333,6 +333,9 @@ function renderEditor() {
         </div>
         <div class="form-group" style="margin-bottom:0.5rem;">
           <input type="url" class="form-input" id="new-link-url" placeholder="https://...">
+        </div>
+        <div class="form-group" style="margin-bottom:0.5rem;">
+          <textarea class="form-input" id="new-link-desc" placeholder="Description (optional)" maxlength="500" rows="2" style="resize:vertical;min-height:50px;"></textarea>
         </div>
         <div class="form-group" style="margin-bottom:0.5rem;">
           <select class="form-select" id="new-link-platform">
@@ -566,6 +569,7 @@ function bindEditor() {
   document.getElementById("add-link-btn").addEventListener("click", () => {
     const title = document.getElementById("new-link-title").value.trim();
     const url = document.getElementById("new-link-url").value.trim();
+    const desc = document.getElementById("new-link-desc").value.trim();
     const platform = document.getElementById("new-link-platform").value || undefined;
     if (!url) return;
     const labels = {"twitter":"Twitter / X","instagram":"Instagram","youtube":"YouTube","tiktok":"TikTok","github":"GitHub","linkedin":"LinkedIn"};
@@ -577,6 +581,7 @@ function bindEditor() {
     currentUser.links = currentUser.links || [];
     const newLink = { title: finalTitle, url, enabled: true };
     if (platform) newLink.platform = platform;
+    if (desc) newLink.description = desc;
     currentUser.links.push(newLink);
     render();
   });
