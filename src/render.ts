@@ -42,9 +42,8 @@ export function renderProfilePage(profile: Profile): string {
       const idx = allLinks.indexOf(l);
       const hasDesc = l.description && l.description.trim();
       return `<div class="link-wrapper">
-        <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener noreferrer" class="link" data-idx="${idx}">${escapeHtml(l.title)}</a>
-        ${hasDesc ? `<button class="link-desc-toggle" data-desc="${idx}" aria-label="More info">&#9662;</button>
-        <div class="link-desc" id="desc-${idx}">${escapeHtml(l.description!)}</div>` : ""}
+        <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener noreferrer" class="link" data-idx="${idx}">${escapeHtml(l.title)}${hasDesc ? `<button class="link-desc-toggle" data-desc="${idx}" aria-label="More info"><span class="chevron"></span></button>` : ""}</a>
+        ${hasDesc ? `<div class="link-desc" id="desc-${idx}">${escapeHtml(l.description!)}</div>` : ""}
       </div>`;
     })
     .join("\n      ");
@@ -86,22 +85,29 @@ export function renderProfilePage(profile: Profile): string {
     .bio { opacity: 0.8; margin-bottom: 1.5rem; font-size: 0.95rem; line-height: 1.4; }
     .link-wrapper { position: relative; margin-bottom: 0.75rem; }
     .link {
-      display: block; padding: 0.875rem 1.25rem;
+      display: block; padding: 0.875rem 1.25rem; position: relative;
       background: ${t.accent}; color: ${t.link}; text-decoration: none;
       border-radius: 8px; font-weight: 500; font-size: 1rem;
       transition: opacity 0.15s;
     }
     .link:hover { opacity: 0.85; }
     .link-desc-toggle {
-      position: absolute; right: 0.5rem; top: 50%;
+      position: absolute; right: 0.75rem; top: 50%;
       transform: translateY(-50%);
       background: none; border: none; color: ${t.link}; cursor: pointer;
-      font-size: 1.4rem; padding: 0.5rem; line-height: 1;
-      opacity: 0.6; transition: transform 0.2s, opacity 0.15s;
+      padding: 0.5rem; display: flex; align-items: center; justify-content: center;
+      opacity: 0.5; transition: opacity 0.15s;
       z-index: 1;
     }
     .link-desc-toggle:hover { opacity: 1; }
-    .link-desc-toggle.expanded { transform: translateY(-50%) rotate(180deg); opacity: 1; }
+    .link-desc-toggle.expanded .chevron { transform: rotate(225deg); margin-top: 4px; }
+    .chevron {
+      display: inline-block; width: 10px; height: 10px;
+      border-right: 2.5px solid currentColor;
+      border-bottom: 2.5px solid currentColor;
+      transform: rotate(45deg); margin-top: -2px;
+      transition: transform 0.2s;
+    }
     .link-desc {
       display: none; padding: 0.625rem 1rem; margin-top: 0.25rem;
       background: ${t.card}; border-radius: 6px;
@@ -142,6 +148,7 @@ export function renderProfilePage(profile: Profile): string {
     });
     document.querySelectorAll('.link-desc-toggle').forEach(function(btn) {
       btn.addEventListener('click', function(e) {
+        e.preventDefault();
         e.stopPropagation();
         var idx = btn.getAttribute('data-desc');
         var desc = document.getElementById('desc-' + idx);
