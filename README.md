@@ -75,7 +75,7 @@ We're also building toward a **self-host option**: deploy to your own Cloudflare
 
 🚧 **In active development — not yet ready for use.**
 
-See [ROADMAP-V1.md](ROADMAP-V1.md) for the full development plan and [CONCEPT.md](CONCEPT.md) for the detailed product concept.
+See [docs/ROADMAP-V1.md](docs/ROADMAP-V1.md) for the full development plan and [docs/CONCEPT.md](docs/CONCEPT.md) for the detailed product concept.
 
 ## Contributing
 

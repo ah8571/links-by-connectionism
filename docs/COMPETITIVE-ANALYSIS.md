@@ -6,6 +6,8 @@ The "link-in-bio" space has exploded into a multi-hundred-million dollar market.
 
 **cnxt to links** is positioned as the **open-source, self-hostable, free-for-most-users** alternative. We don't need to beat every feature — we need to nail the core use case and offer something none of them do: **full data ownership**.
 
+This document now also serves as the consolidated feature map and pricing-realism reference for the project. The former [PRICING-REALISM.md](PRICING-REALISM.md) file remains as a short redirect note.
+
 ---
 
 ## Competitor Breakdown
@@ -432,3 +434,365 @@ The link-in-bio market is built on **artificial scarcity**. Linktree's marginal 
 | **Total if you used all features** | **$1,152–$3,252/yr** | **< $5/yr** | **$0–60/yr** |
 
 A creator paying Linktree Pro ($12/mo) is paying **$144/year for features that cost $0–$2/year to provide.** That's the gap we exploit.
+
+---
+
+## Consolidated Feature Map
+
+### Source Quality
+
+This section separates stronger pricing inputs from weaker ones.
+
+#### Live-verified sources
+
+- Linktree pricing page: `https://linktr.ee/s/pricing`
+- Beacons pricing page: `https://beacons.ai/i/pricing`
+- Stan Store pricing page: `https://www.stan.store/`
+
+#### Semi-verified source
+
+- Stan screenshot provided in conversation
+
+Important:
+
+- Linktree and Beacons pricing below is grounded in current public pricing page content captured during this review.
+- Stan details below should be treated as landing-page marketing signals, not a full verified plan matrix, because the public pricing route did not resolve cleanly during review.
+
+### Normalized Feature Buckets
+
+To compare providers cleanly, use the same buckets for each one:
+
+| Bucket | What belongs here |
+|--------|-------------------|
+| Core link page | Unlimited links, themes, embeds, QR codes, branding controls |
+| Audience capture | Email capture, phone capture, signup forms, welcome emails |
+| Analytics | Views, clicks, device/referrer/location, exports, conversion tracking |
+| Monetization | Digital products, affiliate links, seller fees, memberships, tips |
+| Commerce | Checkout, upsells, order bumps, payment plans, product pages |
+| Media / brand tools | Media kit, brand deals, invoicing, past projects, pitch tools |
+| Automation | Scheduling, redirects, auto-DMs, email sequences, social posting |
+| Websites / advanced pages | Multi-page sites, sub-pages, templates, advanced SEO |
+| Account / admin | Team tools, admins, MFA, support tier, onboarding |
+| Cost-risk to us | Cheap, moderate, or dangerous to offer natively |
+
+### Verified Pricing Snapshot
+
+#### Linktree
+
+| Plan | Price | Publicly emphasized features |
+|------|-------|------------------------------|
+| Free | $0 | Unlimited links, social icons, videos/embeds, essential analytics, SEO, QR code, digital products/courses |
+| Starter | $6/mo annual or $8 monthly | Custom themes, subscriber collection, redirect links, reduced seller fees |
+| Pro | $12/mo annual or $15 monthly | Personalized design, featured/animated links, comprehensive analytics, IG auto-replies, link shortener, email integrations |
+| Premium | $30/mo annual or $35 monthly | Unlimited social posts, optional team tools, unlimited IG replies, 0% seller fees, 100% affiliate commissions |
+
+#### Beacons
+
+| Plan | Price | Publicly emphasized features |
+|------|-------|------------------------------|
+| Free | $0 | Customizable link in bio, daily-updating media kit, unlimited digital products, affiliate links, 9% seller fees, 50 email sends/month, Smart Reply auto-DM, real-time analytics |
+| Creator | $8.33/mo annual or $10 monthly | Free custom domain, custom domain on product URLs, 500 email sends/month, advanced SEO and marketing features |
+| Creator Plus | $25/mo annual or $30 monthly | 0% seller fees, buy now pay later, keep 100% affiliate commissions, unlimited courses with video hosting, memberships, unlimited email sends |
+| Creator Max | $75/mo annual or $90 monthly | White glove onboarding, prioritized support, Google Workspace, events/perks, enterprise-style service layer |
+
+#### Stan
+
+Based on the provided landing-page screenshot, Stan is explicitly marketing itself as a bundle replacement rather than a single-feature tool.
+
+| Claimed bundle component | Displayed comparison price |
+|--------------------------|----------------------------|
+| Mobile optimized link-in-bio store | $29 |
+| Calendar invites and bookings | $15 |
+| Course builder | $119 |
+| Audience analytics | $10 |
+| Instagram auto DMs | $15 |
+| Email list / newsletter builder | $29 |
+| Social media template library | $30 |
+| Exclusive creator community access | $97 |
+| 1:1 creator strategy coaching | $99 |
+| Claimed total alternative spend | $443/mo |
+| Stan call to action | $29/mo |
+
+### Isolated Feature Lists
+
+#### Linktree isolated feature list
+
+| Linktree feature signal | Likely tier posture |
+|-------------------------|---------------------|
+| Unlimited links | Free |
+| Social icons, videos, and embeds | Free |
+| Essential analytics | Free |
+| SEO-optimized profile | Free |
+| Unique QR code | Free |
+| Custom themes | Starter |
+| Subscriber collection | Starter |
+| Redirect links | Starter |
+| Personalized design | Pro |
+| Featured and animated links | Pro |
+| Comprehensive analytics | Pro |
+| Instagram auto-replies | Pro, expanded at Premium |
+| Link shortener | Pro |
+| Email integrations | Pro |
+| Digital products and courses | Free with fee tradeoffs |
+| Sponsored links | Free or broad platform posture |
+| Affiliate commissions | Premium for best economics |
+| Team tools / admins | Premium |
+| Multi-factor authentication | Premium posture |
+
+#### Beacons isolated feature list
+
+| Beacons feature signal | Likely tier posture |
+|------------------------|---------------------|
+| Customizable link in bio | Free |
+| Free custom domain | Creator |
+| Unlimited digital products | Free |
+| Affiliate links | Free |
+| Real-time analytics | Free |
+| Advanced traffic analytics | Paid depth |
+| Daily-updating media kit | Free |
+| Invoices | Free or paid depth depending workflow |
+| Email collection | Free |
+| Email sends | Free limited, Creator higher cap, Creator Plus unlimited |
+| Automation sequences | Paid posture, likely Creator Plus |
+| Smart Reply / Instagram auto-DM | Free signal, stronger paid posture likely |
+| Audience manager | Free to paid depth |
+| Websites and sub-pages | Free to paid depth |
+| Website templates | Paid posture |
+| Scheduling and automation | Paid posture |
+| Link redirects | Creator / above posture |
+| Sell courses with video hosting | Creator Plus |
+| Memberships | Creator Plus |
+| Buy now pay later | Creator Plus |
+| Product importers and discount codes | Paid posture |
+| Media kit analytics and gated access | Paid depth |
+| Contact form | Free or paid depth |
+| Custom branded email sending | Paid posture |
+| White glove onboarding | Creator Max |
+
+#### Stan isolated feature list
+
+| Stan feature signal | Likely tier posture |
+|---------------------|---------------------|
+| Mobile optimized link-in-bio store | Bundled in $29 positioning |
+| Calendar invites and bookings | Bundled in $29 positioning |
+| Course builder | Bundled in $29 positioning |
+| Audience analytics | Bundled in $29 positioning |
+| Instagram auto DMs | Bundled in $29 positioning |
+| Email list / newsletter builder | Bundled in $29 positioning |
+| Social media template library | Bundled in $29 positioning |
+| Exclusive creator community access | Bundled in $29 positioning |
+| 1:1 creator strategy coaching | Bundled in $29 positioning |
+
+Stan is harder to pin to exact tiers from the screenshot, but the strategic signal is still clear: it sells consolidation more than feature-by-feature upgrade ladders.
+
+### Provider Breakdown By Feature Bucket
+
+| Bucket | Stan | Linktree | Beacons |
+|--------|------|----------|---------|
+| Core link page | Yes | Yes | Yes |
+| Audience capture | Yes | Yes | Yes |
+| Analytics | Yes | Yes | Yes |
+| Monetization | Yes | Yes | Yes |
+| Commerce | Yes | Light to moderate | Strong |
+| Email marketing | Yes | Lighter / integration-led | Strong |
+| Automation | Yes | Yes | Strong |
+| Media / brand tools | Light | Light | Strong |
+| Websites / advanced pages | Unclear | Light | Strong |
+| Team / admin / service | Coaching/community | Premium/admin | Max-tier support |
+
+### Master Feature Comparison Table
+
+This is the starting point for deciding what belongs in V1, what should be delayed, and what should never be promised as free at scale.
+
+| Feature | Stan tier posture | Linktree tier posture | Beacons tier posture | Cheap for us | Expensive for us | Suggested stance |
+|---------|-------------------|-----------------------|----------------------|--------------|------------------|------------------|
+| Unlimited links | Bundled | Free | Free | Yes | No | V1 free |
+| Themes / page customization | Bundled | Starter | Free | Yes | No | V1 free |
+| Social icons / embeds | Bundled | Free | Free | Yes | No | V1 free |
+| QR code | Unclear | Free | Unclear | Yes | No | V1 free |
+| Custom domains | Likely bundled | Higher-tier posture | Creator | Moderate | Moderate | Later or paid add-on |
+| Link redirects | Unclear | Starter | Creator / above posture | Yes | No | V1 or early |
+| Link scheduling | Unclear | Starter or higher posture | Creator / above posture | Yes | Low | Early |
+| Email capture forms | Bundled | Starter | Free | Yes | Low | Early |
+| Audience manager / CRM-lite | Bundled | Partial / unclear | Free to paid depth | Moderate | Moderate | Later |
+| Native newsletter sending | Bundled | Not clearly native, more subscriber/integration-led | Free limited, paid at scale | No | Yes | Metered / thresholded |
+| Email automations / sequences | Bundled | Not a core headline feature | Paid posture, likely Creator Plus | No | Yes | Avoid in V1 |
+| Welcome email | Likely bundled | Possible but unclear | Paid/native posture | Moderate | Low | Small capped feature |
+| Email integrations | Likely bundled | Pro | Likely paid posture | Moderate | Low | Early via webhook/integration |
+| Basic analytics | Bundled | Free | Free | Yes | No | V1 free |
+| Advanced analytics | Bundled | Pro | Free to paid depth | Moderate | Moderate | Later, usage-aware |
+| Data export | Unclear | Pro or above posture | Unclear | Yes | Low | Early |
+| Digital product sales | Bundled | Free with fees | Free | Moderate | Moderate | Later |
+| Seller fee optimization | Unclear | Premium | Creator Plus | No | Depends on payments stack | Later |
+| Affiliate monetization | Not emphasized | Premium for best economics | Free, better economics at Creator Plus | Moderate | Moderate | Later |
+| Tip jar / donations | Not emphasized | Not emphasized | Implied | Moderate | Low | Later |
+| Course builder | Bundled | Free signal or broad monetization posture | Creator Plus | No | Yes | Avoid in V1 |
+| Video hosting for courses | Unclear | Implied | Creator Plus | No | Yes | Avoid |
+| Memberships | Not emphasized | Unclear | Creator Plus | No | Yes | Avoid in V1 |
+| Storefront / product pages | Bundled | Free | Free | Moderate | Moderate | Later |
+| Upsells / order bumps | Likely higher-tier | Not emphasized | Paid posture | No | Yes | Avoid |
+| Buy now pay later | Not emphasized | Not emphasized | Creator Plus | No | Yes | Avoid |
+| Bookings / calendar | Bundled | Not emphasized | Implied, not cleanly tiered | No | Yes | Avoid in V1 |
+| Instagram auto DMs / replies | Bundled | Pro, expanded at Premium | Free signal, stronger paid posture likely | No | Yes | Avoid |
+| Social posting / scheduling | Not emphasized | Premium | Partial automation posture | No | Yes | Avoid |
+| Media kit | Not emphasized | Not emphasized | Free | Moderate | Moderate | Maybe later |
+| Invoicing | Not emphasized | Not emphasized | Free or paid depth | No for links product | Moderate | Keep separate product |
+| Contact form | Not emphasized | Unclear | Free or paid depth | Moderate | Low | Later |
+| Websites / sub-pages | Not emphasized | Light posture | Free to paid depth | Moderate | Moderate | Later |
+| Team tools / admins | Not emphasized | Premium | Max-tier service layer | Moderate | Moderate | Avoid early |
+| MFA / security extras | Not emphasized | Premium posture | Unclear | Moderate | Low | Later |
+| Human onboarding / coaching | Bundled | Premium / enterprise posture | Creator Max | No | Yes | Do not imitate |
+| Creator community | Bundled | Not a core pricing signal | Not a core pricing signal | No | Service-heavy | Do not imitate |
+
+### Threshold Off-Ramp Model
+
+The goal is:
+
+- keep the free tier generous for almost everyone
+- avoid negative scaling from a small number of expensive creators
+- preserve trust by tying paid usage to actual infrastructure cost rather than arbitrary feature gates
+
+#### Core idea
+
+For expensive features, do not start with a flat subscription promise.
+
+Instead:
+
+1. give creators a generous included threshold
+2. estimate real infrastructure cost beyond that threshold
+3. charge roughly `2x` to `3x` the raw infrastructure cost once they exceed it
+
+That markup needs to cover more than the raw vendor bill.
+
+It also covers:
+
+- engineering overhead
+- observability and abuse prevention
+- failed jobs / retries
+- support burden
+- payment processing overhead
+- margin for sustainability
+
+#### Where this model makes the most sense
+
+The threshold off-ramp works best for:
+
+- email sends
+- advanced analytics events
+- large file or video hosting
+- custom domains at scale
+- API-heavy automation features
+
+It is less useful for near-zero-cost features like:
+
+- themes
+- unlimited links
+- QR codes
+- simple scheduling
+
+Those should usually just be free.
+
+### Recommended Threshold Strategy By Feature
+
+| Feature area | Free threshold idea | Off-ramp after threshold |
+|--------------|---------------------|--------------------------|
+| Basic link page serving | Very high or effectively free | Usually no off-ramp needed until true scale |
+| Basic analytics | Included for all | Only meter advanced analytics layers |
+| Email capture | Free | No off-ramp needed unless storage/automation becomes heavy |
+| Native email sends | Small included monthly allowance | Charge 2x-3x raw sending cost |
+| Automation sequences | Very limited free | Meter sends and workflow executions |
+| File hosting | Small included storage | Charge 2x-3x storage and read cost |
+| Course/video hosting | No meaningful free promise | Paid-only or bring-your-own |
+| Custom domains | Limited or paid add-on | Flat fee or cost-plus |
+| Social / DM automation | No broad free promise | Meter by API cost and usage |
+
+### Example Off-Ramp Math
+
+If raw email sending cost is about `$0.40 / 1,000 emails`, then:
+
+| Monthly email sends above threshold | Approx raw cost | 2x charge | 3x charge |
+|------------------------------------|-----------------|-----------|-----------|
+| 10,000 | $4 | $8 | $12 |
+| 50,000 | $20 | $40 | $60 |
+| 100,000 | $40 | $80 | $120 |
+| 400,000 | $160 | $320 | $480 |
+| 2,000,000 | $800 | $1,600 | $2,400 |
+
+### Newsletter Cost Realism
+
+Email collection is cheap.
+
+Email sending at scale is not automatically cheap, especially once you add:
+
+- deliverability monitoring
+- bounced address handling
+- suppression lists
+- unsubscribe compliance
+- analytics and engagement tracking
+- automation sequences
+- branded sending domains
+- customer support when inbox placement fails
+
+#### The low-cost version
+
+The cheapest version of newsletter functionality is:
+
+- collect email addresses
+- store them or forward them to another tool
+- optionally send a simple welcome email
+
+That is affordable for a long time.
+
+#### The expensive version
+
+The expensive version is when users expect:
+
+- campaigns to 10K, 100K, or 1M subscribers
+- segmented lists
+- autoresponders
+- reliable inbox placement
+- open/click analytics
+- branded domain sending
+- compliance and support
+
+At that point, you are not just offering a link-in-bio feature. You are operating an email platform.
+
+#### Rough Email Cost Intuition
+
+Using the `cnxt to links` assumptions already written in [BILLING.md](BILLING.md), Resend-style sending around `$0.40 / 1,000 emails` is a decent raw-send placeholder.
+
+| Monthly sends | Approx raw send cost |
+|---------------|----------------------|
+| 1,000 | $0.40 |
+| 10,000 | $4 |
+| 50,000 | $20 |
+| 100,000 | $40 |
+| 400,000 | $160 |
+| 2,000,000 | $800 |
+
+### Practical Product Advice For cnxt to links
+
+#### Safe default
+
+Offer these first:
+
+- email capture forms
+- webhook forwarding to external providers
+- CSV export
+- optional single welcome email
+
+#### Good paid or metered boundary
+
+If you add native email sending, keep it inside a clear boundary:
+
+- free tier: collection only, maybe tiny monthly send allowance
+- paid tier: capped monthly sends
+- heavy users: metered billing or bring-your-own-provider
+
+#### Strong strategic option
+
+The best medium-term model may be:
+
+- native audience capture in `cnxt to links`
+- export + webhook integrations first
+- optional BYO email provider later
