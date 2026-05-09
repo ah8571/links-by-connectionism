@@ -4,6 +4,7 @@ export interface Env {
   PROFILES: R2Bucket;
   ANALYTICS: KVNamespace;
   ENVIRONMENT: string;
+  SUPABASE_JWT_SECRET: string;
 }
 
 const profileKey = (username: string) => `profiles/${username}.json`;
@@ -35,4 +36,21 @@ export async function profileExists(
 ): Promise<boolean> {
   const head = await bucket.head(profileKey(username));
   return head !== null;
+}
+
+/** Store a Supabase user_id → username mapping in KV */
+export async function setUserMapping(
+  kv: KVNamespace,
+  userId: string,
+  username: string
+): Promise<void> {
+  await kv.put(`user:${userId}`, username);
+}
+
+/** Look up which username owns a Supabase user_id */
+export async function getUsernameByUserId(
+  kv: KVNamespace,
+  userId: string
+): Promise<string | null> {
+  return kv.get(`user:${userId}`);
 }

@@ -1,137 +1,51 @@
-import type { Env } from "./storage";
-
-/** Generate a cryptographically random hex token */
-function generateToken(): string {
-  const bytes = new Uint8Array(32);
-  crypto.getRandomValues(bytes);
-  return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+/** Decode a base64url string to a Uint8Array */
+function base64urlDecode(str: string): Uint8Array {
+  const base64 = str.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
+  const binary = atob(padded);
+  return Uint8Array.from(binary, (c) => c.charCodeAt(0));
 }
 
-/** Create a magic-link token, store it in KV, return the full URL */
-export async function createMagicLink(
-  kv: KVNamespace,
-  username: string | null,
-  email: string,
-  dashboardOrigin: string
-): Promise<string> {
-  const token = generateToken();
-  const expiresAt = Date.now() + 15 * 60 * 1000; // 15 minutes
-
-  await kv.put(
-    `magic:${token}`,
-    JSON.stringify({ username, email, expiresAt }),
-    { expirationTtl: 900 } // auto-delete after 15 min
-  );
-
-  return `${dashboardOrigin}/verify?token=${token}`;
-}
-
-/** Verify a magic-link token → exchange for a session token. Returns { sessionToken, username, email } or null. */
-export async function verifyMagicToken(
-  kv: KVNamespace
-, token: string
-): Promise<{ sessionToken: string; username: string | null; email: string } | null> {
-  const raw = await kv.get(`magic:${token}`);
-  if (!raw) return null;
-
-  const data = JSON.parse(raw) as { username: string | null; email: string; expiresAt: number };
-  if (Date.now() > data.expiresAt) {
-    await kv.delete(`magic:${token}`);
-    return null;
-  }
-
-  // Delete the magic token (single use)
-  await kv.delete(`magic:${token}`);
-
-  // Create a session token (30 days)
-  const sessionToken = generateToken();
-  await kv.put(
-    `session:${sessionToken}`,
-    JSON.stringify({ username: data.username, email: data.email }),
-    { expirationTtl: 60 * 60 * 24 * 30 }
-  );
-
-  return { sessionToken, username: data.username, email: data.email };
-}
-
-/** Validate a session token → returns { username, email } or null */
-export async function validateSession(
-  kv: KVNamespace,
+/**
+ * Validate a Supabase-issued JWT using the project's JWT secret.
+ * Returns { sub, email } on success, null on failure.
+ * sub is the Supabase auth.users UUID — use it as the stable user identity.
+ */
+export async function validateSupabaseJWT(
+  jwtSecret: string,
   authHeader: string | null
-): Promise<{ username: string | null; email: string } | null> {
+): Promise<{ sub: string; email: string } | null> {
   if (!authHeader?.startsWith("Bearer ")) return null;
   const token = authHeader.slice(7);
-  const raw = await kv.get(`session:${token}`);
-  if (!raw) return null;
-  const data = JSON.parse(raw) as { username: string | null; email: string };
-  return data;
-}
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
 
-/** Update a session token in KV with a new username (e.g. after profile creation) */
-export async function updateSessionUsername(
-  kv: KVNamespace,
-  authHeader: string | null,
-  username: string
-): Promise<void> {
-  if (!authHeader?.startsWith("Bearer ")) return;
-  const token = authHeader.slice(7);
-  const raw = await kv.get(`session:${token}`);
-  if (!raw) return;
-  const data = JSON.parse(raw) as { username: string | null; email: string };
-  data.username = username;
-  await kv.put(`session:${token}`, JSON.stringify(data), {
-    expirationTtl: 60 * 60 * 24 * 30,
-  });
-}
+  try {
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(jwtSecret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["verify"]
+    );
 
-/** Store an email→username mapping for login lookups */
-export async function setEmailMapping(
-  kv: KVNamespace,
-  email: string,
-  username: string
-): Promise<void> {
-  await kv.put(`email:${email.toLowerCase()}`, username);
-}
+    const valid = await crypto.subtle.verify(
+      "HMAC",
+      key,
+      base64urlDecode(parts[2]),
+      new TextEncoder().encode(`${parts[0]}.${parts[1]}`)
+    );
+    if (!valid) return null;
 
-/** Look up which username owns an email */
-export async function getUsernameByEmail(
-  kv: KVNamespace,
-  email: string
-): Promise<string | null> {
-  return kv.get(`email:${email.toLowerCase()}`);
-}
+    const payload = JSON.parse(
+      new TextDecoder().decode(base64urlDecode(parts[1]))
+    ) as { sub?: string; email?: string; exp?: number };
 
-/** Send the magic link email via Resend. Returns true if sent, false if no API key (dev mode). */
-export async function sendMagicEmail(
-  env: Env,
-  email: string,
-  magicUrl: string
-): Promise<boolean> {
-  const apiKey = (env as unknown as Record<string, unknown>).RESEND_API_KEY as string | undefined;
-  if (!apiKey) return false; // dev mode — caller should return the link directly
+    if (!payload.sub || !payload.email) return null;
+    if (payload.exp && Date.now() / 1000 > payload.exp) return null;
 
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: "cnxt to links <noreply@links.cnxt.to>",
-      to: [email],
-      subject: "Your magic login link",
-      html: `
-        <div style="font-family:-apple-system,sans-serif; max-width:480px; margin:0 auto; padding:2rem;">
-          <h2 style="color:#6366f1;">cnxt to links</h2>
-          <p>Click below to log in to your dashboard. This link expires in 15 minutes.</p>
-          <a href="${magicUrl}" style="display:inline-block; background:#6366f1; color:#fff; padding:12px 24px; border-radius:6px; text-decoration:none; margin:1rem 0;">Log in to Dashboard</a>
-          <p style="color:#999; font-size:0.85rem;">If you didn't request this, you can safely ignore it.</p>
-        </div>
-      `,
-    }),
-  });
-
-  return res.ok;
+    return { sub: payload.sub, email: payload.email };
+  } catch {
+    return null;
+  }
 }

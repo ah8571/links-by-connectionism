@@ -1,15 +1,7 @@
-import { getProfile, putProfile, profileExists, type Env } from "./storage";
+import { getProfile, putProfile, profileExists, setUserMapping, getUsernameByUserId, type Env } from "./storage";
 import { ProfileSchema, RESERVED_SLUGS } from "./schema";
 import { renderProfilePage } from "./render";
-import {
-  createMagicLink,
-  verifyMagicToken,
-  validateSession,
-  updateSessionUsername,
-  setEmailMapping,
-  getUsernameByEmail,
-  sendMagicEmail,
-} from "./auth";
+import { validateSupabaseJWT } from "./auth";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -115,30 +107,8 @@ async function handleApi(
   }
 
   // ---- Auth routes ----
-
-  // POST /api/auth/start — always sends a magic link (new or existing user)
-  if (path === "/api/auth/start" && request.method === "POST") {
-    try {
-      const body = (await request.json()) as { email?: string };
-      const email = body.email?.toLowerCase().trim();
-      if (!email || !email.includes("@")) {
-        return jsonResponse({ error: "Valid email required" }, 400, corsHeaders);
-      }
-
-      const username = await getUsernameByEmail(env.ANALYTICS, email);
-      const dashboardOrigin = corsOrigin.includes("localhost") ? corsOrigin : "https://links.cnxt.to";
-      const magicUrl = await createMagicLink(env.ANALYTICS, username, email, dashboardOrigin);
-      const emailSent = await sendMagicEmail(env, email, magicUrl);
-
-      if (emailSent) {
-        return jsonResponse({ message: "Check your email for a login link." }, 200, corsHeaders);
-      }
-      // Dev mode
-      return jsonResponse({ message: "Magic link created (dev mode)", magicUrl }, 200, corsHeaders);
-    } catch {
-      return jsonResponse({ error: "bad request" }, 400, corsHeaders);
-    }
-  }
+  // Auth (sign-in, magic link, token verification) is handled entirely by the
+  // Supabase client in the dashboard. The Worker only validates the resulting JWT.
 
   // GET /api/username/check/:username — public availability check
   const usernameCheckMatch = path.match(/^\/api\/username\/check\/([a-z0-9._-]{3,30})$/);
@@ -151,75 +121,14 @@ async function handleApi(
     return jsonResponse({ available: !taken, reason: taken ? "taken" : null }, 200, corsHeaders);
   }
 
-  // POST /api/auth/magic — send a magic link to email (for existing users)
-  if (path === "/api/auth/magic" && request.method === "POST") {
-    try {
-      const body = (await request.json()) as { email?: string };
-      const email = body.email?.toLowerCase().trim();
-      if (!email) {
-        return jsonResponse({ error: "email required" }, 400, corsHeaders);
-      }
-
-      const username = await getUsernameByEmail(env.ANALYTICS, email);
-      if (!username) {
-        // Don't reveal if email exists or not
-        return jsonResponse({ ok: true, message: "If that email is registered, a login link has been sent." }, 200, corsHeaders);
-      }
-
-      const dashboardOrigin = corsOrigin.includes("localhost") ? corsOrigin : "https://links.cnxt.to";
-      const magicUrl = await createMagicLink(env.ANALYTICS, username, email, dashboardOrigin);
-      const emailSent = await sendMagicEmail(env, email, magicUrl);
-
-      if (emailSent) {
-        return jsonResponse({ ok: true, message: "If that email is registered, a login link has been sent." }, 200, corsHeaders);
-      }
-      // Dev mode: no email service configured — return link directly
-      return jsonResponse({ ok: true, message: "Magic link created (dev mode — no email service)", magicUrl }, 200, corsHeaders);
-    } catch {
-      return jsonResponse({ error: "bad request" }, 400, corsHeaders);
-    }
-  }
-
-  // POST /api/auth/verify — exchange magic token for session token
-  if (path === "/api/auth/verify" && request.method === "POST") {
-    try {
-      const body = (await request.json()) as { token?: string };
-      if (!body.token) {
-        return jsonResponse({ error: "token required" }, 400, corsHeaders);
-      }
-
-      const result = await verifyMagicToken(env.ANALYTICS, body.token);
-      if (!result) {
-        return jsonResponse({ error: "Invalid or expired link" }, 401, corsHeaders);
-      }
-
-      return jsonResponse({
-        ok: true,
-        sessionToken: result.sessionToken,
-        username: result.username,
-        email: result.email,
-        needsSetup: !result.username,
-      }, 200, corsHeaders);
-    } catch {
-      return jsonResponse({ error: "bad request" }, 400, corsHeaders);
-    }
-  }
-
-  // GET /api/auth/me — get current user from session token
+  // GET /api/auth/me — return current user's profile (JWT-authenticated)
   if (path === "/api/auth/me" && request.method === "GET") {
-    const session = await validateSession(env.ANALYTICS, request.headers.get("Authorization"));
-    if (!session) {
-      return jsonResponse({ error: "unauthorized" }, 401, corsHeaders);
-    }
-    if (!session.username) {
-      // New user who verified email but hasn't created a profile yet
-      return jsonResponse({ needsSetup: true, email: session.email }, 200, corsHeaders);
-    }
-    const profile = await getProfile(env.PROFILES, session.username);
-    if (!profile) {
-      // Email mapped but profile deleted — treat as new
-      return jsonResponse({ needsSetup: true, email: session.email }, 200, corsHeaders);
-    }
+    const jwt = await validateSupabaseJWT(env.SUPABASE_JWT_SECRET, request.headers.get("Authorization"));
+    if (!jwt) return jsonResponse({ error: "unauthorized" }, 401, corsHeaders);
+    const username = await getUsernameByUserId(env.ANALYTICS, jwt.sub);
+    if (!username) return jsonResponse({ needsSetup: true, email: jwt.email }, 200, corsHeaders);
+    const profile = await getProfile(env.PROFILES, username);
+    if (!profile) return jsonResponse({ needsSetup: true, email: jwt.email }, 200, corsHeaders);
     const { email: _email, ...publicProfile } = profile;
     return jsonResponse(publicProfile, 200, corsHeaders);
   }
@@ -235,17 +144,14 @@ async function handleApi(
     return jsonResponse(publicProfile, 200, corsHeaders);
   }
 
-  // POST /api/profile — create new profile (requires authenticated session)
+  // POST /api/profile — create new profile (requires Supabase JWT)
   if (path === "/api/profile" && request.method === "POST") {
-    // Require auth
-    const session = await validateSession(env.ANALYTICS, request.headers.get("Authorization"));
-    if (!session) {
-      return jsonResponse({ error: "unauthorized" }, 401, corsHeaders);
-    }
+    const jwt = await validateSupabaseJWT(env.SUPABASE_JWT_SECRET, request.headers.get("Authorization"));
+    if (!jwt) return jsonResponse({ error: "unauthorized" }, 401, corsHeaders);
 
     try {
       const body = await request.json();
-      const parsed = ProfileSchema.parse({ ...(body as Record<string, unknown>), email: session.email });
+      const parsed = ProfileSchema.parse({ ...(body as Record<string, unknown>), email: jwt.email });
 
       if (RESERVED_SLUGS.has(parsed.username)) {
         return jsonResponse({ error: "username reserved" }, 400, corsHeaders);
@@ -255,37 +161,32 @@ async function handleApi(
         return jsonResponse({ error: "username taken" }, 409, corsHeaders);
       }
 
-      // Check if email is already in use
-      const existingUsername = await getUsernameByEmail(env.ANALYTICS, session.email);
+      // Check if this user already has a profile
+      const existingUsername = await getUsernameByUserId(env.ANALYTICS, jwt.sub);
       if (existingUsername) {
-        return jsonResponse({ error: "email already associated with another account" }, 409, corsHeaders);
+        return jsonResponse({ error: "account already has a profile" }, 409, corsHeaders);
       }
 
       const now = new Date().toISOString();
       const profile = { ...parsed, createdAt: now, updatedAt: now };
       await putProfile(env.PROFILES, profile);
+      await setUserMapping(env.ANALYTICS, jwt.sub, parsed.username);
 
-      // Store email→username mapping + update session with new username
-      await setEmailMapping(env.ANALYTICS, session.email, parsed.username);
-      await updateSessionUsername(env.ANALYTICS, request.headers.get("Authorization"), parsed.username);
-
-      // Strip email from response
       const { email: _email, ...publicProfile } = profile;
       return jsonResponse(publicProfile, 201, corsHeaders);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "invalid request";
+      const message = err instanceof Error ? err.message : "invalid request";
       return jsonResponse({ error: message }, 400, corsHeaders);
     }
   }
 
-  // PUT /api/profile/:username — update existing profile (requires auth)
+  // PUT /api/profile/:username — update existing profile (requires Supabase JWT)
   if (profileMatch && request.method === "PUT") {
     const username = profileMatch[1];
 
-    // Validate session
-    const session = await validateSession(env.ANALYTICS, request.headers.get("Authorization"));
-    if (!session || session.username !== username) {
+    const jwt = await validateSupabaseJWT(env.SUPABASE_JWT_SECRET, request.headers.get("Authorization"));
+    const ownedUsername = jwt ? await getUsernameByUserId(env.ANALYTICS, jwt.sub) : null;
+    if (!jwt || ownedUsername !== username) {
       return jsonResponse({ error: "unauthorized" }, 401, corsHeaders);
     }
 
@@ -313,10 +214,11 @@ async function handleApi(
     }
   }
 
-  // POST /api/avatar — upload avatar image (requires auth)
+  // POST /api/avatar — upload avatar image (requires Supabase JWT)
   if (path === "/api/avatar" && request.method === "POST") {
-    const session = await validateSession(env.ANALYTICS, request.headers.get("Authorization"));
-    if (!session || !session.username) {
+    const jwt = await validateSupabaseJWT(env.SUPABASE_JWT_SECRET, request.headers.get("Authorization"));
+    const username = jwt ? await getUsernameByUserId(env.ANALYTICS, jwt.sub) : null;
+    if (!jwt || !username) {
       return jsonResponse({ error: "unauthorized" }, 401, corsHeaders);
     }
 
@@ -332,20 +234,17 @@ async function handleApi(
       return jsonResponse({ error: "Image must be under 2 MB" }, 400, corsHeaders);
     }
 
-    const key = `avatars/${session.username}`;
-    await env.PROFILES.put(key, body, {
-      httpMetadata: { contentType },
-    });
+    const key = `avatars/${username}`;
+    await env.PROFILES.put(key, body, { httpMetadata: { contentType } });
 
-    // Update profile to store avatar reference
-    const profile = await getProfile(env.PROFILES, session.username);
+    const profile = await getProfile(env.PROFILES, username);
     if (profile) {
-      profile.avatarUrl = `/avatar/${session.username}`;
+      profile.avatarUrl = `/avatar/${username}`;
       profile.updatedAt = new Date().toISOString();
       await putProfile(env.PROFILES, profile);
     }
 
-    return jsonResponse({ avatarUrl: `/avatar/${session.username}` }, 200, corsHeaders);
+    return jsonResponse({ avatarUrl: `/avatar/${username}` }, 200, corsHeaders);
   }
 
   return jsonResponse({ error: "not found" }, 404, corsHeaders);
