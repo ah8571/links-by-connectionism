@@ -1,2 +1,6 @@
+# Explicit static files that must not be caught by the SPA rule
+/sitemap.xml  /sitemap.xml  200
+/robots.txt   /robots.txt   200
+
 # SPA catch-all: serve index.html for all non-file paths
 /*  /index.html  200
