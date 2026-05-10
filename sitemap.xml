@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Public profile pages are dynamic (/:username) — not listed individually here.
+       Submit this sitemap for the dashboard and any static landing pages. -->
+
+  <!-- Dashboard (user-facing app at links.cnxt.to) -->
+  <url>
+    <loc>https://links.cnxt.to/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Worker root (cnxt.to — currently a placeholder) -->
+  <url>
+    <loc>https://cnxt.to/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Public profile pages (dynamic — pattern: cnxt.to/:username) -->
+  <!-- Individual profile URLs are user-generated and not enumerable here.
+       Consider a dynamically generated sitemap index if Google indexing of
+       profiles becomes a priority. -->
+
+</urlset>
