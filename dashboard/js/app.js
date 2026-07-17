@@ -5,10 +5,19 @@ const API_BASE = location.hostname === "localhost" || location.hostname === "127
 
 const PUBLIC_BASE = API_BASE.replace("http://127.0.0.1:8787", "http://127.0.0.1:8787");
 
+// --- Cross-domain auth: try to restore Supabase session from shared cookie ---
+import { getSharedSession } from "./cnxt-auth.js";
+const sharedSession = await getSharedSession();
+
 // --- State ---
-let currentUser = null; // { username, ...profile } or null
-let sessionToken = localStorage.getItem("cnxt_session") || null;
-let sessionEmail = null; // email from verified session (for new users)
+let currentUser = null;
+let sessionToken = sharedSession?.accessToken || localStorage.getItem("cnxt_session") || null;
+let sessionEmail = sharedSession?.user?.email || null;
+
+// If we got a session from the shared cookie, persist it to localStorage
+if (sharedSession?.accessToken) {
+  localStorage.setItem("cnxt_session", sharedSession.accessToken);
+}
 let currentView = "landing";
 let autoSaveTimer = null;
 let isSaving = false;
@@ -607,7 +616,9 @@ function bindEditor() {
   document.getElementById("save-btn").addEventListener("click", isNewUser ? handleCreate : handleSave);
 
   // Logout
-  document.getElementById("logout-btn").addEventListener("click", () => {
+  document.getElementById("logout-btn").addEventListener("click", async () => {
+    const { clearSharedSession } = await import("./cnxt-auth.js");
+    await clearSharedSession();
     sessionToken = null;
     currentUser = null;
     sessionEmail = null;

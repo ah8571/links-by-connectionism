@@ -2,6 +2,7 @@ import { getProfile, putProfile, profileExists, setUserMapping, getUsernameByUse
 import { ProfileSchema, RESERVED_SLUGS } from "./schema";
 import { renderProfilePage } from "./render";
 import { validateSupabaseJWT } from "./auth";
+import { HUB_HTML } from "./hub";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -57,11 +58,11 @@ export default {
       });
     }
 
-    // --- Root / landing ---
+    // --- Root / landing — cnxt hub page ---
     if (path === "/") {
-      return new Response("cnxt to links — coming soon", {
+      return new Response(HUB_HTML, {
         status: 200,
-        headers: { "Content-Type": "text/plain" },
+        headers: { "Content-Type": "text/html;charset=UTF-8" },
       });
     }
 
