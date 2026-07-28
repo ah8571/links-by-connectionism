@@ -1,7 +1,7 @@
 {
-  "name": "links-by-cnxt",
+  "name": "links-by-freesurf",
   "version": "0.1.0",
-  "description": "Free, open-source link-in-bio platform — alternative to Linktree & Stan Store",
+  "description": "Free, open-source link-in-bio platform — powered by FreeSurf",
   "private": true,
   "scripts": {
     "dev": "wrangler dev",

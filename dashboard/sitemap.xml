@@ -4,21 +4,21 @@
   <!-- Public profile pages are dynamic (/:username) — not listed individually here.
        Submit this sitemap for the dashboard and any static landing pages. -->
 
-  <!-- Dashboard (user-facing app at links.cnxt.to) -->
+  <!-- Dashboard (user-facing app at links.freesurf.tools) -->
   <url>
-    <loc>https://links.cnxt.to/</loc>
+    <loc>https://links.freesurf.tools/</loc>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
 
-  <!-- Worker root (cnxt.to — currently a placeholder) -->
+  <!-- Worker root (freesurf.tools) -->
   <url>
-    <loc>https://cnxt.to/</loc>
+    <loc>https://freesurf.tools/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
-  <!-- Public profile pages (dynamic — pattern: cnxt.to/:username) -->
+  <!-- Public profile pages (dynamic — pattern: freesurf.tools/:username) -->
   <!-- Individual profile URLs are user-generated and not enumerable here.
        Consider a dynamically generated sitemap index if Google indexing of
        profiles becomes a priority. -->

@@ -84,6 +84,8 @@ function render() {
     case "editor":     app.innerHTML = renderEditor(); bindEditor(); break;
     default:           app.innerHTML = renderLanding(); bindLanding();
   }
+  const yearEl = document.querySelector(".freesurf-footer-year");
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
 }
 
 // --- Magic link verification on page load ---
@@ -159,8 +161,37 @@ function renderLanding() {
         </div>
       </div>
 
-      <footer class="footer">
-        <p>FreeSurf Links — open source, free for most users — <a href="https://github.com/ah8571/freesurf-links" target="_blank">github</a></p>
+      <footer class="freesurf-footer">
+        <div class="freesurf-footer-inner">
+          <div class="freesurf-footer-brand">
+            <a href="https://freesurf.tools" class="freesurf-footer-logo">FreeSurf</a>
+            <p class="freesurf-footer-tagline">Free tools for freelancers & small businesses. No commissions, no lock-in, open source.</p>
+          </div>
+          <div class="freesurf-footer-links">
+            <div class="freesurf-footer-col">
+              <span class="freesurf-footer-heading">Tools</span>
+              <a href="https://invoices.freesurf.tools">Invoices</a>
+              <a href="https://links.freesurf.tools">Links</a>
+              <a href="https://post.freesurf.tools">Post</a>
+            </div>
+            <div class="freesurf-footer-col">
+              <span class="freesurf-footer-heading">Platform</span>
+              <a href="https://freesurf.tools">Home</a>
+              <a href="https://auth.freesurf.tools">Sign in</a>
+              <a href="https://github.com/freesurf-ecosystem">GitHub</a>
+            </div>
+            <div class="freesurf-footer-col">
+              <span class="freesurf-footer-heading">Legal</span>
+              <a href="https://freesurf.tools/privacy.html">Privacy</a>
+              <a href="https://freesurf.tools/terms.html">Terms</a>
+              <a href="mailto:hello@freesurf.tools">Contact</a>
+            </div>
+          </div>
+        </div>
+        <div class="freesurf-footer-bottom">
+          <span>&copy; <span class="freesurf-footer-year"></span> FreeSurf. Built for independent workers.</span>
+          <span>Part of the FreeSurf ecosystem of free tools.</span>
+        </div>
       </footer>
     </div>
   `;
@@ -365,8 +396,37 @@ function renderEditor() {
       <!-- Save -->
       <button class="btn btn-primary btn-block" id="save-btn" style="margin-bottom:2rem;">${isNewUser ? "Create My Page" : "Save Changes"}</button>
 
-      <footer class="footer">
-        <p>FreeSurf Links — open source, free for most users — <a href="https://github.com/ah8571/freesurf-links" target="_blank">github</a></p>
+      <footer class="freesurf-footer">
+        <div class="freesurf-footer-inner">
+          <div class="freesurf-footer-brand">
+            <a href="https://freesurf.tools" class="freesurf-footer-logo">FreeSurf</a>
+            <p class="freesurf-footer-tagline">Free tools for freelancers & small businesses. No commissions, no lock-in, open source.</p>
+          </div>
+          <div class="freesurf-footer-links">
+            <div class="freesurf-footer-col">
+              <span class="freesurf-footer-heading">Tools</span>
+              <a href="https://invoices.freesurf.tools">Invoices</a>
+              <a href="https://links.freesurf.tools">Links</a>
+              <a href="https://post.freesurf.tools">Post</a>
+            </div>
+            <div class="freesurf-footer-col">
+              <span class="freesurf-footer-heading">Platform</span>
+              <a href="https://freesurf.tools">Home</a>
+              <a href="https://auth.freesurf.tools">Sign in</a>
+              <a href="https://github.com/freesurf-ecosystem">GitHub</a>
+            </div>
+            <div class="freesurf-footer-col">
+              <span class="freesurf-footer-heading">Legal</span>
+              <a href="https://freesurf.tools/privacy.html">Privacy</a>
+              <a href="https://freesurf.tools/terms.html">Terms</a>
+              <a href="mailto:hello@freesurf.tools">Contact</a>
+            </div>
+          </div>
+        </div>
+        <div class="freesurf-footer-bottom">
+          <span>&copy; <span class="freesurf-footer-year"></span> FreeSurf. Built for independent workers.</span>
+          <span>Part of the FreeSurf ecosystem of free tools.</span>
+        </div>
       </footer>
     </div>
   `;

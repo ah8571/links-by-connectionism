@@ -1,10 +1,12 @@
+import { FREESURF } from "./freesurf.config";
+
 export const HUB_HTML = `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Connectionism | Free Tools & Contractor Network</title>
-  <meta name="description" content="Connectionism is an open-source platform connecting people directly with contractors — plus free tools for invoices, link-in-bio pages, cross-posting, and more. No middleman fees, no subscriptions." />
+  <title>FreeSurf | Free Tools & Contractor Network</title>
+  <meta name="description" content="FreeSurf is an open-source platform connecting people directly with contractors — plus free tools for invoices, link-in-bio pages, cross-posting, and more. No middleman fees, no subscriptions." />
   <style>
     :root {
       --bg: #0b1020;
@@ -158,17 +160,17 @@ export const HUB_HTML = `<!doctype html>
 <body>
   <div class="wrap">
     <nav class="nav">
-      <div class="brand">Connectionism</div>
+      <div class="brand">FreeSurf</div>
       <div class="nav-right">
-        <a href="https://auth.cnxt.to" class="btn btn-secondary" style="padding:8px 14px;font-size:0.85rem;">Sign in</a>
+        <a href="${FREESURF.URLS.auth}" class="btn btn-secondary" style="padding:8px 14px;font-size:0.85rem;">Sign in</a>
         <div class="app-launcher">
-          <button class="app-launcher-btn" id="app-launcher-btn" aria-label="cnxt tools" title="cnxt tools">⋮⋮⋮</button>
+          <button class="app-launcher-btn" id="app-launcher-btn" aria-label="FreeSurf tools" title="FreeSurf tools">⋮⋮⋮</button>
           <div class="app-dropdown" id="app-dropdown">
-            <a href="https://invoices.cnxt.to"><span class="app-icon">🧾</span>Invoices</a>
-            <a href="https://links.cnxt.to"><span class="app-icon">🔗</span>Links</a>
-            <a href="https://post.cnxt.to"><span class="app-icon">📢</span>Post</a>
-            <a href="https://auth.cnxt.to"><span class="app-icon">🔐</span>Auth</a>
-            <a href="https://hire.cnxt.to"><span class="app-icon">🤝</span>Hire</a>
+            <a href="${FREESURF.URLS.invoices}"><span class="app-icon">🧾</span>Invoices</a>
+            <a href="${FREESURF.URLS.links}"><span class="app-icon">🔗</span>Links</a>
+            <a href="${FREESURF.URLS.post}"><span class="app-icon">📢</span>Post</a>
+            <a href="${FREESURF.URLS.auth}"><span class="app-icon">🔐</span>Auth</a>
+            <a href="${FREESURF.URLS.hire}"><span class="app-icon">🤝</span>Hire</a>
             <a href="https://github.com/ah8571"><span class="app-icon">💻</span>GitHub</a>
           </div>
         </div>
@@ -179,11 +181,11 @@ export const HUB_HTML = `<!doctype html>
       <section>
         <h1>Find contractors without middleman fees.</h1>
         <p class="lead">
-          Connectionism is a free, open-source platform connecting clients and contractors directly.
+          FreeSurf is a free, open-source platform connecting clients and contractors directly.
           No platform percentage. No hidden upcharge. Plus free tools for invoices, link-in-bio pages, cross-posting, and more.
         </p>
         <div class="cta-row">
-          <a class="btn btn-primary" href="https://auth.cnxt.to">Get started — it's free</a>
+          <a class="btn btn-primary" href="${FREESURF.URLS.auth}">Get started — it's free</a>
           <a class="btn btn-secondary" href="https://github.com/ah8571" target="_blank" rel="noopener noreferrer">View on GitHub</a>
         </div>
       </section>
@@ -218,42 +220,42 @@ export const HUB_HTML = `<!doctype html>
     </section>
 
     <!-- Tools -->
-    <h2 class="tools-heading">cnxt tools</h2>
+    <h2 class="tools-heading">FreeSurf tools</h2>
     <div class="tool-grid">
-      <a href="https://invoices.cnxt.to" class="tool-item">
+      <a href="${FREESURF.URLS.invoices}" class="tool-item">
         <span class="ti">🧾</span>
-        <span>Invoices <span class="tl">invoices.cnxt.to</span></span>
+        <span>Invoices <span class="tl">invoices.${FREESURF.ROOT_DOMAIN}</span></span>
         <span class="badge badge-live">Live</span>
       </a>
-      <a href="https://links.cnxt.to" class="tool-item">
+      <a href="${FREESURF.URLS.links}" class="tool-item">
         <span class="ti">🔗</span>
-        <span>Links <span class="tl">links.cnxt.to</span></span>
+        <span>Links <span class="tl">links.${FREESURF.ROOT_DOMAIN}</span></span>
         <span class="badge badge-live">Live</span>
       </a>
-      <a href="https://post.cnxt.to" class="tool-item">
+      <a href="${FREESURF.URLS.post}" class="tool-item">
         <span class="ti">📢</span>
-        <span>Post <span class="tl">post.cnxt.to</span></span>
+        <span>Post <span class="tl">post.${FREESURF.ROOT_DOMAIN}</span></span>
         <span class="badge badge-wip">Beta</span>
       </a>
-      <a href="https://auth.cnxt.to" class="tool-item">
+      <a href="${FREESURF.URLS.auth}" class="tool-item">
         <span class="ti">🔐</span>
-        <span>Auth <span class="tl">auth.cnxt.to</span></span>
+        <span>Auth <span class="tl">auth.${FREESURF.ROOT_DOMAIN}</span></span>
         <span class="badge badge-wip">Beta</span>
       </a>
-      <a href="https://hire.cnxt.to" class="tool-item">
+      <a href="${FREESURF.URLS.hire}" class="tool-item">
         <span class="ti">🤝</span>
-        <span>Hire <span class="tl">hire.cnxt.to</span></span>
+        <span>Hire <span class="tl">hire.${FREESURF.ROOT_DOMAIN}</span></span>
         <span class="badge badge-wip">Coming soon</span>
       </a>
       <div class="tool-item" style="opacity:0.5;">
         <span class="ti">📄</span>
-        <span>PDF <span class="tl">pdf.cnxt.to</span></span>
+        <span>PDF <span class="tl">pdf.${FREESURF.ROOT_DOMAIN}</span></span>
         <span class="badge" style="background:rgba(107,114,128,0.15);color:#9ca3af;">Planned</span>
       </div>
     </div>
 
     <footer>
-      © <span id="year"></span> Connectionism · Free tools, no bullshit.
+      © <span id="year"></span> FreeSurf · Free tools, no bullshit.
     </footer>
   </div>
 

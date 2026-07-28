@@ -3,6 +3,7 @@ import { ProfileSchema, RESERVED_SLUGS } from "./schema";
 import { renderProfilePage } from "./render";
 import { validateSupabaseJWT } from "./auth";
 import { HUB_HTML } from "./hub";
+import { FREESURF } from "./freesurf.config";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -58,7 +59,7 @@ export default {
       });
     }
 
-    // --- Root / landing — cnxt hub page ---
+    // --- Root / landing — FreeSurf hub page ---
     if (path === "/") {
       return new Response(HUB_HTML, {
         status: 200,
@@ -77,7 +78,7 @@ async function handleApi(
   env: Env,
   path: string
 ): Promise<Response> {
-  const allowedOrigins = ["https://links.cnxt.to", "https://links-cnxt-dashboard.pages.dev", "http://localhost:5173", "http://localhost:3000"];
+  const allowedOrigins = FREESURF.CORS_ORIGINS.links;
   const origin = request.headers.get("Origin") ?? "";
   const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
   const corsHeaders = {

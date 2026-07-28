@@ -1,17 +1,17 @@
-name = "links-by-cnxt"
+name = "links-by-freesurf"
 main = "src/index.ts"
 compatibility_date = "2024-12-01"
 workers_dev = true
 
-# Custom domains — cnxt.to serves public pages + API, links.cnxt.to is handled by Cloudflare Pages (dashboard)
+# Custom domains — freesurf.tools serves public pages + API, links.freesurf.tools is handled by Cloudflare Pages (dashboard)
 routes = [
-  { pattern = "cnxt.to/*", zone_name = "cnxt.to" }
+  { pattern = "freesurf.tools/*", zone_name = "freesurf.tools" }
 ]
 
 # R2 bucket for storing creator profile JSON files
 [[r2_buckets]]
 binding = "PROFILES"
-bucket_name = "cnxt-profiles"
+bucket_name = "freesurf-profiles"
 
 # KV namespace for analytics counters + auth tokens
 [[kv_namespaces]]

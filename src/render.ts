@@ -1,4 +1,5 @@
 import type { Profile } from "./schema";
+import { FREESURF } from "./freesurf.config";
 
 /** Social platform → SVG icon path (24x24 viewBox) */
 const SOCIAL_ICONS: Record<string, string> = {
@@ -64,7 +65,7 @@ export function renderProfilePage(profile: Profile): string {
   <meta name="description" content="${escapeHtml(profile.bio || profile.displayName)}">
   <meta property="og:title" content="${escapeHtml(profile.displayName)}">
   <meta property="og:description" content="${escapeHtml(profile.bio || "")}">
-  ${profile.avatarUrl ? `<meta property="og:image" content="https://cnxt.to/avatar/${escapeHtml(profile.username)}">` : ""}
+  ${profile.avatarUrl ? `<meta property="og:image" content="${FREESURF.URLS.home}/avatar/${escapeHtml(profile.username)}">` : ""}
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -131,7 +132,7 @@ export function renderProfilePage(profile: Profile): string {
       ${linksHtml}
     </div>
     ${socialsHtml ? `<div class="socials">${socialsHtml}</div>` : ""}
-    <p class="footer"><a href="https://links.cnxt.to">cnxt to links</a></p>
+    <p class="footer"><a href="${FREESURF.URLS.links}">FreeSurf Links</a></p>
   </div>
   <script>
     document.querySelectorAll('.link').forEach(function(a) {
