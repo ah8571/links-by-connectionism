@@ -1,22 +1,22 @@
 // --- Config ---
 const API_BASE = location.hostname === "localhost" || location.hostname === "127.0.0.1"
   ? "http://127.0.0.1:8787"
-  : "https://cnxt.to";
+  : "https://freesurf.tools";
 
 const PUBLIC_BASE = API_BASE.replace("http://127.0.0.1:8787", "http://127.0.0.1:8787");
 
 // --- Cross-domain auth: try to restore Supabase session from shared cookie ---
-import { getSharedSession } from "./cnxt-auth.js";
+import { getSharedSession } from "./freesurf-auth.js";
 const sharedSession = await getSharedSession();
 
 // --- State ---
 let currentUser = null;
-let sessionToken = sharedSession?.accessToken || localStorage.getItem("cnxt_session") || null;
+let sessionToken = sharedSession?.accessToken || localStorage.getItem("freesurf_session") || null;
 let sessionEmail = sharedSession?.user?.email || null;
 
 // If we got a session from the shared cookie, persist it to localStorage
 if (sharedSession?.accessToken) {
-  localStorage.setItem("cnxt_session", sharedSession.accessToken);
+  localStorage.setItem("freesurf_session", sharedSession.accessToken);
 }
 let currentView = "landing";
 let autoSaveTimer = null;
@@ -96,7 +96,7 @@ async function handleVerifyOnLoad() {
     const result = await apiPost("/api/auth/verify", { token });
     if (result.sessionToken) {
       sessionToken = result.sessionToken;
-      localStorage.setItem("cnxt_session", sessionToken);
+      localStorage.setItem("freesurf_session", sessionToken);
 
       if (result.needsSetup) {
         // New user — go straight to editor in setup mode
@@ -121,7 +121,7 @@ async function handleVerifyOnLoad() {
 function renderLanding() {
   return `
     <header class="header">
-      <div class="header-logo"><span style="color:var(--accent)">cnxt to</span> links</div>
+      <div class="header-logo"><span style="color:var(--accent)">FreeSurf</span> links</div>
 
     </header>
     <div class="container">
@@ -160,7 +160,7 @@ function renderLanding() {
       </div>
 
       <footer class="footer">
-        <p>cnxt to links — open source, free for most users — <a href="https://github.com/ah8571/cnxt-to-links" target="_blank">github</a></p>
+        <p>FreeSurf Links — open source, free for most users — <a href="https://github.com/ah8571/freesurf-links" target="_blank">github</a></p>
       </footer>
     </div>
   `;
@@ -223,8 +223,8 @@ let usernameAvailable = false;
 function renderEditor() {
   const isNewUser = !currentUser;
   const profile = currentUser || { displayName: "", bio: "", avatarUrl: "", theme: "minimal-dark", links: [] };
-  const publicUrl = currentUser ? `${PUBLIC_BASE.replace("http://127.0.0.1:8787", "cnxt.to")}/${profile.username}` : null;
-  const displayUrl = currentUser ? `cnxt.to/${profile.username}` : null;
+  const publicUrl = currentUser ? `${PUBLIC_BASE.replace("http://127.0.0.1:8787", "freesurf.tools")}/${profile.username}` : null;
+  const displayUrl = currentUser ? `freesurf.tools/${profile.username}` : null;
 
   const PLATFORM_LABELS = { twitter: "Twitter / X", instagram: "Instagram", youtube: "YouTube", tiktok: "TikTok", github: "GitHub", linkedin: "LinkedIn" };
 
@@ -269,9 +269,9 @@ function renderEditor() {
 
   return `
     <header class="header">
-      <a href="/" class="header-logo" id="nav-home"><span style="color:var(--accent)">cnxt to</span> links</a>
+      <a href="/" class="header-logo" id="nav-home"><span style="color:var(--accent)">FreeSurf</span> links</a>
       <nav class="header-nav">
-        ${currentUser ? `<a href="${publicUrl.startsWith("cnxt") ? "https://" + publicUrl : publicUrl}" target="_blank" class="btn btn-secondary btn-sm">View Page</a>` : ""}
+        ${currentUser ? `<a href="${publicUrl.startsWith("http") ? publicUrl : "https://" + publicUrl}" target="_blank" class="btn btn-secondary btn-sm">View Page</a>` : ""}
         <button class="btn btn-secondary btn-sm" id="logout-btn">Log out</button>
       </nav>
     </header>
@@ -293,7 +293,7 @@ function renderEditor() {
         <div class="form-group">
           <label class="form-label">Choose your URL</label>
           <div class="claim-form" style="margin-bottom:0;">
-            <div class="claim-prefix">cnxt.to/</div>
+            <div class="claim-prefix">freesurf.tools/</div>
             <input type="text" class="form-input" id="edit-username" placeholder="yourname" maxlength="30" style="border-radius:0 var(--radius) var(--radius) 0;">
           </div>
           <p id="username-status" style="font-size:0.8rem; margin-top:0.35rem; min-height:1.2em;">&nbsp;</p>
@@ -366,7 +366,7 @@ function renderEditor() {
       <button class="btn btn-primary btn-block" id="save-btn" style="margin-bottom:2rem;">${isNewUser ? "Create My Page" : "Save Changes"}</button>
 
       <footer class="footer">
-        <p>cnxt to links — open source, free for most users — <a href="https://github.com/ah8571/cnxt-to-links" target="_blank">github</a></p>
+        <p>FreeSurf Links — open source, free for most users — <a href="https://github.com/ah8571/freesurf-links" target="_blank">github</a></p>
       </footer>
     </div>
   `;
@@ -384,7 +384,7 @@ function bindEditor() {
   const copyBtn = document.getElementById("copy-url");
   if (copyBtn) {
     copyBtn.addEventListener("click", () => {
-      const url = `https://cnxt.to/${currentUser.username}`;
+      const url = `https://freesurf.tools/${currentUser.username}`;
       navigator.clipboard.writeText(url).then(() => {
         copyBtn.textContent = "Copied!";
         setTimeout(() => { copyBtn.textContent = "Copy"; }, 2000);
@@ -617,12 +617,12 @@ function bindEditor() {
 
   // Logout
   document.getElementById("logout-btn").addEventListener("click", async () => {
-    const { clearSharedSession } = await import("./cnxt-auth.js");
+    const { clearSharedSession } = await import("./freesurf-auth.js");
     await clearSharedSession();
     sessionToken = null;
     currentUser = null;
     sessionEmail = null;
-    localStorage.removeItem("cnxt_session");
+    localStorage.removeItem("freesurf_session");
     navigate("landing");
   });
 }
@@ -637,7 +637,7 @@ async function checkUsername(username, statusEl) {
     if (!input || input.value !== username) return;
 
     if (res.available) {
-      statusEl.textContent = "\u2713 cnxt.to/" + username + " is available!";
+      statusEl.textContent = "\u2713 freesurf.tools/" + username + " is available!";
       statusEl.style.color = "var(--success)";
       usernameAvailable = true;
     } else {
@@ -825,7 +825,7 @@ function escapeAttr(str) {
       return;
     } catch {
       sessionToken = null;
-      localStorage.removeItem("cnxt_session");
+      localStorage.removeItem("freesurf_session");
     }
   }
 
