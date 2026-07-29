@@ -112,6 +112,41 @@ async function handleApi(
   // Auth (sign-in, magic link, token verification) is handled entirely by the
   // Supabase client in the dashboard. The Worker only validates the resulting JWT.
 
+  // POST /api/auth/start — send magic link
+  if (path === "/api/auth/start" && request.method === "POST") {
+    try {
+      const { email } = (await request.json()) as { email?: string };
+      if (!email) return jsonResponse({ error: "email required" }, 400, corsHeaders);
+      const supabaseUrl = FREESURF.AUTH.SUPABASE_URL;
+      const anonKey = FREESURF.AUTH.SUPABASE_ANON_KEY;
+      const magicRes = await fetch(`${supabaseUrl}/auth/v1/magiclink`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "apikey": anonKey },
+        body: JSON.stringify({ email }),
+      });
+      if (!magicRes.ok) {
+        const err = await magicRes.text();
+        return jsonResponse({ error: err }, 400, corsHeaders);
+      }
+      return jsonResponse({ ok: true }, 200, corsHeaders);
+    } catch (e: unknown) {
+      return jsonResponse({ error: e instanceof Error ? e.message : "failed" }, 500, corsHeaders);
+    }
+  }
+
+  // POST /api/auth/verify — verify Supabase JWT token
+  if (path === "/api/auth/verify" && request.method === "POST") {
+    try {
+      const body = (await request.json()) as { token?: string };
+      if (!body.token) return jsonResponse({ error: "token required" }, 400, corsHeaders);
+      const jwt = await validateSupabaseJWT(env.SUPABASE_JWT_SECRET, `Bearer ${body.token}`);
+      if (!jwt) return jsonResponse({ error: "invalid token" }, 401, corsHeaders);
+      return jsonResponse({ token: body.token, email: jwt.email, sub: jwt.sub }, 200, corsHeaders);
+    } catch (e: unknown) {
+      return jsonResponse({ error: e instanceof Error ? e.message : "failed" }, 500, corsHeaders);
+    }
+  }
+
   // GET /api/username/check/:username — public availability check
   const usernameCheckMatch = path.match(/^\/api\/username\/check\/([a-z0-9._-]{3,30})$/);
   if (usernameCheckMatch && request.method === "GET") {
