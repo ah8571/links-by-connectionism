@@ -119,7 +119,7 @@ async function handleApi(
       if (!email) return jsonResponse({ error: "email required" }, 400, corsHeaders);
       const supabaseUrl = FREESURF.AUTH.SUPABASE_URL;
       const anonKey = FREESURF.AUTH.SUPABASE_ANON_KEY;
-      const magicRes = await fetch(`${supabaseUrl}/auth/v1/magiclink?redirect_to=${encodeURIComponent(FREESURF.URLS.links)}`, {
+      const magicRes = await fetch(`${supabaseUrl}/auth/v1/magiclink`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "apikey": anonKey },
         body: JSON.stringify({ email }),

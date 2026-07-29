@@ -260,8 +260,11 @@ export const HUB_HTML = `<!doctype html>
   </div>
 
   <script>
+    // Redirect magic link access tokens to the links dashboard
+    if (window.location.hash.includes("access_token=")) {
+      window.location.replace("https://links.freesurf.tools" + window.location.hash);
+    }
     document.getElementById('year').textContent = new Date().getFullYear();
-    // App launcher toggle
     const btn = document.getElementById('app-launcher-btn');
     const dropdown = document.getElementById('app-dropdown');
     btn.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('open'); });
