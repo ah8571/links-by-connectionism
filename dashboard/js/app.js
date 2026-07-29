@@ -1,7 +1,7 @@
 // --- Config ---
 const API_BASE = location.hostname === "localhost" || location.hostname === "127.0.0.1"
   ? "http://127.0.0.1:8787"
-  : "https://freesurf.tools";
+  : "https://links-by-freesurf.links-by-cnxt.workers.dev";
 
 const PUBLIC_BASE = API_BASE.replace("http://127.0.0.1:8787", "http://127.0.0.1:8787");
 
