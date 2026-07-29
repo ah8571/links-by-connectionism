@@ -122,7 +122,7 @@ async function handleApi(
       const magicRes = await fetch(`${supabaseUrl}/auth/v1/magiclink`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "apikey": anonKey },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, data: { redirect_to: FREESURF.URLS.links } }),
       });
       if (!magicRes.ok) {
         const err = await magicRes.text();
