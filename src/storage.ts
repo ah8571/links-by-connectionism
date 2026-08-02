@@ -1,56 +1,103 @@
 import type { Profile } from "./schema";
+import { FREESURF } from "./freesurf.config";
 
 export interface Env {
-  PROFILES: R2Bucket;
+  AVATARS: R2Bucket;
   ANALYTICS: KVNamespace;
   ENVIRONMENT: string;
   SUPABASE_JWT_SECRET: string;
 }
 
-const profileKey = (username: string) => `profiles/${username}.json`;
+const SUPABASE_URL = FREESURF.AUTH.SUPABASE_URL;
+const SUPABASE_ANON_KEY = FREESURF.AUTH.SUPABASE_ANON_KEY;
+const SUPABASE_REST = `${SUPABASE_URL}/rest/v1/link_profiles`;
 
-/** Write a creator profile to R2 */
-export async function putProfile(
-  bucket: R2Bucket,
-  profile: Profile
-): Promise<void> {
-  await bucket.put(profileKey(profile.username), JSON.stringify(profile), {
-    httpMetadata: { contentType: "application/json" },
-  });
+function supabaseHeaders(jwt?: string): HeadersInit {
+  return {
+    apikey: SUPABASE_ANON_KEY,
+    Authorization: jwt ? `Bearer ${jwt}` : `Bearer ${SUPABASE_ANON_KEY}`,
+    "Content-Type": "application/json",
+    Prefer: "return=representation",
+  };
 }
 
-/** Read a creator profile from R2, or null if not found */
-export async function getProfile(
-  bucket: R2Bucket,
-  username: string
-): Promise<Profile | null> {
-  const obj = await bucket.get(profileKey(username));
-  if (!obj) return null;
-  return (await obj.json()) as Profile;
+/** Write (upsert) a creator profile */
+export async function putProfile(env: Env, profile: Profile, jwt?: string): Promise<void> {
+  const body: Record<string, unknown> = {
+    username: profile.username,
+    email: profile.email,
+    display_name: profile.displayName,
+    bio: profile.bio,
+    avatar_url: profile.avatarUrl || null,
+    theme: profile.theme,
+    default_view: profile.defaultView,
+    links: profile.links,
+    created_at: profile.createdAt,
+    updated_at: profile.updatedAt,
+  };
+
+  const existing = await getProfile(env, profile.username);
+  if (existing) {
+    delete body.username;
+    await fetch(`${SUPABASE_REST}?username=eq.${encodeURIComponent(profile.username)}`, {
+      method: "PATCH",
+      headers: supabaseHeaders(jwt),
+      body: JSON.stringify(body),
+    });
+  } else {
+    await fetch(SUPABASE_REST, {
+      method: "POST",
+      headers: supabaseHeaders(jwt),
+      body: JSON.stringify(body),
+    });
+  }
 }
 
-/** Check if a username is taken (key exists in R2) */
-export async function profileExists(
-  bucket: R2Bucket,
-  username: string
-): Promise<boolean> {
-  const head = await bucket.head(profileKey(username));
-  return head !== null;
+/** Read a creator profile, or null if not found */
+export async function getProfile(env: Env, username: string): Promise<Profile | null> {
+  const res = await fetch(
+    `${SUPABASE_REST}?username=eq.${encodeURIComponent(username)}&select=*`,
+    { headers: supabaseHeaders() }
+  );
+  if (!res.ok) return null;
+  const rows = (await res.json()) as Record<string, unknown>[];
+  if (rows.length === 0) return null;
+  return rowToProfile(rows[0]);
 }
 
-/** Store a Supabase user_id → username mapping in KV */
-export async function setUserMapping(
-  kv: KVNamespace,
-  userId: string,
-  username: string
-): Promise<void> {
-  await kv.put(`user:${userId}`, username);
+/** Check if a username is taken */
+export async function profileExists(env: Env, username: string): Promise<boolean> {
+  const res = await fetch(
+    `${SUPABASE_REST}?username=eq.${encodeURIComponent(username)}&select=username`,
+    { headers: supabaseHeaders() }
+  );
+  if (!res.ok) return false;
+  const rows = (await res.json()) as Record<string, unknown>[];
+  return rows.length > 0;
 }
 
-/** Look up which username owns a Supabase user_id */
-export async function getUsernameByUserId(
-  kv: KVNamespace,
-  userId: string
-): Promise<string | null> {
-  return kv.get(`user:${userId}`);
+/** Get username by Supabase user_id */
+export async function getUsernameByUserId(env: Env, userId: string): Promise<string | null> {
+  const res = await fetch(
+    `${SUPABASE_REST}?user_id=eq.${encodeURIComponent(userId)}&select=username`,
+    { headers: supabaseHeaders() }
+  );
+  if (!res.ok) return null;
+  const rows = (await res.json()) as Record<string, unknown>[];
+  return rows.length > 0 ? (rows[0].username as string) : null;
+}
+
+function rowToProfile(row: Record<string, unknown>): Profile {
+  return {
+    username: row.username as string,
+    email: row.email as string,
+    displayName: row.display_name as string,
+    bio: (row.bio as string) || "",
+    avatarUrl: (row.avatar_url as string) || undefined,
+    theme: (row.theme as string || "minimal-light") as Profile["theme"],
+    defaultView: (row.default_view as string || "links") as Profile["defaultView"],
+    links: (Array.isArray(row.links) ? row.links : []) as Profile["links"],
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
+  };
 }

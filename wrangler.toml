@@ -3,20 +3,23 @@ main = "src/index.ts"
 compatibility_date = "2024-12-01"
 workers_dev = true
 
-# Custom domains — freesurf.tools serves public pages + API, links.freesurf.tools is handled by Cloudflare Pages (dashboard)
+# Custom domains — freesurf.tools serves public pages + API
 routes = [
   { pattern = "freesurf.tools/*", zone_name = "freesurf.tools" }
 ]
 
-# R2 bucket for storing creator profile JSON files
+# R2 bucket for avatar images only
 [[r2_buckets]]
-binding = "PROFILES"
+binding = "AVATARS"
 bucket_name = "freesurf-profiles"
 
-# KV namespace for analytics counters + auth tokens
+# KV namespace for analytics counters (views + clicks)
 [[kv_namespaces]]
 binding = "ANALYTICS"
 id = "83e2a67160b44b1495e4d00519e5a38a"
 
 [vars]
 ENVIRONMENT = "production"
+
+# Secrets to set via `wrangler secret put`:
+#   SUPABASE_JWT_SECRET — your Supabase JWT signing secret

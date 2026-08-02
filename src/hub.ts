@@ -162,14 +162,13 @@ export const HUB_HTML = `<!doctype html>
     <nav class="nav">
       <div class="brand">FreeSurf</div>
       <div class="nav-right">
-        <a href="${FREESURF.URLS.auth}" class="btn btn-secondary" style="padding:8px 14px;font-size:0.85rem;">Sign in</a>
+        <a href="https://auth.${FREESURF.ROOT_DOMAIN}" class="btn btn-secondary" style="padding:8px 14px;font-size:0.85rem;">Sign in</a>
         <div class="app-launcher">
           <button class="app-launcher-btn" id="app-launcher-btn" aria-label="FreeSurf tools" title="FreeSurf tools">⋮⋮⋮</button>
           <div class="app-dropdown" id="app-dropdown">
             <a href="${FREESURF.URLS.invoices}"><span class="app-icon">🧾</span>Invoices</a>
             <a href="${FREESURF.URLS.links}"><span class="app-icon">🔗</span>Links</a>
             <a href="${FREESURF.URLS.post}"><span class="app-icon">📢</span>Post</a>
-            <a href="${FREESURF.URLS.auth}"><span class="app-icon">🔐</span>Auth</a>
             <a href="${FREESURF.URLS.hire}"><span class="app-icon">🤝</span>Hire</a>
             <a href="https://github.com/ah8571"><span class="app-icon">💻</span>GitHub</a>
           </div>
@@ -185,7 +184,7 @@ export const HUB_HTML = `<!doctype html>
           No platform percentage. No hidden upcharge. Plus free tools for invoices, link-in-bio pages, cross-posting, and more.
         </p>
         <div class="cta-row">
-          <a class="btn btn-primary" href="${FREESURF.URLS.auth}">Get started — it's free</a>
+          <a class="btn btn-primary" href="https://auth.${FREESURF.ROOT_DOMAIN}/?mode=signup">Get started — it's free</a>
           <a class="btn btn-secondary" href="https://github.com/ah8571" target="_blank" rel="noopener noreferrer">View on GitHub</a>
         </div>
       </section>
@@ -237,11 +236,6 @@ export const HUB_HTML = `<!doctype html>
         <span>Post <span class="tl">post.${FREESURF.ROOT_DOMAIN}</span></span>
         <span class="badge badge-wip">Beta</span>
       </a>
-      <a href="${FREESURF.URLS.auth}" class="tool-item">
-        <span class="ti">🔐</span>
-        <span>Auth <span class="tl">auth.${FREESURF.ROOT_DOMAIN}</span></span>
-        <span class="badge badge-wip">Beta</span>
-      </a>
       <a href="${FREESURF.URLS.hire}" class="tool-item">
         <span class="ti">🤝</span>
         <span>Hire <span class="tl">hire.${FREESURF.ROOT_DOMAIN}</span></span>
@@ -260,10 +254,6 @@ export const HUB_HTML = `<!doctype html>
   </div>
 
   <script>
-    // Redirect magic link access tokens to the links dashboard
-    if (window.location.hash.includes("access_token=")) {
-      window.location.replace("https://links.freesurf.tools" + window.location.hash);
-    }
     document.getElementById('year').textContent = new Date().getFullYear();
     const btn = document.getElementById('app-launcher-btn');
     const dropdown = document.getElementById('app-dropdown');

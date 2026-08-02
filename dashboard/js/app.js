@@ -88,54 +88,24 @@ function render() {
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 }
 
-// --- Magic link verification on page load ---
-async function handleVerifyOnLoad() {
-  const params = new URLSearchParams(location.search);
-  const token = params.get("token");
-  if (!token || !location.pathname.startsWith("/verify")) return;
 
-  try {
-    const result = await apiPost("/api/auth/verify", { token });
-    if (result.sessionToken) {
-      sessionToken = result.sessionToken;
-      localStorage.setItem("freesurf_session", sessionToken);
-
-      if (result.needsSetup) {
-        // New user — go straight to editor in setup mode
-        sessionEmail = result.email;
-        currentUser = null;
-        navigate("editor");
-      } else {
-        // Existing user — load their profile
-        await loadProfile(result.username);
-      }
-      return;
-    }
-  } catch (err) {
-    alert("Login link is invalid or expired. Please request a new one.");
-  }
-  navigate("landing");
-}
 
 // ========================
 //  LANDING PAGE — email-first
 // ========================
 function renderLanding() {
+  const authUrl = "https://auth.freesurf.tools/?redirect=" + encodeURIComponent("https://links.freesurf.tools/");
   return `
     <header class="header">
       <div class="header-logo"><span style="color:var(--accent)">FreeSurf</span> links</div>
-
     </header>
     <div class="container">
       <div class="hero centered">
         <h1>Your links.<br><span>One page. Free for most users.</span></h1>
         <p>Create your link-in-bio page in seconds. No fees, no lock-in, open source.</p>
         <div class="claim-form">
-          <input type="email" class="form-input" id="start-email" placeholder="you@example.com" maxlength="320" style="border-radius:var(--radius) 0 0 var(--radius);">
-          <button class="btn btn-primary" id="start-btn">Get Started</button>
+          <a href="${authUrl}" class="btn btn-primary" style="display:inline-block;text-decoration:none;padding:12px 32px;font-size:1rem;">Sign in to get started</a>
         </div>
-        <p id="start-error" class="alert alert-error" style="display:none; margin-top:1rem;"></p>
-        <p id="start-info" style="display:none; margin-top:1rem; color:var(--text-muted); font-size:0.9rem;"></p>
       </div>
 
       <div class="features">
@@ -198,48 +168,8 @@ function renderLanding() {
 }
 
 function bindLanding() {
-  const input = document.getElementById("start-email");
-  const btn = document.getElementById("start-btn");
-  const errorEl = document.getElementById("start-error");
-  const infoEl = document.getElementById("start-info");
-
-  btn.addEventListener("click", () => handleStart(input, errorEl, infoEl, btn));
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") handleStart(input, errorEl, infoEl, btn);
-  });
-}
-
-async function handleStart(input, errorEl, infoEl, btn) {
-  const email = input.value.trim().toLowerCase();
-  errorEl.style.display = "none";
-  infoEl.style.display = "none";
-
-  if (!email || !email.includes("@")) {
-    errorEl.textContent = "Please enter a valid email address";
-    errorEl.style.display = "block";
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = "...";
-
-  try {
-    const result = await apiPost("/api/auth/start", { email });
-
-    if (result.magicUrl) {
-      // Dev mode — show clickable link
-      infoEl.innerHTML = `Check your email! <a href="${escapeHtml(result.magicUrl)}" style="color:var(--accent);">Click here to log in</a> <span style="font-size:0.8rem;">(dev mode)</span>`;
-    } else {
-      infoEl.innerHTML = `We sent a login link to <strong>${escapeHtml(email)}</strong>. Click it to open your dashboard.`;
-    }
-    infoEl.style.display = "block";
-  } catch (err) {
-    errorEl.textContent = err.message;
-    errorEl.style.display = "block";
-  }
-
-  btn.disabled = false;
-  btn.textContent = "Get Started";
+  // "Sign in to get started" links directly to auth.freesurf.tools
+  // No extra binding needed — the anchor tag handles it.
 }
 
 
@@ -863,12 +793,6 @@ function escapeAttr(str) {
 // --- Init ---
 (async () => {
   const path = location.pathname;
-
-  // Handle magic link verification
-  if (path.startsWith("/verify")) {
-    await handleVerifyOnLoad();
-    return;
-  }
 
   // Try to restore session from stored token
   if (sessionToken && !currentUser) {

@@ -1,4 +1,4 @@
-import { getProfile, putProfile, profileExists, setUserMapping, getUsernameByUserId, type Env } from "./storage";
+import { getProfile, putProfile, profileExists, getUsernameByUserId, type Env } from "./storage";
 import { ProfileSchema, RESERVED_SLUGS } from "./schema";
 import { renderProfilePage } from "./render";
 import { validateSupabaseJWT } from "./auth";
@@ -24,7 +24,7 @@ export default {
     const avatarMatch = path.match(/^\/avatar\/([a-z0-9._-]{3,30})$/);
     if (avatarMatch) {
       const key = `avatars/${avatarMatch[1]}`;
-      const obj = await env.PROFILES.get(key);
+      const obj = await env.AVATARS.get(key);
       if (!obj) return notFound();
       const headers = new Headers();
       headers.set("Content-Type", obj.httpMetadata?.contentType || "image/jpeg");
@@ -43,7 +43,7 @@ export default {
         return notFound();
       }
 
-      const profile = await getProfile(env.PROFILES, username);
+      const profile = await getProfile(env, username);
       if (!profile) return notFound();
 
       // Track page view
@@ -109,43 +109,9 @@ async function handleApi(
   }
 
   // ---- Auth routes ----
-  // Auth (sign-in, magic link, token verification) is handled entirely by the
-  // Supabase client in the dashboard. The Worker only validates the resulting JWT.
-
-  // POST /api/auth/start — send magic link
-  if (path === "/api/auth/start" && request.method === "POST") {
-    try {
-      const { email } = (await request.json()) as { email?: string };
-      if (!email) return jsonResponse({ error: "email required" }, 400, corsHeaders);
-      const supabaseUrl = FREESURF.AUTH.SUPABASE_URL;
-      const anonKey = FREESURF.AUTH.SUPABASE_ANON_KEY;
-      const magicRes = await fetch(`${supabaseUrl}/auth/v1/magiclink`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "apikey": anonKey },
-        body: JSON.stringify({ email }),
-      });
-      if (!magicRes.ok) {
-        const err = await magicRes.text();
-        return jsonResponse({ error: err }, 400, corsHeaders);
-      }
-      return jsonResponse({ ok: true }, 200, corsHeaders);
-    } catch (e: unknown) {
-      return jsonResponse({ error: e instanceof Error ? e.message : "failed" }, 500, corsHeaders);
-    }
-  }
-
-  // POST /api/auth/verify — verify Supabase JWT token
-  if (path === "/api/auth/verify" && request.method === "POST") {
-    try {
-      const body = (await request.json()) as { token?: string };
-      if (!body.token) return jsonResponse({ error: "token required" }, 400, corsHeaders);
-      const jwt = await validateSupabaseJWT(env.SUPABASE_JWT_SECRET, `Bearer ${body.token}`);
-      if (!jwt) return jsonResponse({ error: "invalid token" }, 401, corsHeaders);
-      return jsonResponse({ token: body.token, email: jwt.email, sub: jwt.sub }, 200, corsHeaders);
-    } catch (e: unknown) {
-      return jsonResponse({ error: e instanceof Error ? e.message : "failed" }, 500, corsHeaders);
-    }
-  }
+  // Authentication is handled by the central auth service at auth.freesurf.tools.
+  // The dashboard uses cross-domain cookie-based session sharing.
+  // The Worker validates the resulting JWT on authenticated API calls.
 
   // GET /api/username/check/:username — public availability check
   const usernameCheckMatch = path.match(/^\/api\/username\/check\/([a-z0-9._-]{3,30})$/);
@@ -154,7 +120,7 @@ async function handleApi(
     if (RESERVED_SLUGS.has(slug)) {
       return jsonResponse({ available: false, reason: "reserved" }, 200, corsHeaders);
     }
-    const taken = await profileExists(env.PROFILES, slug);
+    const taken = await profileExists(env, slug);
     return jsonResponse({ available: !taken, reason: taken ? "taken" : null }, 200, corsHeaders);
   }
 
@@ -162,9 +128,9 @@ async function handleApi(
   if (path === "/api/auth/me" && request.method === "GET") {
     const jwt = await validateSupabaseJWT(env.SUPABASE_JWT_SECRET, request.headers.get("Authorization"));
     if (!jwt) return jsonResponse({ error: "unauthorized" }, 401, corsHeaders);
-    const username = await getUsernameByUserId(env.ANALYTICS, jwt.sub);
+    const username = await getUsernameByUserId(env, jwt.sub);
     if (!username) return jsonResponse({ needsSetup: true, email: jwt.email }, 200, corsHeaders);
-    const profile = await getProfile(env.PROFILES, username);
+    const profile = await getProfile(env, username);
     if (!profile) return jsonResponse({ needsSetup: true, email: jwt.email }, 200, corsHeaders);
     const { email: _email, ...publicProfile } = profile;
     return jsonResponse(publicProfile, 200, corsHeaders);
@@ -173,10 +139,9 @@ async function handleApi(
   // GET /api/profile/:username (public — strip email)
   const profileMatch = path.match(/^\/api\/profile\/([a-z0-9._-]{3,30})$/);
   if (profileMatch && request.method === "GET") {
-    const profile = await getProfile(env.PROFILES, profileMatch[1]);
+    const profile = await getProfile(env, profileMatch[1]);
     if (!profile)
       return jsonResponse({ error: "not found" }, 404, corsHeaders);
-    // Strip email from public response
     const { email: _email, ...publicProfile } = profile;
     return jsonResponse(publicProfile, 200, corsHeaders);
   }
@@ -194,20 +159,22 @@ async function handleApi(
         return jsonResponse({ error: "username reserved" }, 400, corsHeaders);
       }
 
-      if (await profileExists(env.PROFILES, parsed.username)) {
+      if (await profileExists(env, parsed.username)) {
         return jsonResponse({ error: "username taken" }, 409, corsHeaders);
       }
 
       // Check if this user already has a profile
-      const existingUsername = await getUsernameByUserId(env.ANALYTICS, jwt.sub);
+      const existingUsername = await getUsernameByUserId(env, jwt.sub);
       if (existingUsername) {
         return jsonResponse({ error: "account already has a profile" }, 409, corsHeaders);
       }
 
       const now = new Date().toISOString();
       const profile = { ...parsed, createdAt: now, updatedAt: now };
-      await putProfile(env.PROFILES, profile);
-      await setUserMapping(env.ANALYTICS, jwt.sub, parsed.username);
+
+      // Pass user's JWT so Supabase can enforce RLS (user_id = auth.uid())
+      const token = request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
+      await putProfile(env, profile, token);
 
       const { email: _email, ...publicProfile } = profile;
       return jsonResponse(publicProfile, 201, corsHeaders);
@@ -222,31 +189,29 @@ async function handleApi(
     const username = profileMatch[1];
 
     const jwt = await validateSupabaseJWT(env.SUPABASE_JWT_SECRET, request.headers.get("Authorization"));
-    const ownedUsername = jwt ? await getUsernameByUserId(env.ANALYTICS, jwt.sub) : null;
+    const ownedUsername = jwt ? await getUsernameByUserId(env, jwt.sub) : null;
     if (!jwt || ownedUsername !== username) {
       return jsonResponse({ error: "unauthorized" }, 401, corsHeaders);
     }
 
-    const existing = await getProfile(env.PROFILES, username);
+    const existing = await getProfile(env, username);
     if (!existing)
       return jsonResponse({ error: "not found" }, 404, corsHeaders);
 
     try {
       const body = (await request.json()) as Record<string, unknown>;
-      // Keep original email — don't allow changing it via profile update
       const parsed = ProfileSchema.parse({ ...body, username, email: existing.email });
       const updated = {
         ...parsed,
         createdAt: existing.createdAt,
         updatedAt: new Date().toISOString(),
       };
-      await putProfile(env.PROFILES, updated);
-      // Strip email from response
+      const token = request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
+      await putProfile(env, updated, token);
       const { email: _email, ...publicProfile } = updated;
       return jsonResponse(publicProfile, 200, corsHeaders);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "invalid request";
+      const message = err instanceof Error ? err.message : "invalid request";
       return jsonResponse({ error: message }, 400, corsHeaders);
     }
   }
@@ -254,7 +219,7 @@ async function handleApi(
   // POST /api/avatar — upload avatar image (requires Supabase JWT)
   if (path === "/api/avatar" && request.method === "POST") {
     const jwt = await validateSupabaseJWT(env.SUPABASE_JWT_SECRET, request.headers.get("Authorization"));
-    const username = jwt ? await getUsernameByUserId(env.ANALYTICS, jwt.sub) : null;
+    const username = jwt ? await getUsernameByUserId(env, jwt.sub) : null;
     if (!jwt || !username) {
       return jsonResponse({ error: "unauthorized" }, 401, corsHeaders);
     }
@@ -266,19 +231,22 @@ async function handleApi(
     }
 
     const body = await request.arrayBuffer();
-    const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
+    const MAX_SIZE = 2 * 1024 * 1024;
     if (body.byteLength > MAX_SIZE) {
       return jsonResponse({ error: "Image must be under 2 MB" }, 400, corsHeaders);
     }
 
+    // Store image in R2
     const key = `avatars/${username}`;
-    await env.PROFILES.put(key, body, { httpMetadata: { contentType } });
+    await env.AVATARS.put(key, body, { httpMetadata: { contentType } });
 
-    const profile = await getProfile(env.PROFILES, username);
+    // Update profile avatar URL in Supabase
+    const profile = await getProfile(env, username);
     if (profile) {
       profile.avatarUrl = `/avatar/${username}`;
       profile.updatedAt = new Date().toISOString();
-      await putProfile(env.PROFILES, profile);
+      const token = request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
+      await putProfile(env, profile, token);
     }
 
     return jsonResponse({ avatarUrl: `/avatar/${username}` }, 200, corsHeaders);
