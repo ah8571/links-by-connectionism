@@ -58,6 +58,26 @@ export default {
       return new Response("ok", { status: 200 });
     }
 
+    // --- Static legal pages ---
+    if (path === "/privacy" || path === "/privacy.html") {
+      const asset = DASHBOARD["pages/privacy.html"];
+      if (asset) {
+        return new Response(asset.content, {
+          status: 200,
+          headers: { "Content-Type": "text/html;charset=utf-8" },
+        });
+      }
+    }
+    if (path === "/terms" || path === "/terms.html") {
+      const asset = DASHBOARD["pages/terms.html"];
+      if (asset) {
+        return new Response(asset.content, {
+          status: 200,
+          headers: { "Content-Type": "text/html;charset=utf-8" },
+        });
+      }
+    }
+
     // --- Avatar image ---
     const avatarMatch = path.match(/^\/avatar\/([a-z0-9._-]{3,30})$/);
     if (avatarMatch) {
@@ -210,9 +230,8 @@ async function handleApi(
       const now = new Date().toISOString();
       const profile = { ...parsed, createdAt: now, updatedAt: now };
 
-      // Pass user's JWT so Supabase can enforce RLS (user_id = auth.uid())
       const token = request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
-      await putProfile(env, profile, token);
+      await putProfile(env, profile, token, jwt.sub);
 
       const { email: _email, ...publicProfile } = profile;
       return jsonResponse(publicProfile, 201, corsHeaders);
@@ -245,7 +264,7 @@ async function handleApi(
         updatedAt: new Date().toISOString(),
       };
       const token = request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
-      await putProfile(env, updated, token);
+      await putProfile(env, updated, token, jwt.sub);
       const { email: _email, ...publicProfile } = updated;
       return jsonResponse(publicProfile, 200, corsHeaders);
     } catch (err: unknown) {
@@ -284,7 +303,7 @@ async function handleApi(
       profile.avatarUrl = `/avatar/${username}`;
       profile.updatedAt = new Date().toISOString();
       const token = request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
-      await putProfile(env, profile, token);
+      await putProfile(env, profile, token, jwt.sub);
     }
 
     return jsonResponse({ avatarUrl: `/avatar/${username}` }, 200, corsHeaders);

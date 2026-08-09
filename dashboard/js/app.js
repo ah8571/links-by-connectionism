@@ -6,7 +6,7 @@ const API_BASE = location.hostname === "localhost" || location.hostname === "127
 const PUBLIC_BASE = API_BASE.replace("http://127.0.0.1:8787", "http://127.0.0.1:8787");
 
 // --- Cross-domain auth: try to restore Supabase session from shared cookie ---
-import { getSharedSession } from "./freesurf-auth.js";
+import { getSharedSession, signIn, signUp, clearSharedSession } from "./freesurf-auth.js";
 const sharedSession = await getSharedSession();
 
 // --- State ---
@@ -94,17 +94,33 @@ function render() {
 //  LANDING PAGE — email-first
 // ========================
 function renderLanding() {
-  const authUrl = "https://auth.freesurf.tools/?redirect=" + encodeURIComponent("https://links.freesurf.tools/");
   return `
     <header class="header">
-      <div class="header-logo"><span style="color:var(--accent)">FreeSurf</span> links</div>
+      <div class="header-logo"><span style="color:var(--accent)">FreeSurf's</span> Link-in-Bio</div>
     </header>
     <div class="container">
       <div class="hero centered">
         <h1>Your links.<br><span>One page. Free for most users.</span></h1>
         <p>Create your link-in-bio page in seconds. No fees, no lock-in, open source.</p>
-        <div class="claim-form">
-          <a href="${authUrl}" class="btn btn-primary" style="display:inline-block;text-decoration:none;padding:12px 32px;font-size:1rem;">Sign in to get started</a>
+
+        <div class="card" style="max-width:380px;margin:0 auto;">
+          <div class="auth-tabs" style="display:flex;margin-bottom:1rem;">
+            <button class="auth-tab-btn active" data-tab="sign-in" style="flex:1;padding:10px;background:none;border:none;border-bottom:2px solid var(--accent);color:var(--text);font-weight:600;cursor:pointer;font-family:inherit;font-size:0.9rem;">Sign in</button>
+            <button class="auth-tab-btn" data-tab="sign-up" style="flex:1;padding:10px;background:none;border:none;border-bottom:2px solid var(--border);color:var(--text-muted);font-weight:600;cursor:pointer;font-family:inherit;font-size:0.9rem;">Create account</button>
+          </div>
+          <form id="auth-form">
+            <div class="form-group">
+              <input type="email" id="auth-email" class="form-input" placeholder="Email" autocomplete="email" required>
+            </div>
+            <div class="form-group" style="position:relative;">
+              <input type="password" id="auth-password" class="form-input" placeholder="Password" autocomplete="current-password" required minlength="6" style="padding-right:40px;">
+              <button type="button" id="toggle-password" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px;">
+                <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div id="auth-feedback" style="font-size:0.85rem;min-height:1.2em;margin-bottom:0.75rem;"></div>
+            <button type="submit" id="auth-submit" class="btn btn-primary btn-block" style="padding:10px;">Sign in</button>
+          </form>
         </div>
       </div>
 
@@ -152,8 +168,8 @@ function renderLanding() {
             </div>
             <div class="freesurf-footer-col">
               <span class="freesurf-footer-heading">Legal</span>
-              <a href="https://freesurf.tools/privacy.html">Privacy</a>
-              <a href="https://freesurf.tools/terms.html">Terms</a>
+              <a href="https://freesurf.tools/privacy">Privacy</a>
+              <a href="https://freesurf.tools/terms">Terms</a>
               <a href="mailto:hello@freesurf.tools">Contact</a>
             </div>
           </div>
@@ -167,9 +183,102 @@ function renderLanding() {
   `;
 }
 
+let authMode = "sign-in";
+
 function bindLanding() {
-  // "Sign in to get started" links directly to auth.freesurf.tools
-  // No extra binding needed — the anchor tag handles it.
+  // Reset auth mode on re-render
+  authMode = "sign-in";
+  const toggleBtn = document.getElementById("toggle-password");
+  const pwdInput = document.getElementById("auth-password");
+  const eyeIcon = document.getElementById("eye-icon");
+  if (toggleBtn && pwdInput && eyeIcon) {
+    toggleBtn.addEventListener("click", () => {
+      const isHidden = pwdInput.type === "password";
+      pwdInput.type = isHidden ? "text" : "password";
+      eyeIcon.innerHTML = isHidden
+        ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+        : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    });
+  }
+
+  document.querySelectorAll(".auth-tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      authMode = btn.dataset.tab;
+      document.querySelectorAll(".auth-tab-btn").forEach((b) => {
+        b.classList.toggle("active", b === btn);
+        b.style.borderBottomColor = b === btn ? "var(--accent)" : "var(--border)";
+        b.style.color = b === btn ? "var(--text)" : "var(--text-muted)";
+      });
+      const submitBtn = document.getElementById("auth-submit");
+      if (submitBtn) submitBtn.textContent = authMode === "sign-in" ? "Sign in" : "Create account";
+      const feedback = document.getElementById("auth-feedback");
+      if (feedback) { feedback.textContent = ""; feedback.style.color = ""; }
+    });
+  });
+
+  document.getElementById("auth-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("auth-email").value.trim();
+    const password = document.getElementById("auth-password").value;
+    const submitBtn = document.getElementById("auth-submit");
+    const feedback = document.getElementById("auth-feedback");
+
+    if (!email || !password) {
+      feedback.textContent = "Email and password are required.";
+      feedback.style.color = "var(--danger)";
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = authMode === "sign-in" ? "Signing in..." : "Creating account...";
+    feedback.textContent = "";
+
+    try {
+      if (authMode === "sign-in") {
+        const result = await signIn(email, password);
+        if (result) {
+          sessionToken = result.accessToken;
+          if (result.user?.email) sessionEmail = result.user.email;
+          localStorage.setItem("freesurf_session", result.accessToken);
+          loadProfileOrEditor();
+        }
+      } else {
+        const result = await signUp(email, password);
+        if (result) {
+          sessionToken = result.accessToken;
+          if (result.user?.email) sessionEmail = result.user.email;
+          localStorage.setItem("freesurf_session", result.accessToken);
+          loadProfileOrEditor();
+        } else {
+          feedback.textContent = "Check your email to confirm your account.";
+          feedback.style.color = "var(--success)";
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Create account";
+        }
+      }
+    } catch (err) {
+      feedback.textContent = err.message || "Authentication failed.";
+      feedback.style.color = "var(--danger)";
+      submitBtn.disabled = false;
+      submitBtn.textContent = authMode === "sign-in" ? "Sign in" : "Create account";
+    }
+  });
+}
+
+async function loadProfileOrEditor() {
+  try {
+    const result = await apiGet("/api/auth/me");
+    if (result.needsSetup) {
+      sessionEmail = result.email;
+      currentUser = null;
+    } else {
+      currentUser = result;
+    }
+    navigate("editor");
+  } catch {
+    // Go to editor even if auth/me fails — let user create profile
+    navigate("editor");
+  }
 }
 
 
@@ -184,8 +293,8 @@ let usernameAvailable = false;
 function renderEditor() {
   const isNewUser = !currentUser;
   const profile = currentUser || { displayName: "", bio: "", avatarUrl: "", theme: "minimal-dark", links: [] };
-  const publicUrl = currentUser ? `${PUBLIC_BASE.replace("http://127.0.0.1:8787", "freesurf.tools")}/${profile.username}` : null;
-  const displayUrl = currentUser ? `freesurf.tools/${profile.username}` : null;
+  const publicUrl = currentUser?.username ? `${PUBLIC_BASE.replace("http://127.0.0.1:8787", "freesurf.tools")}/${currentUser.username}` : null;
+  const displayUrl = currentUser?.username ? `freesurf.tools/${currentUser.username}` : null;
 
   const PLATFORM_LABELS = { twitter: "Twitter / X", instagram: "Instagram", youtube: "YouTube", tiktok: "TikTok", github: "GitHub", linkedin: "LinkedIn" };
 
@@ -230,7 +339,7 @@ function renderEditor() {
 
   return `
     <header class="header">
-      <a href="/" class="header-logo" id="nav-home"><span style="color:var(--accent)">FreeSurf</span> links</a>
+      <a href="/" class="header-logo" id="nav-home"><span style="color:var(--accent)">FreeSurf's</span> Link-in-Bio</a>
       <nav class="header-nav">
         ${currentUser ? `<a href="${publicUrl.startsWith("http") ? publicUrl : "https://" + publicUrl}" target="_blank" class="btn btn-secondary btn-sm">View Page</a>` : ""}
         <button class="btn btn-secondary btn-sm" id="logout-btn">Log out</button>
@@ -347,8 +456,8 @@ function renderEditor() {
             </div>
             <div class="freesurf-footer-col">
               <span class="freesurf-footer-heading">Legal</span>
-              <a href="https://freesurf.tools/privacy.html">Privacy</a>
-              <a href="https://freesurf.tools/terms.html">Terms</a>
+              <a href="https://freesurf.tools/privacy">Privacy</a>
+              <a href="https://freesurf.tools/terms">Terms</a>
               <a href="mailto:hello@freesurf.tools">Contact</a>
             </div>
           </div>

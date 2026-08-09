@@ -1,8 +1,12 @@
 /**
  * FreeSurf Shared Auth — cross-domain session utility.
  * Depends on: freesurf.config.js for domain/brand values.
+ *
+ * Strategy:
+ * 1. Check local Supabase session (same-domain, e.g. the auth page itself)
+ * 2. Fall back to the shared cookie JWT — decode it directly without
+ *    initializing Supabase SDK to avoid "Multiple GoTrueClient" conflicts.
  */
-
 import config from "./freesurf.config.js";
 
 const { SUPABASE_URL, SUPABASE_ANON_KEY, COOKIE_NAME, COOKIE_MAX_AGE } = config.AUTH;
@@ -15,7 +19,7 @@ function getSupabase() {
     _supabasePromise = import("https://esm.sh/@supabase/supabase-js@2").then(
       ({ createClient }) =>
         createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-          auth: { persistSession: true, autoRefreshToken: true },
+          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
         })
     );
   }
@@ -41,20 +45,40 @@ function deleteCookie(name) {
   document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;domain=${COOKIE_DOMAIN};path=/;SameSite=Lax`;
 }
 
+function jwtPayload(token) {
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return null;
+    const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    const data = JSON.parse(json);
+    if (data.exp && Date.now() / 1000 > data.exp) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+export { getSupabase, setCookie, getCookie, deleteCookie, COOKIE_NAME, COOKIE_DOMAIN, COOKIE_MAX_AGE };
+
 export async function getSharedSession() {
   try {
+    // Try local Supabase session first
     const supabase = await getSupabase();
     const { data } = await supabase.auth.getSession();
     if (data.session?.user) {
       persistToCookie(data.session.access_token);
       return { user: data.session.user, accessToken: data.session.access_token };
     }
+
+    // Fall back to cookie — decode JWT directly, no Supabase SDK restoration
     const cookieToken = getCookie(COOKIE_NAME);
     if (cookieToken) {
-      const { data: restored } = await supabase.auth.setSession({ access_token: cookieToken, refresh_token: "" });
-      if (restored.session?.user) {
-        persistToCookie(restored.session.access_token);
-        return { user: restored.session.user, accessToken: restored.session.access_token };
+      const payload = jwtPayload(cookieToken);
+      if (payload && payload.sub) {
+        return {
+          user: { id: payload.sub, email: payload.email || "" },
+          accessToken: cookieToken,
+        };
       }
       deleteCookie(COOKIE_NAME);
     }
@@ -64,12 +88,34 @@ export async function getSharedSession() {
   }
 }
 
+export async function signIn(email, password) {
+  const supabase = await getSupabase();
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  if (data.session) {
+    persistToCookie(data.session.access_token);
+    return { user: data.session.user, accessToken: data.session.access_token };
+  }
+  throw new Error("Sign in failed");
+}
+
+export async function signUp(email, password) {
+  const supabase = await getSupabase();
+  const { data, error } = await supabase.auth.signUp({ email, password });
+  if (error) throw error;
+  if (data.session) {
+    persistToCookie(data.session.access_token);
+    return { user: data.session.user, accessToken: data.session.access_token };
+  }
+  return null; // email confirmation required
+}
+
 export async function setSharedSession() {
   try {
     const supabase = await getSupabase();
     const { data } = await supabase.auth.getSession();
     if (data.session?.access_token) persistToCookie(data.session.access_token);
-  } catch { /* localStorage still works */ }
+  } catch { /* fallback */ }
 }
 
 export async function clearSharedSession() {

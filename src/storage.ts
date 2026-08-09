@@ -22,7 +22,7 @@ function supabaseHeaders(jwt?: string): HeadersInit {
 }
 
 /** Write (upsert) a creator profile */
-export async function putProfile(env: Env, profile: Profile, jwt?: string): Promise<void> {
+export async function putProfile(env: Env, profile: Profile, jwt?: string, userId?: string): Promise<void> {
   const body: Record<string, unknown> = {
     username: profile.username,
     email: profile.email,
@@ -35,6 +35,10 @@ export async function putProfile(env: Env, profile: Profile, jwt?: string): Prom
     created_at: profile.createdAt,
     updated_at: profile.updatedAt,
   };
+
+  if (userId) {
+    body.user_id = userId;
+  }
 
   const existing = await getProfile(env, profile.username);
   if (existing) {

@@ -304,14 +304,14 @@ a:hover { color: var(--accent-hover); }
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Free Link-in-Bio Page — No Fees, No Lock-in | FreeSurf Links</title>
+  <title>Free Link-in-Bio Page — No Fees, No Lock-in | FreeSurf's Link-in-Bio</title>
   <meta name="description" content="Create your link-in-bio page for free. No monthly fees, no lock-in, open source. One link for all your content — ready in seconds.">
-  <meta property="og:title" content="Free Link-in-Bio Page — No Fees, No Lock-in | FreeSurf Links">
+  <meta property="og:title" content="Free Link-in-Bio Page — No Fees, No Lock-in | FreeSurf's Link-in-Bio">
   <meta property="og:description" content="Create your link-in-bio page for free. No monthly fees, no lock-in, open source.">
   <meta property="og:url" content="https://links.freesurf.tools/">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Free Link-in-Bio Page — No Fees, No Lock-in | FreeSurf Links">
+  <meta name="twitter:title" content="Free Link-in-Bio Page — No Fees, No Lock-in | FreeSurf's Link-in-Bio">
   <meta name="twitter:description" content="Create your link-in-bio page for free. No monthly fees, no lock-in, open source.">
   <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -332,7 +332,7 @@ const API_BASE = location.hostname === "localhost" || location.hostname === "127
 const PUBLIC_BASE = API_BASE.replace("http://127.0.0.1:8787", "http://127.0.0.1:8787");
 
 // --- Cross-domain auth: try to restore Supabase session from shared cookie ---
-import { getSharedSession } from "./freesurf-auth.js";
+import { getSharedSession, signIn, signUp, clearSharedSession } from "./freesurf-auth.js";
 const sharedSession = await getSharedSession();
 
 // --- State ---
@@ -420,17 +420,33 @@ function render() {
 //  LANDING PAGE — email-first
 // ========================
 function renderLanding() {
-  const authUrl = "https://auth.freesurf.tools/?redirect=" + encodeURIComponent("https://links.freesurf.tools/");
   return \`
     <header class="header">
-      <div class="header-logo"><span style="color:var(--accent)">FreeSurf</span> links</div>
+      <div class="header-logo"><span style="color:var(--accent)">FreeSurf's</span> Link-in-Bio</div>
     </header>
     <div class="container">
       <div class="hero centered">
         <h1>Your links.<br><span>One page. Free for most users.</span></h1>
         <p>Create your link-in-bio page in seconds. No fees, no lock-in, open source.</p>
-        <div class="claim-form">
-          <a href="\${authUrl}" class="btn btn-primary" style="display:inline-block;text-decoration:none;padding:12px 32px;font-size:1rem;">Sign in to get started</a>
+
+        <div class="card" style="max-width:380px;margin:0 auto;">
+          <div class="auth-tabs" style="display:flex;margin-bottom:1rem;">
+            <button class="auth-tab-btn active" data-tab="sign-in" style="flex:1;padding:10px;background:none;border:none;border-bottom:2px solid var(--accent);color:var(--text);font-weight:600;cursor:pointer;font-family:inherit;font-size:0.9rem;">Sign in</button>
+            <button class="auth-tab-btn" data-tab="sign-up" style="flex:1;padding:10px;background:none;border:none;border-bottom:2px solid var(--border);color:var(--text-muted);font-weight:600;cursor:pointer;font-family:inherit;font-size:0.9rem;">Create account</button>
+          </div>
+          <form id="auth-form">
+            <div class="form-group">
+              <input type="email" id="auth-email" class="form-input" placeholder="Email" autocomplete="email" required>
+            </div>
+            <div class="form-group" style="position:relative;">
+              <input type="password" id="auth-password" class="form-input" placeholder="Password" autocomplete="current-password" required minlength="6" style="padding-right:40px;">
+              <button type="button" id="toggle-password" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px;">
+                <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div id="auth-feedback" style="font-size:0.85rem;min-height:1.2em;margin-bottom:0.75rem;"></div>
+            <button type="submit" id="auth-submit" class="btn btn-primary btn-block" style="padding:10px;">Sign in</button>
+          </form>
         </div>
       </div>
 
@@ -478,8 +494,8 @@ function renderLanding() {
             </div>
             <div class="freesurf-footer-col">
               <span class="freesurf-footer-heading">Legal</span>
-              <a href="https://freesurf.tools/privacy.html">Privacy</a>
-              <a href="https://freesurf.tools/terms.html">Terms</a>
+              <a href="https://freesurf.tools/privacy">Privacy</a>
+              <a href="https://freesurf.tools/terms">Terms</a>
               <a href="mailto:hello@freesurf.tools">Contact</a>
             </div>
           </div>
@@ -493,9 +509,102 @@ function renderLanding() {
   \`;
 }
 
+let authMode = "sign-in";
+
 function bindLanding() {
-  // "Sign in to get started" links directly to auth.freesurf.tools
-  // No extra binding needed — the anchor tag handles it.
+  // Reset auth mode on re-render
+  authMode = "sign-in";
+  const toggleBtn = document.getElementById("toggle-password");
+  const pwdInput = document.getElementById("auth-password");
+  const eyeIcon = document.getElementById("eye-icon");
+  if (toggleBtn && pwdInput && eyeIcon) {
+    toggleBtn.addEventListener("click", () => {
+      const isHidden = pwdInput.type === "password";
+      pwdInput.type = isHidden ? "text" : "password";
+      eyeIcon.innerHTML = isHidden
+        ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+        : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    });
+  }
+
+  document.querySelectorAll(".auth-tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      authMode = btn.dataset.tab;
+      document.querySelectorAll(".auth-tab-btn").forEach((b) => {
+        b.classList.toggle("active", b === btn);
+        b.style.borderBottomColor = b === btn ? "var(--accent)" : "var(--border)";
+        b.style.color = b === btn ? "var(--text)" : "var(--text-muted)";
+      });
+      const submitBtn = document.getElementById("auth-submit");
+      if (submitBtn) submitBtn.textContent = authMode === "sign-in" ? "Sign in" : "Create account";
+      const feedback = document.getElementById("auth-feedback");
+      if (feedback) { feedback.textContent = ""; feedback.style.color = ""; }
+    });
+  });
+
+  document.getElementById("auth-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("auth-email").value.trim();
+    const password = document.getElementById("auth-password").value;
+    const submitBtn = document.getElementById("auth-submit");
+    const feedback = document.getElementById("auth-feedback");
+
+    if (!email || !password) {
+      feedback.textContent = "Email and password are required.";
+      feedback.style.color = "var(--danger)";
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = authMode === "sign-in" ? "Signing in..." : "Creating account...";
+    feedback.textContent = "";
+
+    try {
+      if (authMode === "sign-in") {
+        const result = await signIn(email, password);
+        if (result) {
+          sessionToken = result.accessToken;
+          if (result.user?.email) sessionEmail = result.user.email;
+          localStorage.setItem("freesurf_session", result.accessToken);
+          loadProfileOrEditor();
+        }
+      } else {
+        const result = await signUp(email, password);
+        if (result) {
+          sessionToken = result.accessToken;
+          if (result.user?.email) sessionEmail = result.user.email;
+          localStorage.setItem("freesurf_session", result.accessToken);
+          loadProfileOrEditor();
+        } else {
+          feedback.textContent = "Check your email to confirm your account.";
+          feedback.style.color = "var(--success)";
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Create account";
+        }
+      }
+    } catch (err) {
+      feedback.textContent = err.message || "Authentication failed.";
+      feedback.style.color = "var(--danger)";
+      submitBtn.disabled = false;
+      submitBtn.textContent = authMode === "sign-in" ? "Sign in" : "Create account";
+    }
+  });
+}
+
+async function loadProfileOrEditor() {
+  try {
+    const result = await apiGet("/api/auth/me");
+    if (result.needsSetup) {
+      sessionEmail = result.email;
+      currentUser = null;
+    } else {
+      currentUser = result;
+    }
+    navigate("editor");
+  } catch {
+    // Go to editor even if auth/me fails — let user create profile
+    navigate("editor");
+  }
 }
 
 
@@ -510,8 +619,8 @@ let usernameAvailable = false;
 function renderEditor() {
   const isNewUser = !currentUser;
   const profile = currentUser || { displayName: "", bio: "", avatarUrl: "", theme: "minimal-dark", links: [] };
-  const publicUrl = currentUser ? \`\${PUBLIC_BASE.replace("http://127.0.0.1:8787", "freesurf.tools")}/\${profile.username}\` : null;
-  const displayUrl = currentUser ? \`freesurf.tools/\${profile.username}\` : null;
+  const publicUrl = currentUser?.username ? \`\${PUBLIC_BASE.replace("http://127.0.0.1:8787", "freesurf.tools")}/\${currentUser.username}\` : null;
+  const displayUrl = currentUser?.username ? \`freesurf.tools/\${currentUser.username}\` : null;
 
   const PLATFORM_LABELS = { twitter: "Twitter / X", instagram: "Instagram", youtube: "YouTube", tiktok: "TikTok", github: "GitHub", linkedin: "LinkedIn" };
 
@@ -556,7 +665,7 @@ function renderEditor() {
 
   return \`
     <header class="header">
-      <a href="/" class="header-logo" id="nav-home"><span style="color:var(--accent)">FreeSurf</span> links</a>
+      <a href="/" class="header-logo" id="nav-home"><span style="color:var(--accent)">FreeSurf's</span> Link-in-Bio</a>
       <nav class="header-nav">
         \${currentUser ? \`<a href="\${publicUrl.startsWith("http") ? publicUrl : "https://" + publicUrl}" target="_blank" class="btn btn-secondary btn-sm">View Page</a>\` : ""}
         <button class="btn btn-secondary btn-sm" id="logout-btn">Log out</button>
@@ -673,8 +782,8 @@ function renderEditor() {
             </div>
             <div class="freesurf-footer-col">
               <span class="freesurf-footer-heading">Legal</span>
-              <a href="https://freesurf.tools/privacy.html">Privacy</a>
-              <a href="https://freesurf.tools/terms.html">Terms</a>
+              <a href="https://freesurf.tools/privacy">Privacy</a>
+              <a href="https://freesurf.tools/terms">Terms</a>
               <a href="mailto:hello@freesurf.tools">Contact</a>
             </div>
           </div>
@@ -1150,8 +1259,12 @@ function escapeAttr(str) {
     content: `/**
  * FreeSurf Shared Auth — cross-domain session utility.
  * Depends on: freesurf.config.js for domain/brand values.
+ *
+ * Strategy:
+ * 1. Check local Supabase session (same-domain, e.g. the auth page itself)
+ * 2. Fall back to the shared cookie JWT — decode it directly without
+ *    initializing Supabase SDK to avoid "Multiple GoTrueClient" conflicts.
  */
-
 import config from "./freesurf.config.js";
 
 const { SUPABASE_URL, SUPABASE_ANON_KEY, COOKIE_NAME, COOKIE_MAX_AGE } = config.AUTH;
@@ -1164,7 +1277,7 @@ function getSupabase() {
     _supabasePromise = import("https://esm.sh/@supabase/supabase-js@2").then(
       ({ createClient }) =>
         createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-          auth: { persistSession: true, autoRefreshToken: true },
+          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
         })
     );
   }
@@ -1190,20 +1303,40 @@ function deleteCookie(name) {
   document.cookie = \`\${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;domain=\${COOKIE_DOMAIN};path=/;SameSite=Lax\`;
 }
 
+function jwtPayload(token) {
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return null;
+    const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    const data = JSON.parse(json);
+    if (data.exp && Date.now() / 1000 > data.exp) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+export { getSupabase, setCookie, getCookie, deleteCookie, COOKIE_NAME, COOKIE_DOMAIN, COOKIE_MAX_AGE };
+
 export async function getSharedSession() {
   try {
+    // Try local Supabase session first
     const supabase = await getSupabase();
     const { data } = await supabase.auth.getSession();
     if (data.session?.user) {
       persistToCookie(data.session.access_token);
       return { user: data.session.user, accessToken: data.session.access_token };
     }
+
+    // Fall back to cookie — decode JWT directly, no Supabase SDK restoration
     const cookieToken = getCookie(COOKIE_NAME);
     if (cookieToken) {
-      const { data: restored } = await supabase.auth.setSession({ access_token: cookieToken, refresh_token: "" });
-      if (restored.session?.user) {
-        persistToCookie(restored.session.access_token);
-        return { user: restored.session.user, accessToken: restored.session.access_token };
+      const payload = jwtPayload(cookieToken);
+      if (payload && payload.sub) {
+        return {
+          user: { id: payload.sub, email: payload.email || "" },
+          accessToken: cookieToken,
+        };
       }
       deleteCookie(COOKIE_NAME);
     }
@@ -1213,12 +1346,34 @@ export async function getSharedSession() {
   }
 }
 
+export async function signIn(email, password) {
+  const supabase = await getSupabase();
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  if (data.session) {
+    persistToCookie(data.session.access_token);
+    return { user: data.session.user, accessToken: data.session.access_token };
+  }
+  throw new Error("Sign in failed");
+}
+
+export async function signUp(email, password) {
+  const supabase = await getSupabase();
+  const { data, error } = await supabase.auth.signUp({ email, password });
+  if (error) throw error;
+  if (data.session) {
+    persistToCookie(data.session.access_token);
+    return { user: data.session.user, accessToken: data.session.access_token };
+  }
+  return null; // email confirmation required
+}
+
 export async function setSharedSession() {
   try {
     const supabase = await getSupabase();
     const { data } = await supabase.auth.getSession();
     if (data.session?.access_token) persistToCookie(data.session.access_token);
-  } catch { /* localStorage still works */ }
+  } catch { /* fallback */ }
 }
 
 export async function clearSharedSession() {
@@ -1284,6 +1439,250 @@ Object.freeze(config.TOOLS);
 export default config;
 `,
     type: "application/javascript",
+  },
+  "pages/privacy.html": {
+    content: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — FreeSurf</title>
+  <meta name="description" content="Privacy policy for FreeSurf — free tools for freelancers and small businesses." />
+  <style>
+    :root { --bg: #0b1020; --card: #111937; --text: #e8ecff; --muted: #b3bddf; --accent: #5b8cff; --border: #2a3568; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, Segoe UI, Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    a { color: var(--accent); }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 40px 24px 80px; }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    h2 { font-size: 1.25rem; margin-top: 32px; color: var(--accent); }
+    p, li { color: var(--muted); font-size: 0.95rem; margin: 8px 0; }
+    ul { padding-left: 20px; }
+    .updated { font-size: 0.85rem; color: #5f6b7a; margin-bottom: 32px; }
+    .entity { font-size: 0.9rem; color: #5f6b7a; margin-bottom: 24px; padding: 16px; background: var(--card); border-radius: 8px; border: 1px solid var(--border); }
+    hr { border: 0; border-top: 1px solid var(--border); margin: 32px 0; }
+    footer { margin-top: 48px; font-size: 0.8rem; color: #5f6b7a; }
+    footer a { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: August 7, 2026</p>
+
+    <div class="entity">
+      FreeSurf is a product of <strong>Planting Moon LLC</strong>, located at 5830 E 2nd St, Ste 7000 #35119, Casper, Wyoming 82609.<br />
+      Contact: <a href="mailto:support@freesurf.tools">support@freesurf.tools</a>
+    </div>
+
+    <p>This Privacy Policy explains how FreeSurf collects, uses, stores, and shares information when you use our apps, websites, and services. FreeSurf provides free utility tools including invoice generation, link-in-bio pages, social media cross-posting, text-to-speech reading, and related services.</p>
+
+    <h2>1. Information We Collect</h2>
+
+    <p><strong>Without an account:</strong> Most FreeSurf tools work without creating an account. When you use tools without signing in, your data (invoice drafts, generated audio, saved recordings, image generations, transcriptions) is stored locally on your device. We do not collect or have access to this locally stored data.</p>
+
+    <p><strong>With an account (optional):</strong> If you choose to create an account, we collect:</p>
+    <ul>
+      <li>Email address and authentication credentials (via Supabase)</li>
+      <li>Invoice drafts, business profiles, client information, and saved invoices you choose to sync to your account</li>
+      <li>Link-in-bio profile content including display name, bio, links, and avatar images</li>
+      <li>Social media account connections and OAuth tokens for cross-posting (Post tool)</li>
+      <li>Support requests and correspondence</li>
+    </ul>
+
+    <p><strong>AI Processing:</strong> Some FreeSurf tools use AI models to generate results. These models run on our own GPU infrastructure (RunPod). <strong>We do not share your content with third-party AI companies such as OpenAI, Google, or Anthropic.</strong> Your text, audio, and photos are processed in memory and immediately discarded after the result is returned:</p>
+    <ul>
+      <li><strong>Natural Reader:</strong> Text is sent to our self-hosted Kokoro TTS server to generate speech audio.</li>
+      <li><strong>Transcriber:</strong> Audio is sent to our self-hosted Whisper transcription server.</li>
+      <li><strong>Calorie Tracker:</strong> Food photos are sent to our self-hosted vision AI server.</li>
+      <li><strong>Image Maker:</strong> Text prompts are sent to image generation services.</li>
+    </ul>
+
+    <h2>2. How We Use Information</h2>
+    <ul>
+      <li>Provide, maintain, and improve our tools and services</li>
+      <li>Authenticate users who choose to create accounts</li>
+      <li>Sync your data across devices when signed in</li>
+      <li>Respond to support requests</li>
+      <li>Send optional product updates or newsletters (only if you opt in)</li>
+      <li>Maintain security and prevent abuse</li>
+    </ul>
+    <p>We do not sell personal information. We do not use your invoice data, link profiles, posts, or AI-generated content for advertising purposes.</p>
+
+    <h2>3. Advertising &amp; Third-Party Ad Networks</h2>
+    <p>FreeSurf apps display advertisements through third-party ad networks such as Google AdMob, AppLovin MAX, and similar providers. To serve and measure ads, these networks may collect:</p>
+    <ul>
+      <li><strong>Identifiers:</strong> Device advertising ID (IDFA on iOS, AAID on Android)</li>
+      <li><strong>Location:</strong> Coarse location derived from IP address (not precise GPS)</li>
+      <li><strong>Usage Data:</strong> Product interaction data (e.g., ad views, clicks)</li>
+      <li><strong>Diagnostics:</strong> Crash logs and performance data</li>
+    </ul>
+    <p>This data is shared with our ad mediation partners solely for ad delivery and measurement. No personal information from your FreeSurf account or tool usage (invoices, transcripts, meal logs, recordings) is shared with advertisers. Ad-supported functionality is disclosed in each app's store listing.</p>
+    <p><strong>Android Advertising ID (AD_ID):</strong> On Android devices, the Google Mobile Ads SDK accesses the Android Advertising ID for ad targeting, frequency capping, conversion tracking, and fraud prevention. The <code>com.google.android.gms.permission.AD_ID</code> permission is automatically included in our apps through the AdMob SDK library manifest. This permission is used solely to access the advertising identifier — no other Android permissions are requested for advertising purposes.</p>
+    <p>Before personalized ads are served, the app will request permission via Apple's App Tracking Transparency (ATT) prompt or Android's equivalent. You may opt out at any time through your device's privacy settings:</p>
+    <ul>
+      <li><strong>iOS:</strong> Settings → Privacy &amp; Security → Tracking → toggle off for the app. Or Settings → Privacy &amp; Security → Apple Advertising → turn off Personalized Ads.</li>
+      <li><strong>Android:</strong> Settings → Privacy → Ads → Delete advertising ID, or Settings → Google → Ads → Opt out of Ads Personalization.</li>
+    </ul>
+    <p>Non-personalized ads do not require tracking permission.</p>
+
+    <h2>4. Third-Party Services</h2>
+    <p>FreeSurf uses the following infrastructure and service providers:</p>
+    <ul>
+      <li><strong>Supabase</strong> — authentication and account data storage</li>
+      <li><strong>Cloudflare</strong> — web hosting, Workers, R2 storage, and KV</li>
+      <li><strong>RunPod</strong> — GPU infrastructure for self-hosted AI models (Kokoro TTS, Whisper, vision models)</li>
+      <li><strong>Replicate / Krea / Flux</strong> — image generation APIs</li>
+      <li><strong>Google AdMob / AppLovin MAX</strong> — in-app advertising</li>
+    </ul>
+    <p>These providers process data on our behalf to deliver specific parts of the service.</p>
+
+    <h2>5. Data Retention &amp; Your Choices</h2>
+    <ul>
+      <li><strong>Local data:</strong> Data stored on your device remains until you delete it or uninstall the app.</li>
+      <li><strong>Account data:</strong> Retained while your account is active. You can delete your account by contacting us.</li>
+      <li><strong>AI processing:</strong> Submitted text, audio, and photos are processed in memory on our servers and returned as output. No user content is retained on AI servers after the result is returned. AI-generated content is saved locally on your device. If you choose to sign in, content may also sync to your account for cross-device access.</li>
+      <li><strong>No model training:</strong> User content processed by our AI models is never used to train, fine-tune, or improve the models. Transcripts, audio, and images are used strictly for immediate real-time output.</li>
+      <li><strong>Support requests:</strong> May be retained to resolve issues and document outcomes.</li>
+    </ul>
+
+    <h2>6. GDPR &amp; CCPA Rights</h2>
+    <p>If you are located in the European Economic Area (EEA) or California, you have the following rights regarding your personal data:</p>
+    <ul>
+      <li><strong>Right to access:</strong> Request a copy of personal data we hold about you.</li>
+      <li><strong>Right to deletion:</strong> Request deletion of your account and associated data.</li>
+      <li><strong>Right to opt out:</strong> Opt out of personalized advertising via your device's privacy settings or by limiting ad tracking.</li>
+      <li><strong>Right to data portability:</strong> Request your data in a structured, machine-readable format.</li>
+    </ul>
+    <p>To exercise these rights, contact us at <a href="mailto:support@freesurf.tools">support@freesurf.tools</a>. We will respond within 30 days. For EEA users, you also have the right to lodge a complaint with your local data protection authority.</p>
+
+    <h2>7. Children's Privacy</h2>
+    <p>FreeSurf is not directed to children under 13, and we do not knowingly collect personal information from children under 13.</p>
+
+    <h2>8. Changes</h2>
+    <p>We may update this Privacy Policy. Material changes will be noted with an updated effective date.</p>
+
+    <hr />
+
+    <h2>Contact</h2>
+    <p>For privacy questions, data requests, or account deletion:<br />
+    <a href="mailto:support@freesurf.tools">support@freesurf.tools</a></p>
+    <p>Planting Moon LLC<br />5830 E 2nd St, Ste 7000 #35119, Casper, WY 82609</p>
+
+    <footer>
+      <a href="/">FreeSurf</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a>
+    </footer>
+  </div>
+</body>
+</html>`,
+    type: "text/html;charset=utf-8",
+  },
+  "pages/terms.html": {
+    content: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Use — FreeSurf</title>
+  <meta name="description" content="Terms of use for FreeSurf — free tools for freelancers and small businesses." />
+  <style>
+    :root { --bg: #0b1020; --card: #111937; --text: #e8ecff; --muted: #b3bddf; --accent: #5b8cff; --border: #2a3568; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, Segoe UI, Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    a { color: var(--accent); }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 40px 24px 80px; }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    h2 { font-size: 1.25rem; margin-top: 32px; color: var(--accent); }
+    p, li { color: var(--muted); font-size: 0.95rem; margin: 8px 0; }
+    ul { padding-left: 20px; }
+    .updated { font-size: 0.85rem; color: #5f6b7a; margin-bottom: 24px; }
+    .entity { font-size: 0.9rem; color: #5f6b7a; margin-bottom: 24px; padding: 16px; background: var(--card); border-radius: 8px; border: 1px solid var(--border); }
+    hr { border: 0; border-top: 1px solid var(--border); margin: 32px 0; }
+    footer { margin-top: 48px; font-size: 0.8rem; color: #5f6b7a; }
+    footer a { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Terms of Use</h1>
+    <p class="updated">Last updated: August 2, 2026</p>
+
+    <div class="entity">
+      FreeSurf is a product of <strong>Planting Moon LLC</strong>, located at 5830 E 2nd St, Ste 7000 #35119, Casper, Wyoming 82609.<br />
+      Contact: <a href="mailto:support@freesurf.tools">support@freesurf.tools</a>
+    </div>
+
+    <p>These Terms of Use govern your access to and use of the FreeSurf apps, websites, and services ("FreeSurf," "we," "our," or "us"). By using FreeSurf, you agree to these Terms of Use and our <a href="/privacy">Privacy Policy</a>.</p>
+
+    <h2>1. Service Description</h2>
+    <p>FreeSurf provides free utility tools for freelancers and small businesses, including:</p>
+    <ul>
+      <li><strong>Invoices:</strong> Invoice creation, PDF export, and draft management</li>
+      <li><strong>Links:</strong> Link-in-bio profile pages</li>
+      <li><strong>Post:</strong> Social media cross-posting</li>
+      <li><strong>Natural Reader:</strong> AI text-to-speech reading</li>
+      <li><strong>Transcriber:</strong> Speech-to-text transcription</li>
+      <li><strong>Image Maker:</strong> AI image generation</li>
+      <li><strong>Calorie Tracker:</strong> Photo-based food nutrition analysis</li>
+    </ul>
+    <p>Some features use AI systems to generate outputs. AI-generated content may be incomplete, inaccurate, or unsuitable for high-stakes decisions. You are responsible for reviewing and using AI outputs appropriately. FreeSurf does not provide legal, tax, accounting, medical, or nutritional advice.</p>
+
+    <h2>2. Eligibility and Accounts</h2>
+    <p>Most FreeSurf tools work without an account. You may optionally create an account to sync data across devices. You are responsible for maintaining the confidentiality of your login credentials and for all activity under your account. You may not use FreeSurf in violation of law, to infringe the rights of others, or to submit harmful, fraudulent, or abusive content.</p>
+
+    <h2>3. Acceptable Use</h2>
+    <p>You agree not to:</p>
+    <ul>
+      <li>Use FreeSurf for unlawful harassment, fraud, or abuse</li>
+      <li>Attempt to access another user's data or account</li>
+      <li>Upload content you do not have permission to use</li>
+      <li>Interfere with or disrupt the service or its infrastructure</li>
+      <li>Reverse engineer restricted components or attempt unauthorized access</li>
+      <li>Use AI features to generate harmful, deceptive, or illegal content</li>
+    </ul>
+
+    <h2>4. Your Content & AI Processing</h2>
+    <p>You retain ownership of the content you create using FreeSurf (invoices, link profiles, posts, generated audio, transcriptions, images, etc.). AI-powered features in FreeSurf apps (Natural Reader, Transcriber, Calorie Tracker, Image Maker) run on our own GPU infrastructure. Your text, audio, and photos are processed in memory on our servers and returned as output. <strong>We do not share your content with third-party AI companies such as OpenAI, Google, or Anthropic.</strong> No AI provider outside of FreeSurf's infrastructure receives, stores, or trains on your data. User content is never used to train, fine-tune, or improve AI models.</p>
+
+    <h2>5. Local Storage & Account Sync</h2>
+    <p>When used without an account, your data is stored locally on your device. We do not have access to locally stored data. If you choose to create an account, selected data may sync to our servers for cross-device access. You may delete synced data by contacting us or through in-app account management.</p>
+
+    <h2>6. Subscriptions and Billing</h2>
+    <p>FreeSurf tools are free to use with advertising. In the future, optional subscriptions may be offered to remove advertisements across the FreeSurf ecosystem. Subscriptions will be purchased through the Apple App Store or Google Play Store and will be governed by those platforms' billing terms. FreeSurf's core tools will remain available at no cost.</p>
+
+    <h2>7. Intellectual Property</h2>
+    <p>FreeSurf and its service materials (excluding user-generated content) are owned by Planting Moon LLC or our licensors. The FreeSurf name, logo, and brand are trademarks of Planting Moon LLC. Portions of the FreeSurf platform are open source and subject to their respective licenses.</p>
+
+    <h2>8. Third-Party Services</h2>
+    <p>FreeSurf integrates with third-party platforms and services. Your use of those services may be subject to their respective terms and policies. FreeSurf is not responsible for the content, functionality, or practices of third-party services.</p>
+
+    <h2>9. Disclaimers and Limitation of Liability</h2>
+    <p>FreeSurf is provided on an "as is" and "as available" basis. To the maximum extent permitted by law:</p>
+    <ul>
+      <li>We disclaim all warranties not expressly stated in these terms.</li>
+      <li>We are not liable for indirect, incidental, special, consequential, or punitive damages.</li>
+      <li>We are not liable for decisions made based on AI-generated outputs.</li>
+      <li>We are not liable for data loss from locally stored content — you should maintain your own backups of important records.</li>
+    </ul>
+
+    <h2>10. Changes</h2>
+    <p>We may update these Terms of Use from time to time. Material changes will be noted with an updated effective date. Continued use of FreeSurf after changes constitutes acceptance of the updated terms.</p>
+
+    <hr />
+
+    <h2>Contact</h2>
+    <p>For terms, billing, support, or account questions:<br />
+    <a href="mailto:support@freesurf.tools">support@freesurf.tools</a></p>
+    <p>Planting Moon LLC<br />5830 E 2nd St, Ste 7000 #35119, Casper, WY 82609</p>
+
+    <footer>
+      <a href="/">FreeSurf</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a>
+    </footer>
+  </div>
+</body>
+</html>
+`,
+    type: "text/html;charset=utf-8",
   },
   "sitemap.xml": {
     content: `<?xml version="1.0" encoding="UTF-8"?>
