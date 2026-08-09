@@ -4,15 +4,53 @@ import { renderProfilePage } from "./render";
 import { validateSupabaseJWT } from "./auth";
 import { HUB_HTML } from "./hub";
 import { FREESURF } from "./freesurf.config";
+import { DASHBOARD } from "./dashboard";
+
+const STATIC_MIME: Record<string, string> = {
+  ".html": "text/html;charset=utf-8",
+  ".css": "text/css",
+  ".js": "application/javascript",
+  ".xml": "application/xml",
+};
+
+function serveDashboardAsset(request: Request): Response {
+  const url = new URL(request.url);
+  let assetPath = url.pathname.replace(/^\//, "");
+
+  // SPA fallback: non-file routes get index.html on links subdomain
+  if (!assetPath || !assetPath.includes(".")) {
+    assetPath = "index.html";
+  }
+
+  const asset = DASHBOARD[assetPath];
+  if (!asset) {
+    return new Response(DASHBOARD["index.html"]?.content || "Not found", {
+      status: 200,
+      headers: { "Content-Type": "text/html;charset=utf-8" },
+    });
+  }
+
+  const ext = "." + (assetPath.split(".").pop() || "html");
+  return new Response(asset.content, {
+    status: 200,
+    headers: { "Content-Type": asset.type || STATIC_MIME[ext] || "application/octet-stream", "Cache-Control": "public, max-age=3600" },
+  });
+}
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     const path = url.pathname;
+    const isLinks = url.hostname.startsWith("links.");
 
-    // --- API routes ---
+    // --- API routes (both subdomains) ---
     if (path.startsWith("/api/")) {
       return handleApi(request, env, path);
+    }
+
+    // --- links.freesurf.tools: Dashboard SPA ---
+    if (isLinks) {
+      return serveDashboardAsset(request);
     }
 
     // --- Health check ---
@@ -80,7 +118,7 @@ async function handleApi(
 ): Promise<Response> {
   const allowedOrigins = FREESURF.CORS_ORIGINS.links;
   const origin = request.headers.get("Origin") ?? "";
-  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  const corsOrigin = (allowedOrigins as readonly string[]).includes(origin) ? origin : allowedOrigins[0];
   const corsHeaders = {
     "Access-Control-Allow-Origin": corsOrigin,
     "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",

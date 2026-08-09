@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "description": "Free, open-source link-in-bio platform — powered by FreeSurf",
   "private": true,
-  "scripts": {
+      "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "build": "node scripts/build-dashboard.mjs",
+    "deploy": "npm run build && wrangler deploy",
     "typecheck": "tsc --noEmit"
   },
   "repository": {

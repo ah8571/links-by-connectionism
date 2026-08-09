@@ -1,10 +1,11 @@
-name = "links-by-freesurf"
+name = "freesurf-link-in-bio"
 main = "src/index.ts"
 compatibility_date = "2024-12-01"
 workers_dev = true
 
-# Custom domains — freesurf.tools serves public pages + API
+# Custom domains
 routes = [
+  { pattern = "links.freesurf.tools/*", zone_name = "freesurf.tools" },
   { pattern = "freesurf.tools/*", zone_name = "freesurf.tools" }
 ]
 
