@@ -42,5 +42,6 @@ export const RESERVED_SLUGS = new Set([
   "static",
   "assets",
   "health",
+  "support",
   "_worker",
 ]);

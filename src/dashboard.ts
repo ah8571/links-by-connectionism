@@ -38,7 +38,7 @@ a:hover { color: var(--accent-hover); }
   display: flex; align-items: center; justify-content: space-between;
   padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);
 }
-.header-logo { font-weight: 700; font-size: 1.1rem; color: var(--text); text-decoration: none; }
+.header-logo { font-weight: 700; font-size: 1.1rem; }
 .header-nav { display: flex; gap: 1rem; align-items: center; }
 
 /* --- Buttons --- */
@@ -144,7 +144,7 @@ a:hover { color: var(--accent-hover); }
 .hero h1 { font-size: 2.5rem; font-weight: 800; line-height: 1.15; margin-bottom: 1rem; }
 .hero h1 span { color: var(--accent); }
 .hero p { font-size: 1.15rem; color: var(--text-muted); margin-bottom: 2rem; max-width: 440px; margin-left: auto; margin-right: auto; }
-.claim-form { display: flex; gap: 0; max-width: 400px; margin: 0; }
+.claim-form { display: flex; gap: 0; max-width: 400px; margin: 0 auto; }
 .claim-prefix {
   display: flex; align-items: center; padding: 0 0.75rem;
   background: var(--surface); border: 1px solid var(--border);
@@ -208,11 +208,6 @@ a:hover { color: var(--accent-hover); }
 .theme-light { background: #ffffff; color: #111111; }
 .theme-dark { background: #0f0f0f; color: #f5f5f5; }
 .theme-bold { background: #1e1b4b; color: #f59e0b; }
-.theme-forest { background: #0d1f0d; color: #4ade80; }
-.theme-ocean { background: #0a1628; color: #38bdf8; }
-.theme-sunset { background: #1a0f0a; color: #fb923c; }
-.theme-mono { background: #000000; color: #a3a3a3; }
-.theme-neon { background: #0a0a0f; color: #06b6d4; }
 
 /* --- Footer --- */
 .footer { text-align: center; padding: 2rem 0; font-size: 0.8rem; color: var(--text-muted); }
@@ -334,9 +329,7 @@ const API_BASE = location.hostname === "localhost" || location.hostname === "127
   ? "http://127.0.0.1:8787"
   : location.origin;
 
-const PUBLIC_BASE = location.hostname === "localhost" || location.hostname === "127.0.0.1"
-  ? "http://127.0.0.1:8787"
-  : "https://freesurf.tools";
+const PUBLIC_BASE = API_BASE.replace("http://127.0.0.1:8787", "http://127.0.0.1:8787");
 
 // --- Cross-domain auth: try to restore Supabase session from shared cookie ---
 import { getSharedSession, signIn, signUp, clearSharedSession } from "./freesurf-auth.js";
@@ -466,7 +459,7 @@ function renderLanding() {
         <div class="card feature">
           <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><path d="M17.5 10.5a5 5 0 0 0-10 0"/><circle cx="8.5" cy="14" r="2.5"/><path d="M12.5 17.5a5 5 0 0 0-8 0"/><circle cx="17" cy="15.5" r="2"/><path d="M20 19a4 4 0 0 0-6 0"/></svg></div>
           <h3>Clean Themes</h3>
-          <p>Minimal light, dark, bold, and expressive themes. Your content is the focus.</p>
+          <p>Minimal light, dark, and bold themes. Your content is the focus.</p>
         </div>
         <div class="card feature">
           <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
@@ -624,9 +617,9 @@ let lastCheckedUsername = "";
 let usernameAvailable = false;
 
 function renderEditor() {
-  const isNewUser = !currentUser?.username;
-  const profile = currentUser?.username ? currentUser : { displayName: "", bio: "", avatarUrl: "", theme: "minimal-dark", links: [] };
-  const publicUrl = currentUser?.username ? \`\${PUBLIC_BASE}/\${currentUser.username}\` : null;
+  const isNewUser = !currentUser;
+  const profile = currentUser || { displayName: "", bio: "", avatarUrl: "", theme: "minimal-dark", links: [] };
+  const publicUrl = currentUser?.username ? \`\${PUBLIC_BASE.replace("http://127.0.0.1:8787", "freesurf.tools")}/\${currentUser.username}\` : null;
   const displayUrl = currentUser?.username ? \`freesurf.tools/\${currentUser.username}\` : null;
 
   const PLATFORM_LABELS = { twitter: "Twitter / X", instagram: "Instagram", youtube: "YouTube", tiktok: "TikTok", github: "GitHub", linkedin: "LinkedIn" };
@@ -674,7 +667,7 @@ function renderEditor() {
     <header class="header">
       <a href="/" class="header-logo" id="nav-home"><span style="color:var(--accent)">FreeSurf's</span> Link-in-Bio</a>
       <nav class="header-nav">
-        \${currentUser?.username ? \`<a href="\${publicUrl.startsWith("http") ? publicUrl : "https://" + publicUrl}" target="_blank" class="btn btn-secondary btn-sm">View Page</a>\` : ""}
+        \${currentUser ? \`<a href="\${publicUrl.startsWith("http") ? publicUrl : "https://" + publicUrl}" target="_blank" class="btn btn-secondary btn-sm">View Page</a>\` : ""}
         <button class="btn btn-secondary btn-sm" id="logout-btn">Log out</button>
       </nav>
     </header>
@@ -682,7 +675,12 @@ function renderEditor() {
       \${isNewUser ? \`
         <h2 style="margin-bottom: 0.25rem;">Set up your page</h2>
         <p style="color:var(--text-muted); margin-bottom: 1.5rem;">Choose a URL and fill in your details below.</p>
-      \` : ""}
+      \` : \`
+        <div class="url-bar">
+          <span class="url-bar-link">\${escapeHtml(displayUrl)}</span>
+          <button class="btn btn-sm btn-secondary" id="copy-url">Copy</button>
+        </div>
+      \`}
 
       <div id="save-status"></div>
 
@@ -696,16 +694,7 @@ function renderEditor() {
           </div>
           <p id="username-status" style="font-size:0.8rem; margin-top:0.35rem; min-height:1.2em;">&nbsp;</p>
         </div>
-      \` : \`
-        <div class="form-group" style="margin-top:1rem;">
-          <label class="form-label">Handle</label>
-          <div class="claim-form" style="margin-bottom:0;">
-            <div class="claim-prefix">freesurf.tools/</div>
-            <input type="text" class="form-input" id="edit-username" value="\${escapeAttr(profile.username)}" maxlength="30" style="border-radius:0 var(--radius) var(--radius) 0;">
-          </div>
-          <p id="username-status" style="font-size:0.8rem; margin-top:0.35rem; min-height:1.2em;">&nbsp;</p>
-        </div>
-      \`}
+      \` : ""}
 
       <!-- Profile Details -->
       <p class="section-title">Profile</p>
@@ -737,11 +726,6 @@ function renderEditor() {
         <div class="theme-option theme-light \${profile.theme === "minimal-light" ? "active" : ""}" data-theme="minimal-light">Light</div>
         <div class="theme-option theme-dark \${profile.theme === "minimal-dark" ? "active" : ""}" data-theme="minimal-dark">Dark</div>
         <div class="theme-option theme-bold \${profile.theme === "bold" ? "active" : ""}" data-theme="bold">Bold</div>
-        <div class="theme-option theme-forest \${profile.theme === "forest" ? "active" : ""}" data-theme="forest">Forest</div>
-        <div class="theme-option theme-ocean \${profile.theme === "ocean" ? "active" : ""}" data-theme="ocean">Ocean</div>
-        <div class="theme-option theme-sunset \${profile.theme === "sunset" ? "active" : ""}" data-theme="sunset">Sunset</div>
-        <div class="theme-option theme-mono \${profile.theme === "mono" ? "active" : ""}" data-theme="mono">Mono</div>
-        <div class="theme-option theme-neon \${profile.theme === "neon" ? "active" : ""}" data-theme="neon">Neon</div>
       </div>
 
       <!-- Links -->
@@ -814,7 +798,7 @@ function renderEditor() {
 }
 
 function bindEditor() {
-  const isNewUser = !currentUser?.username;
+  const isNewUser = !currentUser;
 
   document.getElementById("nav-home").addEventListener("click", (e) => {
     e.preventDefault();
@@ -1170,14 +1154,11 @@ async function doAutoSave() {
   if (btn) { btn.disabled = true; btn.textContent = "Saving..."; }
   if (statusEl) statusEl.innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">Saving...</span>';
 
-  // Sync name/bio/username from inputs if they exist
+  // Sync name/bio from inputs if they exist
   const nameEl = document.getElementById("edit-name");
   const bioEl = document.getElementById("edit-bio");
-  const usernameEl = document.getElementById("edit-username");
   if (nameEl) currentUser.displayName = nameEl.value.trim();
   if (bioEl) currentUser.bio = bioEl.value.trim();
-  const newUsername = usernameEl ? usernameEl.value.trim().toLowerCase() : null;
-  if (newUsername) currentUser.username = newUsername;
 
   try {
     const updated = await apiPut(\`/api/profile/\${currentUser.username}\`, currentUser);
@@ -1200,9 +1181,6 @@ async function handleSave() {
 
   currentUser.displayName = document.getElementById("edit-name").value.trim();
   currentUser.bio = document.getElementById("edit-bio").value.trim();
-  const usernameInput = document.getElementById("edit-username");
-  const newUsername = usernameInput ? usernameInput.value.trim().toLowerCase() : currentUser.username;
-  if (newUsername) currentUser.username = newUsername;
 
   try {
     const updated = await apiPut(\`/api/profile/\${currentUser.username}\`, currentUser);
