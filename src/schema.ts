@@ -19,11 +19,11 @@ export const ProfileSchema = z.object({
   displayName: z.string().min(1).max(100),
   bio: z.string().max(500).default(""),
   avatarUrl: z.string().max(200).optional(),
-  theme: z.enum(["minimal-light", "minimal-dark", "bold"]).default("minimal-light"),
+  theme: z.enum(["minimal-light", "minimal-dark", "bold", "forest", "ocean", "sunset", "mono", "neon"]).default("minimal-light"),
   defaultView: z.enum(["links", "about", "hub"]).default("links"),
   links: z.array(LinkSchema).max(50).default([]),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
 });
 
 export type Profile = z.infer<typeof ProfileSchema>;

@@ -21,8 +21,8 @@ function supabaseHeaders(jwt?: string): HeadersInit {
   };
 }
 
-/** Write (upsert) a creator profile */
-export async function putProfile(env: Env, profile: Profile, jwt?: string, userId?: string): Promise<void> {
+/** Write (create or update) a creator profile */
+export async function putProfile(env: Env, profile: Profile, jwt?: string, userId?: string, oldUsername?: string): Promise<void> {
   const body: Record<string, unknown> = {
     username: profile.username,
     email: profile.email,
@@ -40,14 +40,26 @@ export async function putProfile(env: Env, profile: Profile, jwt?: string, userI
     body.user_id = userId;
   }
 
-  const existing = await getProfile(env, profile.username);
+  const lookup = oldUsername || profile.username;
+  const existing = await getProfile(env, lookup);
   if (existing) {
-    delete body.username;
-    await fetch(`${SUPABASE_REST}?username=eq.${encodeURIComponent(profile.username)}`, {
-      method: "PATCH",
-      headers: supabaseHeaders(jwt),
-      body: JSON.stringify(body),
-    });
+    // If username is changing, don't delete it from body
+    if (oldUsername && oldUsername !== profile.username) {
+      // Username rename: delete old row via PATCH on old username, then insert new
+      await deleteProfile(env, oldUsername, jwt);
+      await fetch(SUPABASE_REST, {
+        method: "POST",
+        headers: supabaseHeaders(jwt),
+        body: JSON.stringify(body),
+      });
+    } else {
+      delete body.username;
+      await fetch(`${SUPABASE_REST}?username=eq.${encodeURIComponent(lookup)}`, {
+        method: "PATCH",
+        headers: supabaseHeaders(jwt),
+        body: JSON.stringify(body),
+      });
+    }
   } else {
     await fetch(SUPABASE_REST, {
       method: "POST",
@@ -55,6 +67,14 @@ export async function putProfile(env: Env, profile: Profile, jwt?: string, userI
       body: JSON.stringify(body),
     });
   }
+}
+
+/** Delete a profile (requires user JWT for RLS) */
+async function deleteProfile(env: Env, username: string, jwt?: string): Promise<void> {
+  await fetch(`${SUPABASE_REST}?username=eq.${encodeURIComponent(username)}`, {
+    method: "DELETE",
+    headers: supabaseHeaders(jwt),
+  });
 }
 
 /** Read a creator profile, or null if not found */

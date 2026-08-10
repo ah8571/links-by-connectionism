@@ -184,7 +184,7 @@ async function handleApi(
 
   // GET /api/auth/me — return current user's profile (JWT-authenticated)
   if (path === "/api/auth/me" && request.method === "GET") {
-    const jwt = await validateSupabaseJWT(env.SUPABASE_JWT_SECRET, request.headers.get("Authorization"));
+    const jwt = await validateSupabaseJWT(env.SUPABASE_JWT_SECRET, request.headers.get("Authorization"), FREESURF.AUTH.SUPABASE_URL);
     if (!jwt) return jsonResponse({ error: "unauthorized" }, 401, corsHeaders);
     const username = await getUsernameByUserId(env, jwt.sub);
     if (!username) return jsonResponse({ needsSetup: true, email: jwt.email }, 200, corsHeaders);
@@ -206,7 +206,7 @@ async function handleApi(
 
   // POST /api/profile — create new profile (requires Supabase JWT)
   if (path === "/api/profile" && request.method === "POST") {
-    const jwt = await validateSupabaseJWT(env.SUPABASE_JWT_SECRET, request.headers.get("Authorization"));
+    const jwt = await validateSupabaseJWT(env.SUPABASE_JWT_SECRET, request.headers.get("Authorization"), FREESURF.AUTH.SUPABASE_URL);
     if (!jwt) return jsonResponse({ error: "unauthorized" }, 401, corsHeaders);
 
     try {
@@ -243,28 +243,40 @@ async function handleApi(
 
   // PUT /api/profile/:username — update existing profile (requires Supabase JWT)
   if (profileMatch && request.method === "PUT") {
-    const username = profileMatch[1];
+    const urlUsername = profileMatch[1];
 
-    const jwt = await validateSupabaseJWT(env.SUPABASE_JWT_SECRET, request.headers.get("Authorization"));
+    const jwt = await validateSupabaseJWT(env.SUPABASE_JWT_SECRET, request.headers.get("Authorization"), FREESURF.AUTH.SUPABASE_URL);
     const ownedUsername = jwt ? await getUsernameByUserId(env, jwt.sub) : null;
-    if (!jwt || ownedUsername !== username) {
+    if (!jwt || ownedUsername !== urlUsername) {
       return jsonResponse({ error: "unauthorized" }, 401, corsHeaders);
     }
 
-    const existing = await getProfile(env, username);
+    const existing = await getProfile(env, urlUsername);
     if (!existing)
       return jsonResponse({ error: "not found" }, 404, corsHeaders);
 
     try {
       const body = (await request.json()) as Record<string, unknown>;
-      const parsed = ProfileSchema.parse({ ...body, username, email: existing.email });
+      const newUsername = (body.username as string) || urlUsername;
+
+      // If username is changing, validate availability
+      if (newUsername !== urlUsername) {
+        if (RESERVED_SLUGS.has(newUsername)) {
+          return jsonResponse({ error: "username reserved" }, 400, corsHeaders);
+        }
+        if (await profileExists(env, newUsername)) {
+          return jsonResponse({ error: "username taken" }, 409, corsHeaders);
+        }
+      }
+
+      const parsed = ProfileSchema.parse({ ...body, username: newUsername, email: existing.email });
       const updated = {
         ...parsed,
         createdAt: existing.createdAt,
         updatedAt: new Date().toISOString(),
       };
       const token = request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
-      await putProfile(env, updated, token, jwt.sub);
+      await putProfile(env, updated, token, jwt.sub, newUsername !== urlUsername ? urlUsername : undefined);
       const { email: _email, ...publicProfile } = updated;
       return jsonResponse(publicProfile, 200, corsHeaders);
     } catch (err: unknown) {
@@ -275,7 +287,7 @@ async function handleApi(
 
   // POST /api/avatar — upload avatar image (requires Supabase JWT)
   if (path === "/api/avatar" && request.method === "POST") {
-    const jwt = await validateSupabaseJWT(env.SUPABASE_JWT_SECRET, request.headers.get("Authorization"));
+    const jwt = await validateSupabaseJWT(env.SUPABASE_JWT_SECRET, request.headers.get("Authorization"), FREESURF.AUTH.SUPABASE_URL);
     const username = jwt ? await getUsernameByUserId(env, jwt.sub) : null;
     if (!jwt || !username) {
       return jsonResponse({ error: "unauthorized" }, 401, corsHeaders);

@@ -20,8 +20,13 @@ function socialIcon(platform: string): string {
 
 const THEMES: Record<string, { bg: string; card: string; text: string; accent: string; link: string }> = {
   "minimal-light": { bg: "#ffffff", card: "#f5f5f5", text: "#111111", accent: "#6366f1", link: "#ffffff" },
-  "minimal-dark": { bg: "#0f0f0f", card: "#1a1a1a", text: "#f5f5f5", accent: "#818cf8", link: "#1a1a1a" },
-  "bold": { bg: "#1e1b4b", card: "#312e81", text: "#e0e7ff", accent: "#f59e0b", link: "#312e81" },
+  "minimal-dark":  { bg: "#0f0f0f", card: "#1a1a1a", text: "#f5f5f5", accent: "#818cf8", link: "#1a1a1a" },
+  "bold":          { bg: "#1e1b4b", card: "#312e81", text: "#e0e7ff", accent: "#f59e0b", link: "#312e81" },
+  "forest":        { bg: "#0d1f0d", card: "#1a3320", text: "#d4e8d4", accent: "#4ade80", link: "#1a3320" },
+  "ocean":         { bg: "#0a1628", card: "#0f2744", text: "#d0e4f7", accent: "#38bdf8", link: "#0f2744" },
+  "sunset":        { bg: "#1a0f0a", card: "#2d1a12", text: "#fce8d5", accent: "#fb923c", link: "#2d1a12" },
+  "mono":          { bg: "#000000", card: "#1a1a1a", text: "#e5e5e5", accent: "#a3a3a3", link: "#1a1a1a" },
+  "neon":          { bg: "#0a0a0f", card: "#12121a", text: "#e2e2f0", accent: "#06b6d4", link: "#12121a" },
 };
 
 export function renderProfilePage(profile: Profile): string {
@@ -52,7 +57,7 @@ export function renderProfilePage(profile: Profile): string {
   const socialsHtml = socialLinks
     .map(
       (s) =>
-        `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener noreferrer" class="social" title="${escapeHtml(s.platform!)}">${socialIcon(s.platform!) || escapeHtml(s.title)}</a>`
+        `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener noreferrer" class="social-icon" title="${escapeHtml(s.platform!)}">${socialIcon(s.platform!) || escapeHtml(s.title)}</a>`
     )
     .join("\n        ");
 
@@ -61,11 +66,12 @@ export function renderProfilePage(profile: Profile): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(profile.displayName)} — Links</title>
-  <meta name="description" content="${escapeHtml(profile.bio || profile.displayName)}">
-  <meta property="og:title" content="${escapeHtml(profile.displayName)}">
-  <meta property="og:description" content="${escapeHtml(profile.bio || "")}">
+  <title>${escapeHtml(profile.username)} | FreeSurf</title>
+  <meta name="description" content="${escapeHtml(profile.bio || profile.displayName + " on FreeSurf Links")}">
+  <meta property="og:title" content="${escapeHtml(profile.username)} | FreeSurf">
+  <meta property="og:description" content="${escapeHtml(profile.bio || profile.displayName)}">
   ${profile.avatarUrl ? `<meta property="og:image" content="${FREESURF.URLS.home}/avatar/${escapeHtml(profile.username)}">` : ""}
+  <meta property="og:type" content="website">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -75,23 +81,57 @@ export function renderProfilePage(profile: Profile): string {
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      padding: 2rem 1rem;
+      padding: 0;
     }
-    .container { max-width: 480px; width: 100%; text-align: center; }
+    .page { max-width: 480px; width: 100%; padding: 0 1rem 3rem; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 0; margin-bottom: 1.5rem;
+    }
+    .topbar-logo {
+      display: flex; align-items: center; gap: 0.4rem;
+      text-decoration: none; color: ${t.text}; opacity: 0.85; font-weight: 600; font-size: 0.95rem;
+      transition: opacity 0.15s;
+    }
+    .topbar-logo:hover { opacity: 1; }
+    .topbar-logo svg { width: 22px; height: 22px; }
+    .share-btn {
+      background: none; border: 1px solid ${t.card};
+      border-radius: 50%; width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: ${t.text}; opacity: 0.7;
+      transition: opacity 0.15s, background 0.15s;
+      padding: 0;
+    }
+    .share-btn:hover { opacity: 1; background: ${t.card}; }
+    .share-btn svg { width: 16px; height: 16px; }
+    .container { text-align: center; }
     .avatar {
-      width: 88px; height: 88px; border-radius: 50%;
+      width: 96px; height: 96px; border-radius: 50%;
       object-fit: cover; margin-bottom: 1rem;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.15);
     }
-    h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
-    .bio { opacity: 0.8; margin-bottom: 1.5rem; font-size: 0.95rem; line-height: 1.4; }
+    h1 { font-size: 1.35rem; font-weight: 700; margin-bottom: 0.15rem; }
+    .at-username { font-size: 0.9rem; opacity: 0.5; margin-bottom: 0.75rem; font-weight: 400; }
+    .bio { opacity: 0.78; margin-bottom: 1.25rem; font-size: 0.9rem; line-height: 1.5; }
+    .socials-hdr { display: flex; justify-content: center; gap: 0.75rem; margin-bottom: 1.5rem; }
+    .social-icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: ${t.card}; color: ${t.text};
+      transition: opacity 0.15s, transform 0.15s;
+      opacity: 0.75;
+    }
+    .social-icon:hover { opacity: 1; transform: scale(1.08); }
+    .social-icon svg { width: 20px; height: 20px; }
     .link-wrapper { position: relative; margin-bottom: 0.75rem; }
     .link {
       display: block; padding: 0.875rem 1.25rem; position: relative;
       background: ${t.accent}; color: ${t.link}; text-decoration: none;
       border-radius: 8px; font-weight: 500; font-size: 1rem;
-      transition: opacity 0.15s;
+      transition: opacity 0.15s, transform 0.1s;
     }
-    .link:hover { opacity: 0.85; }
+    .link:hover { opacity: 0.85; transform: translateY(-1px); }
     .link-desc-toggle {
       position: absolute; right: 0.75rem; top: 50%;
       transform: translateY(-50%);
@@ -116,25 +156,69 @@ export function renderProfilePage(profile: Profile): string {
       opacity: 0.9;
     }
     .link-desc.open { display: block; }
-    .socials { display: flex; justify-content: center; gap: 1rem; margin-top: 1.5rem; }
-    .social { color: ${t.text}; opacity: 0.7; transition: opacity 0.15s; }
-    .social:hover { opacity: 1; }
-    .footer { margin-top: 2.5rem; font-size: 0.75rem; opacity: 0.4; }
-    .footer a { color: inherit; text-decoration: none; }
+    .join-btn {
+      display: block; width: 100%; margin-top: 5rem; padding: 0.8rem;
+      background: ${t.card}; color: ${t.text}; border: 1px solid ${t.card};
+      border-radius: 8px; text-decoration: none; font-size: 0.95rem; font-weight: 500;
+      text-align: center; transition: background 0.15s, border-color 0.15s;
+    }
+    .join-btn:hover { background: ${t.accent}; color: ${t.link}; border-color: ${t.accent}; }
+    .footer { margin-top: 2rem; text-align: center; }
+    .footer a { color: inherit; text-decoration: none; font-size: 0.78rem; opacity: 0.45; transition: opacity 0.15s; }
+    .footer a:hover { opacity: 0.7; }
   </style>
 </head>
 <body>
-  <div class="container">
-    ${profile.avatarUrl ? `<img src="/avatar/${escapeHtml(profile.username)}" alt="${escapeHtml(profile.displayName)}" class="avatar">` : ""}
-    <h1>${escapeHtml(profile.displayName)}</h1>
-    ${profile.bio ? `<p class="bio">${escapeHtml(profile.bio)}</p>` : ""}
-    <div class="links">
-      ${linksHtml}
+  <div class="page">
+    <div class="topbar">
+      <a href="${FREESURF.URLS.links}" class="topbar-logo" title="FreeSurf Links">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </svg>
+      </a>
+      <button class="share-btn" onclick="share()" title="Share">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="5" r="3"/>
+          <circle cx="6" cy="12" r="3"/>
+          <circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+      </button>
     </div>
-    ${socialsHtml ? `<div class="socials">${socialsHtml}</div>` : ""}
-    <p class="footer"><a href="${FREESURF.URLS.links}">FreeSurf Links</a></p>
+    <div class="container">
+      ${profile.avatarUrl ? `<img src="/avatar/${escapeHtml(profile.username)}" alt="${escapeHtml(profile.displayName)}" class="avatar">` : ""}
+      <h1>${escapeHtml(profile.displayName)}</h1>
+      <p class="at-username">@${escapeHtml(profile.username)}</p>
+      ${socialsHtml ? `<div class="socials-hdr">${socialsHtml}</div>` : ""}
+      ${profile.bio ? `<p class="bio">${escapeHtml(profile.bio)}</p>` : ""}
+      <div class="links">
+        ${linksHtml}
+      </div>
+      <a href="${FREESURF.URLS.links}" class="join-btn">Join @${escapeHtml(profile.username)} on FreeSurf</a>
+      <p class="footer">
+        <a href="${FREESURF.URLS.home}/privacy">Privacy</a>
+        <span style="opacity:0.25;margin:0 0.4rem;">&middot;</span>
+        <a href="${FREESURF.URLS.home}">More from FreeSurf</a>
+      </p>
+    </div>
   </div>
   <script>
+    function share() {
+      var url = '${FREESURF.URLS.home}/${profile.username}';
+      if (navigator.share) {
+        navigator.share({ title: '${profile.username} | FreeSurf', url: url });
+      } else {
+        navigator.clipboard.writeText(url).then(function() {
+          var btn = document.querySelector('.share-btn');
+          btn.innerHTML = '<span style="font-size:0.7rem;font-weight:600;">Copied</span>';
+          setTimeout(function() {
+            btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>';
+          }, 1500);
+        });
+      }
+    }
     document.querySelectorAll('.link').forEach(function(a) {
       a.addEventListener('click', function() {
         var idx = a.getAttribute('data-idx');
