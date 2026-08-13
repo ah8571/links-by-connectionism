@@ -1479,7 +1479,7 @@ export default config;
 
     <h2>1. Information We Collect</h2>
 
-    <p><strong>Without an account:</strong> Most FreeSurf tools work without creating an account. When you use tools without signing in, your data (invoice drafts, generated audio, saved recordings, image generations, transcriptions) is stored locally on your device. We do not collect or have access to this locally stored data.</p>
+    <p><strong>Without an account:</strong> Most FreeSurf tools work without creating an account. When you use tools without signing in, your data (invoice drafts, generated audio, saved recordings, transcriptions) is stored locally on your device. We do not collect or have access to this locally stored data.</p>
 
     <p><strong>With an account (optional):</strong> If you choose to create an account, we collect:</p>
     <ul>
@@ -1495,7 +1495,6 @@ export default config;
       <li><strong>Natural Reader:</strong> Text is sent to our self-hosted Kokoro TTS server to generate speech audio.</li>
       <li><strong>Transcriber:</strong> Audio is sent to our self-hosted Whisper transcription server.</li>
       <li><strong>Calorie Tracker:</strong> Food photos are sent to our self-hosted vision AI server.</li>
-      <li><strong>Image Maker:</strong> Text prompts are sent to image generation services.</li>
     </ul>
 
     <h2>2. How We Use Information</h2>
@@ -1532,7 +1531,6 @@ export default config;
       <li><strong>Supabase</strong> — authentication and account data storage</li>
       <li><strong>Cloudflare</strong> — web hosting, Workers, R2 storage, and KV</li>
       <li><strong>RunPod</strong> — GPU infrastructure for self-hosted AI models (Kokoro TTS, Whisper, vision models)</li>
-      <li><strong>Replicate / Krea / Flux</strong> — image generation APIs</li>
       <li><strong>Google AdMob / AppLovin MAX</strong> — in-app advertising</li>
     </ul>
     <p>These providers process data on our behalf to deliver specific parts of the service.</p>
@@ -1795,7 +1793,6 @@ export default config;
       <li><strong>Post:</strong> Social media cross-posting</li>
       <li><strong>Natural Reader:</strong> AI text-to-speech reading</li>
       <li><strong>Transcriber:</strong> Speech-to-text transcription</li>
-      <li><strong>Image Maker:</strong> AI image generation</li>
       <li><strong>Calorie Tracker:</strong> Photo-based food nutrition analysis</li>
     </ul>
     <p>Some features use AI systems to generate outputs. AI-generated content may be incomplete, inaccurate, or unsuitable for high-stakes decisions. You are responsible for reviewing and using AI outputs appropriately. FreeSurf does not provide legal, tax, accounting, medical, or nutritional advice.</p>
@@ -1815,7 +1812,7 @@ export default config;
     </ul>
 
     <h2>4. Your Content & AI Processing</h2>
-    <p>You retain ownership of the content you create using FreeSurf (invoices, link profiles, posts, generated audio, transcriptions, images, etc.). AI-powered features in FreeSurf apps (Natural Reader, Transcriber, Calorie Tracker, Image Maker) run on our own GPU infrastructure. Your text, audio, and photos are processed in memory on our servers and returned as output. <strong>We do not share your content with third-party AI companies such as OpenAI, Google, or Anthropic.</strong> No AI provider outside of FreeSurf's infrastructure receives, stores, or trains on your data. User content is never used to train, fine-tune, or improve AI models.</p>
+    <p>You retain ownership of the content you create using FreeSurf (invoices, link profiles, posts, generated audio, transcriptions, etc.). AI-powered features in FreeSurf apps (Natural Reader, Transcriber, Calorie Tracker) run on our own GPU infrastructure. Your text, audio, and photos are processed in memory on our servers and returned as output. <strong>We do not share your content with third-party AI companies such as OpenAI, Google, or Anthropic.</strong> No AI provider outside of FreeSurf's infrastructure receives, stores, or trains on your data. User content is never used to train, fine-tune, or improve AI models.</p>
 
     <h2>5. Local Storage & Account Sync</h2>
     <p>When used without an account, your data is stored locally on your device. We do not have access to locally stored data. If you choose to create an account, selected data may sync to our servers for cross-device access. You may delete synced data by contacting us or through in-app account management.</p>
