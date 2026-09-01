@@ -349,10 +349,18 @@ function renderEditor() {
       ${isNewUser ? `
         <h2 style="margin-bottom: 0.25rem;">Set up your page</h2>
         <p style="color:var(--text-muted); margin-bottom: 1.5rem;">Choose a URL and fill in your details below.</p>
-      ` : `
+      `       : `
         <div class="url-bar">
           <span class="url-bar-link">${escapeHtml(displayUrl)}</span>
           <button class="btn btn-sm btn-secondary" id="copy-url">Copy</button>
+        </div>
+        <div class="form-group" style="margin-top:1rem;">
+          <label class="form-label">Your URL / handle</label>
+          <div class="claim-form" style="margin-bottom:0;">
+            <div class="claim-prefix">freesurf.tools/</div>
+            <input type="text" class="form-input" id="edit-username" value="${escapeAttr(profile.username)}" maxlength="30" style="border-radius:0 var(--radius) var(--radius) 0;">
+          </div>
+          <p id="username-status" style="font-size:0.8rem; margin-top:0.35rem; min-height:1.2em;">&nbsp;</p>
         </div>
       `}
 
@@ -400,6 +408,11 @@ function renderEditor() {
         <div class="theme-option theme-light ${profile.theme === "minimal-light" ? "active" : ""}" data-theme="minimal-light">Light</div>
         <div class="theme-option theme-dark ${profile.theme === "minimal-dark" ? "active" : ""}" data-theme="minimal-dark">Dark</div>
         <div class="theme-option theme-bold ${profile.theme === "bold" ? "active" : ""}" data-theme="bold">Bold</div>
+        <div class="theme-option theme-forest ${profile.theme === "forest" ? "active" : ""}" data-theme="forest">Forest</div>
+        <div class="theme-option theme-ocean ${profile.theme === "ocean" ? "active" : ""}" data-theme="ocean">Ocean</div>
+        <div class="theme-option theme-sunset ${profile.theme === "sunset" ? "active" : ""}" data-theme="sunset">Sunset</div>
+        <div class="theme-option theme-mono ${profile.theme === "mono" ? "active" : ""}" data-theme="mono">Mono</div>
+        <div class="theme-option theme-neon ${profile.theme === "neon" ? "active" : ""}" data-theme="neon">Neon</div>
       </div>
 
       <!-- Links -->
@@ -532,7 +545,7 @@ function bindEditor() {
     });
   }
 
-  // Username availability check (new users only)
+  // Username availability check (new users + handle changes for existing users)
   const usernameInput = document.getElementById("edit-username");
   if (usernameInput) {
     usernameAvailable = false;
@@ -540,6 +553,14 @@ function bindEditor() {
       usernameInput.value = usernameInput.value.toLowerCase().replace(/[^a-z0-9._-]/g, "");
       const val = usernameInput.value;
       const statusEl = document.getElementById("username-status");
+
+      // Existing user keeping their current handle is fine.
+      if (currentUser && val === currentUser.username) {
+        usernameAvailable = true;
+        statusEl.textContent = "\u2713 current handle";
+        statusEl.style.color = "var(--success)";
+        return;
+      }
 
       if (val.length < 3) {
         statusEl.textContent = val.length > 0 ? "Must be at least 3 characters" : " ";
@@ -856,9 +877,34 @@ async function handleSave() {
   currentUser.displayName = document.getElementById("edit-name").value.trim();
   currentUser.bio = document.getElementById("edit-bio").value.trim();
 
+  // Handle change (the landing page slug). PUT to the OLD username so the backend
+  // renames (deletes old row + inserts new), and keep availability validated.
+  const oldUsername = currentUser.username;
+  const newUsername = (document.getElementById("edit-username")?.value.trim() || oldUsername);
+  const renamed = newUsername !== oldUsername;
+  if (renamed) {
+    if (newUsername.length < 3 || !/^[a-z0-9._-]+$/.test(newUsername)) {
+      statusEl.innerHTML = '<div class="alert alert-error">Handle must be 3-30 chars: lowercase letters, numbers, . _ -</div>';
+      btn.disabled = false;
+      btn.textContent = "Save Changes";
+      return;
+    }
+    if (!usernameAvailable) {
+      statusEl.innerHTML = '<div class="alert alert-error">Please choose an available handle</div>';
+      btn.disabled = false;
+      btn.textContent = "Save Changes";
+      return;
+    }
+    currentUser.username = newUsername;
+  }
+
   try {
-    const updated = await apiPut(`/api/profile/${currentUser.username}`, currentUser);
+    const updated = await apiPut(`/api/profile/${oldUsername}`, currentUser);
     currentUser = updated;
+    if (renamed) {
+      render();
+      return;
+    }
     statusEl.innerHTML = '<div class="alert alert-success">Saved!</div>';
     btn.disabled = false;
     btn.textContent = "Save Changes";

@@ -1214,7 +1214,7 @@ async function handleSave() {
   const newUsername = (document.getElementById("edit-username")?.value.trim() || oldUsername);
   const renamed = newUsername !== oldUsername;
   if (renamed) {
-    if (newUsername.length < 3 || !/^[a-z0-9._-]+$/.test(newUsername)) {
+    if (newUsername.length < 3 || !/^[a-z0-9._-]+\$/.test(newUsername)) {
       statusEl.innerHTML = '<div class="alert alert-error">Handle must be 3-30 chars: lowercase letters, numbers, . _ -</div>';
       btn.disabled = false;
       btn.textContent = "Save Changes";
