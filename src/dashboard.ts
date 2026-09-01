@@ -490,10 +490,12 @@ function renderLanding() {
               <a href="https://feedfree.tech" target="_blank" rel="noopener">Feedfree Digest</a>
             </div>
             <div class="freesurf-footer-col">
-              <span class="freesurf-footer-heading">Tools</span>
+              <span class="freesurf-footer-heading">Free tools</span>
               <a href="https://invoices.freesurf.tools">Invoices</a>
               <a href="https://links.freesurf.tools">Links</a>
               <a href="https://post.freesurf.tools">Post</a>
+              <a href="https://transcribe.freesurf.tools">Meeting Transcriber</a>
+              <a href="https://calories.freesurf.tools">Calorie Tracker</a>
             </div>
             <div class="freesurf-footer-col">
               <span class="freesurf-footer-heading">Platform</span>
@@ -795,10 +797,12 @@ function renderEditor() {
               <a href="https://feedfree.tech" target="_blank" rel="noopener">Feedfree Digest</a>
             </div>
             <div class="freesurf-footer-col">
-              <span class="freesurf-footer-heading">Tools</span>
+              <span class="freesurf-footer-heading">Free tools</span>
               <a href="https://invoices.freesurf.tools">Invoices</a>
               <a href="https://links.freesurf.tools">Links</a>
               <a href="https://post.freesurf.tools">Post</a>
+              <a href="https://transcribe.freesurf.tools">Meeting Transcriber</a>
+              <a href="https://calories.freesurf.tools">Calorie Tracker</a>
             </div>
             <div class="freesurf-footer-col">
               <span class="freesurf-footer-heading">Platform</span>
