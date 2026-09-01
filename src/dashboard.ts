@@ -500,7 +500,6 @@ function renderLanding() {
             <div class="freesurf-footer-col">
               <span class="freesurf-footer-heading">Platform</span>
               <a href="https://freesurf.tools">Home</a>
-              <a href="https://auth.freesurf.tools">Sign in</a>
               <a href="https://github.com/freesurf-ecosystem">GitHub</a>
             </div>
             <div class="freesurf-footer-col">
@@ -807,7 +806,6 @@ function renderEditor() {
             <div class="freesurf-footer-col">
               <span class="freesurf-footer-heading">Platform</span>
               <a href="https://freesurf.tools">Home</a>
-              <a href="https://auth.freesurf.tools">Sign in</a>
               <a href="https://github.com/freesurf-ecosystem">GitHub</a>
             </div>
             <div class="freesurf-footer-col">
