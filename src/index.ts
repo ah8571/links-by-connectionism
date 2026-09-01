@@ -26,14 +26,21 @@ function serveDashboardAsset(request: Request): Response {
   if (!asset) {
     return new Response(DASHBOARD["index.html"]?.content || "Not found", {
       status: 200,
-      headers: { "Content-Type": "text/html;charset=utf-8" },
+      headers: { "Content-Type": "text/html;charset=utf-8", "Cache-Control": "no-cache" },
     });
   }
 
   const ext = "." + (assetPath.split(".").pop() || "html");
+  // Never cache the SPA entry (index.html) so deploys show up immediately; other
+  // assets get a short TTL. The app is served inline from the Worker, so caching
+  // it long just hides updates behind stale edge copies.
+  const isHtml = assetPath === "index.html" || (asset.type || "").includes("html");
   return new Response(asset.content, {
     status: 200,
-    headers: { "Content-Type": asset.type || STATIC_MIME[ext] || "application/octet-stream", "Cache-Control": "public, max-age=3600" },
+    headers: {
+      "Content-Type": asset.type || STATIC_MIME[ext] || "application/octet-stream",
+      "Cache-Control": isHtml ? "no-cache" : "public, max-age=300",
+    },
   });
 }
 
@@ -56,6 +63,14 @@ export default {
     // --- Health check ---
     if (path === "/health") {
       return new Response("ok", { status: 200 });
+    }
+
+    // --- app-ads.txt ---
+    if (path === "/app-ads.txt") {
+      return new Response("google.com, pub-5237160801083269, DIRECT, f08c47fec0942fa0", {
+        status: 200,
+        headers: { "Content-Type": "text/plain", "Cache-Control": "public, max-age=86400" },
+      });
     }
 
     // --- Static legal pages ---
