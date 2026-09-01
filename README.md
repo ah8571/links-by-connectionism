@@ -47,7 +47,7 @@ Built entirely on Cloudflare's infrastructure:
 | Frontend | Cloudflare Pages (creator dashboard) |
 | CDN | Cloudflare (built-in, global) |
 | Analytics | Cloudflare KV (lightweight counters) |
-| Auth | Passwordless magic links |
+| Auth | Supabase (email/password, shared across FreeSurf) |
 
 The entire platform runs within Cloudflare's free tier for thousands of users.
 

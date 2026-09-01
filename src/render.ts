@@ -200,6 +200,8 @@ export function renderProfilePage(profile: Profile): string {
       <p class="footer">
         <a href="${FREESURF.URLS.home}/privacy">Privacy</a>
         <span style="opacity:0.25;margin:0 0.4rem;">&middot;</span>
+        <a href="https://feedfree.tech" target="_blank" rel="noopener">Feedfree Digest</a>
+        <span style="opacity:0.25;margin:0 0.4rem;">&middot;</span>
         <a href="${FREESURF.URLS.home}">More from FreeSurf</a>
       </p>
     </div>

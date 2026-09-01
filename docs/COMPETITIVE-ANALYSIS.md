@@ -174,7 +174,7 @@ This document now also serves as the consolidated feature map and pricing-realis
 - [x] Basic click + view analytics
 - [x] SEO meta tags (og:title, og:description, og:image)
 - [x] QR code (easy to add)
-- [x] Magic link auth (no passwords)
+- [x] Email/password auth (Supabase)
 - [x] Edge-deployed (Cloudflare Workers — fast globally)
 - [x] Open source (GNU licensed)
 - [x] Self-hostable
@@ -376,7 +376,7 @@ These features have genuine infrastructure or third-party costs, but are still d
 | **Email integrations** (Mailchimp, Kit, Klaviyo sync) | Linktree Pro | **$12/mo** | **$0** — outbound HTTP POST | When we collect a subscriber email, fire a webhook to Mailchimp/Kit API. It's one HTTP request. The user provides their own API key. Zero cost to us. |
 | **Digital product sales** (file downloads) | Stan Store | **$29–99/mo** | **~$0.01–0.10/sale** — R2 storage + Stripe fees (2.9% + $0.30, paid by buyer) | Upload file to R2. On purchase, generate signed URL. Stripe handles payment. We never touch money — Stripe pays the creator directly. Our cost: R2 storage (pennies) + one KV write per sale. |
 | **Tip jar / donations** | Beacons Free, Stan $29/mo | $0–$29/mo | **$0 from us** — Stripe fee on transaction (paid by donor/buyer) | Embed Stripe payment link or use Stripe Checkout. Creator connects their own Stripe account. We just render the button. |
-| **Newsletter delivery** (actually sending emails) | ConvertKit $15/mo+, Mailchimp $13/mo+ | $13–300/mo | **$0.40/1,000 emails** via Resend (which we already use) | We already have Resend integrated for magic links. Same API. But: this is genuinely expensive at scale. Better approach: collect emails (free), let creators export to their email tool of choice. |
+| **Newsletter delivery** (actually sending emails) | ConvertKit $15/mo+, Mailchimp $13/mo+ | $13–300/mo | **$0.40/1,000 emails** via Resend (which we already use) | We already have Resend integrated for auth emails. Same API. But: this is genuinely expensive at scale. Better approach: collect emails (free), let creators export to their email tool of choice. |
 | **Course hosting** (video-heavy) | Stan Store | **$29–99/mo** | **R2 storage: $0.015/GB/mo**, no egress | A 10-video course (~5GB) costs us $0.075/mo to host. Cloudflare R2 has zero egress fees. Stan charges $348–1,188/yr for this. |
 | **Calendar / booking** | Stan Store | **$29/mo** | **$0** — embed Cal.com (open source) | Cal.com is open source and has a free hosted tier. We just embed their widget. Or integrate their API. |
 | **Google Analytics integration** | Linktree/Carrd Pro | **$12/mo / $49/yr** | **$0** — inject GA snippet | User gives us their GA measurement ID. We add `<script>` tag to their rendered page. Zero cost. Linktree charges $12/mo for this. |
@@ -395,7 +395,7 @@ Let's model actual Cloudflare costs for 10,000 active creators:
 | **KV writes** | Analytics + signups: ~20M writes/mo | $100 ($5/million) |
 | **R2 storage** | Profiles + avatars: ~5GB | $0.075 |
 | **R2 reads** | Avatar images: ~50M reads/mo | $18 ($0.36/million Class B) |
-| **Resend emails** | Magic links: ~50K/mo | $20 (first 3K free, then $0.40/1K) |
+| **Resend emails** | Auth emails: ~50K/mo | $20 (first 3K free, then $0.40/1K) |
 | **Domain (cnxt.to)** | Annual | ~$2/mo amortized |
 | **Workers Paid plan** | Required at this scale | $5/mo |
 | **Total** | | **~$320/mo** |

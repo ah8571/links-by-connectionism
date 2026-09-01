@@ -120,18 +120,14 @@ Each creator = **one JSON file** in R2. No database required for V1.
 
 ---
 
-## Phase 4: Authentication (keep it minimal)
+## Phase 4: Authentication (shared Supabase auth)
 
-- [x] Choose V1 auth strategy — recommended: **passwordless email magic links**
-  - Alternative: OAuth (Google/GitHub) via Cloudflare Access or simple OAuth flow
-- [x] Implement magic link flow:
-  - `POST /api/auth/send-link` → generate token, store in KV (TTL 15min), send email
-  - `GET /api/auth/verify?token=xxx` → validate token, issue session
-- [x] Session management: signed JWT or opaque token stored in KV
+- [x] Use Supabase Auth (email/password) — shared across the FreeSurf ecosystem
+- [x] Cross-domain session via the shared `freesurf_session` cookie
+- [x] Session management handled by Supabase (JWT in localStorage + cookie)
 - [x] Middleware: auth guard on `/api/profile/*` write routes
-- [x] Email sending: Cloudflare Email Workers, Resend, or Mailgun (free tiers)
-- [x] Store minimal user record in KV or R2: `{ email, username, createdAt }`
-- [ ] **Future: Migrate to [Better Auth](https://www.better-auth.com/)** when adding mobile app or social login (Google/Apple/GitHub). Current magic link system is sufficient for web launch.
+- [x] Email confirmation via Supabase auth templates
+- [ ] **Future: social login (Google/Apple/GitHub)** via Supabase providers
 
 ---
 
@@ -140,7 +136,7 @@ Each creator = **one JSON file** in R2. No database required for V1.
 - [x] Scaffold lightweight SPA (Preact, Solid, or plain vanilla JS — keep bundle tiny)
 - [x] Host on Cloudflare Pages at `links.cnxt.to`
 - [x] **Landing page**: explain what cnxt to links is, "claim your link" CTA, open source pitch
-- [x] Login / magic link request screen
+- [x] Login / email-password screen
 - [x] **Signup flow**: claim a username → create profile → redirect to editor
 - [x] Profile editor:
   - Display name, bio, avatar URL
@@ -231,7 +227,7 @@ Each creator = **one JSON file** in R2. No database required for V1.
 3. ~~**Phase 2** → public page rendering~~ ✅ (live at `links-by-cnxt.workers.dev`)
 4. ~~**Phase 3** → API for editing~~ ✅ (profile CRUD working)
 5. **Phase 5** → dashboard at `links.cnxt.to` ← **we are here**
-6. **Phase 4** → auth (magic links)
+6. **Phase 4** → auth (Supabase email/password)
 7. **Phase 6** → analytics dashboard
 8. **Phase 7–8** → custom domains + polish
 

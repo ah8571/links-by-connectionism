@@ -486,6 +486,10 @@ function renderLanding() {
           </div>
           <div class="freesurf-footer-links">
             <div class="freesurf-footer-col">
+              <span class="freesurf-footer-heading">Newsletter</span>
+              <a href="https://feedfree.tech" target="_blank" rel="noopener">Feedfree Digest</a>
+            </div>
+            <div class="freesurf-footer-col">
               <span class="freesurf-footer-heading">Tools</span>
               <a href="https://invoices.freesurf.tools">Invoices</a>
               <a href="https://links.freesurf.tools">Links</a>
@@ -786,6 +790,10 @@ function renderEditor() {
             <p class="freesurf-footer-tagline">Free tools for freelancers & small businesses. No commissions, no lock-in, open source.</p>
           </div>
           <div class="freesurf-footer-links">
+            <div class="freesurf-footer-col">
+              <span class="freesurf-footer-heading">Newsletter</span>
+              <a href="https://feedfree.tech" target="_blank" rel="noopener">Feedfree Digest</a>
+            </div>
             <div class="freesurf-footer-col">
               <span class="freesurf-footer-heading">Tools</span>
               <a href="https://invoices.freesurf.tools">Invoices</a>

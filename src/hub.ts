@@ -249,7 +249,7 @@ export const HUB_HTML = `<!doctype html>
     </div>
 
     <footer>
-      © <span id="year"></span> FreeSurf · Free tools, no bullshit.
+      © <span id="year"></span> FreeSurf · Free tools, no bullshit. · <a href="https://feedfree.tech" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">Feedfree Digest</a>
     </footer>
   </div>
 

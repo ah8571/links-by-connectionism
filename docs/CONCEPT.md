@@ -97,7 +97,7 @@ Long-term, we'll also offer a **self-host option**: deploy to your own Cloudflar
 | Frontend | Cloudflare Pages (dashboard) | Unlimited free |
 | CDN | Cloudflare (built-in) | Free |
 | Analytics | Cloudflare KV (click counters) | 100K reads/day free |
-| Auth | Magic links via KV tokens + email | Free |
+| Auth | Supabase (email/password) | Free |
 
 **Total infrastructure cost for thousands of users: $0/month.**
 
