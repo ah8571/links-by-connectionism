@@ -293,7 +293,7 @@ let usernameAvailable = false;
 function renderEditor() {
   const isNewUser = !currentUser;
   const profile = currentUser || { displayName: "", bio: "", avatarUrl: "", theme: "minimal-dark", links: [] };
-  const publicUrl = currentUser?.username ? `${PUBLIC_BASE.replace("http://127.0.0.1:8787", "freesurf.tools")}/${currentUser.username}` : null;
+  const publicUrl = currentUser?.username ? `https://freesurf.tools/${currentUser.username}` : null;
   const displayUrl = currentUser?.username ? `freesurf.tools/${currentUser.username}` : null;
 
   const PLATFORM_LABELS = { twitter: "Twitter / X", instagram: "Instagram", youtube: "YouTube", tiktok: "TikTok", github: "GitHub", linkedin: "LinkedIn" };
