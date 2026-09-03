@@ -6,7 +6,7 @@ export const HUB_HTML = `<!doctype html>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FreeSurf | Free Tools & Contractor Network</title>
-  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta name="description" content="FreeSurf is an open-source platform connecting people directly with contractors — plus free tools for invoices, link-in-bio pages, cross-posting, and more. No middleman fees, no subscriptions." />
   <style>
     :root {
@@ -162,7 +162,7 @@ export const HUB_HTML = `<!doctype html>
 <body>
   <div class="wrap">
     <nav class="nav">
-      <div class="brand"><img class="brand-logo" src="/logo-white.png" alt="FreeSurf logo" />FreeSurf</div>
+      <div class="brand"><img class="brand-logo" src="/logo-white.svg" alt="FreeSurf logo" />FreeSurf</div>
       <div class="nav-right">
         <a href="https://auth.${FREESURF.ROOT_DOMAIN}" class="btn btn-secondary" style="padding:8px 14px;font-size:0.85rem;">Sign in</a>
         <div class="app-launcher">
