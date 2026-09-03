@@ -36,7 +36,7 @@ export const HUB_HTML = `<!doctype html>
       margin-bottom: 44px; gap: 12px;
     }
     .brand { font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-    .brand-logo { height: 22px; width: auto; display: block; }
+    .brand-logo { height: 40px; width: auto; display: block; }
     .nav-right { display: flex; align-items: center; gap: 14px; }
 
     /* App launcher */
