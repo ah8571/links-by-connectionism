@@ -337,7 +337,7 @@ const API_BASE = location.hostname === "localhost" || location.hostname === "127
 const PUBLIC_BASE = API_BASE.replace("http://127.0.0.1:8787", "http://127.0.0.1:8787");
 
 // --- Cross-domain auth: try to restore Supabase session from shared cookie ---
-import { getSharedSession, signIn, signUp, clearSharedSession } from "./freesurf-auth.js";
+import { getSharedSession, signIn, signUp, oauthSignIn, clearSharedSession } from "./freesurf-auth.js";
 const sharedSession = await getSharedSession();
 
 // --- State ---
@@ -438,6 +438,17 @@ function renderLanding() {
           <div class="auth-tabs" style="display:flex;margin-bottom:1rem;">
             <button class="auth-tab-btn active" data-tab="sign-in" style="flex:1;padding:10px;background:none;border:none;border-bottom:2px solid var(--accent);color:var(--text);font-weight:600;cursor:pointer;font-family:inherit;font-size:0.9rem;">Sign in</button>
             <button class="auth-tab-btn" data-tab="sign-up" style="flex:1;padding:10px;background:none;border:none;border-bottom:2px solid var(--border);color:var(--text-muted);font-weight:600;cursor:pointer;font-family:inherit;font-size:0.9rem;">Create account</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;">
+            <button type="button" id="btn-google" class="btn" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;">
+              <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.6l6.2 5.2C37.2 44.6 44 39.9 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
+              Continue with Google
+            </button>
+            <button type="button" id="btn-apple" class="btn" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+              Continue with Apple
+            </button>
+            <div style="text-align:center;color:var(--text-muted);font-size:0.85rem;margin:2px 0;">or</div>
           </div>
           <form id="auth-form">
             <div class="form-group">
@@ -598,6 +609,21 @@ function bindLanding() {
       submitBtn.disabled = false;
       submitBtn.textContent = authMode === "sign-in" ? "Sign in" : "Create account";
     }
+  });
+
+  // OAuth buttons (Google / Apple) — full-page redirect handled by Supabase.
+  ["btn-google", "btn-apple"].forEach((id) => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.addEventListener("click", async () => {
+      const provider = id === "btn-google" ? "google" : "apple";
+      const fb = document.getElementById("auth-feedback");
+      try {
+        await oauthSignIn(provider);
+      } catch (err) {
+        if (fb) { fb.textContent = err.message || \`\${provider} sign-in failed.\`; fb.style.color = "var(--danger)"; }
+      }
+    });
   });
 }
 
@@ -1338,7 +1364,7 @@ function getSupabase() {
     _supabasePromise = import("https://esm.sh/@supabase/supabase-js@2").then(
       ({ createClient }) =>
         createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
+          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
         })
     );
   }
@@ -1427,6 +1453,17 @@ export async function signUp(email, password) {
     return { user: data.session.user, accessToken: data.session.access_token };
   }
   return null; // email confirmation required
+}
+
+export async function oauthSignIn(provider) {
+  const supabase = await getSupabase();
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: { redirectTo: window.location.origin },
+  });
+  if (error) throw error;
+  // Supabase redirects to the provider; on return, detectSessionInUrl restores the
+  // session and getSharedSession() persists it to the shared cookie.
 }
 
 export async function setSharedSession() {

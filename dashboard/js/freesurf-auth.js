@@ -19,7 +19,7 @@ function getSupabase() {
     _supabasePromise = import("https://esm.sh/@supabase/supabase-js@2").then(
       ({ createClient }) =>
         createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
+          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
         })
     );
   }
@@ -108,6 +108,17 @@ export async function signUp(email, password) {
     return { user: data.session.user, accessToken: data.session.access_token };
   }
   return null; // email confirmation required
+}
+
+export async function oauthSignIn(provider) {
+  const supabase = await getSupabase();
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: { redirectTo: window.location.origin },
+  });
+  if (error) throw error;
+  // Supabase redirects to the provider; on return, detectSessionInUrl restores the
+  // session and getSharedSession() persists it to the shared cookie.
 }
 
 export async function setSharedSession() {
