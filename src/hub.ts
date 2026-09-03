@@ -6,6 +6,7 @@ export const HUB_HTML = `<!doctype html>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FreeSurf | Free Tools & Contractor Network</title>
+  <link rel="icon" type="image/png" href="/favicon.png" />
   <meta name="description" content="FreeSurf is an open-source platform connecting people directly with contractors — plus free tools for invoices, link-in-bio pages, cross-posting, and more. No middleman fees, no subscriptions." />
   <style>
     :root {
@@ -34,7 +35,8 @@ export const HUB_HTML = `<!doctype html>
       display: flex; justify-content: space-between; align-items: center;
       margin-bottom: 44px; gap: 12px;
     }
-    .brand { font-size: 1.05rem; font-weight: 700; }
+    .brand { font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .brand-logo { height: 22px; width: auto; display: block; }
     .nav-right { display: flex; align-items: center; gap: 14px; }
 
     /* App launcher */
@@ -160,7 +162,7 @@ export const HUB_HTML = `<!doctype html>
 <body>
   <div class="wrap">
     <nav class="nav">
-      <div class="brand">FreeSurf</div>
+      <div class="brand"><img class="brand-logo" src="/logo-white.png" alt="FreeSurf logo" />FreeSurf</div>
       <div class="nav-right">
         <a href="https://auth.${FREESURF.ROOT_DOMAIN}" class="btn btn-secondary" style="padding:8px 14px;font-size:0.85rem;">Sign in</a>
         <div class="app-launcher">
