@@ -13,6 +13,31 @@ const STATIC_MIME: Record<string, string> = {
   ".xml": "application/xml",
 };
 
+// Sitemap for the apex freesurf.tools hub site (served by this worker).
+const HUB_SITEMAP = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://freesurf.tools/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://freesurf.tools/privacy</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://freesurf.tools/terms</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://freesurf.tools/support</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+</urlset>`;
+
 function serveDashboardAsset(request: Request): Response {
   const url = new URL(request.url);
   let assetPath = url.pathname.replace(/^\//, "");
@@ -58,6 +83,14 @@ export default {
     // --- links.freesurf.tools: Dashboard SPA ---
     if (isLinks) {
       return serveDashboardAsset(request);
+    }
+
+    // --- Apex freesurf.tools: sitemap ---
+    if (path === "/sitemap.xml") {
+      return new Response(HUB_SITEMAP, {
+        status: 200,
+        headers: { "Content-Type": "application/xml", "Cache-Control": "public, max-age=3600" },
+      });
     }
 
     // --- Health check ---
