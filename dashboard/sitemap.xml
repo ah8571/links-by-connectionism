@@ -11,16 +11,6 @@
     <priority>1.0</priority>
   </url>
 
-  <!-- Worker root (freesurf.tools) -->
-  <url>
-    <loc>https://freesurf.tools/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Public profile pages (dynamic — pattern: freesurf.tools/:username) -->
-  <!-- Individual profile URLs are user-generated and not enumerable here.
-       Consider a dynamically generated sitemap index if Google indexing of
-       profiles becomes a priority. -->
-
+  <!-- Public profile pages (dynamic — not listed individually here; freesurf.tools
+       itself is covered by the apex freesurf.tools/sitemap.xml). -->
 </urlset>

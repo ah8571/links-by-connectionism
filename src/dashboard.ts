@@ -1538,6 +1538,102 @@ export default config;
 `,
     type: "application/javascript",
   },
+  "pages/ai-processing.html": {
+    content: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Processing — FreeSurf</title>
+  <meta name="description" content="How FreeSurf processes your data with AI models, which providers we use, and what happens to the results." />
+  <style>
+    :root { --bg: #0b1020; --card: #111937; --text: #e8ecff; --muted: #b3bddf; --accent: #5b8cff; --border: #2a3568; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, Segoe UI, Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    a { color: var(--accent); }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 40px 24px 80px; }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    h2 { font-size: 1.25rem; margin-top: 32px; color: var(--accent); }
+    p, li { color: var(--muted); font-size: 0.95rem; margin: 8px 0; }
+    ul { padding-left: 20px; }
+    .updated { font-size: 0.85rem; color: #5f6b7a; margin-bottom: 32px; }
+    .entity { font-size: 0.9rem; color: #5f6b7a; margin-bottom: 24px; padding: 16px; background: var(--card); border-radius: 8px; border: 1px solid var(--border); }
+    .table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.9rem; }
+    .table th, .table td { text-align: left; padding: 10px; border: 1px solid var(--border); color: var(--muted); }
+    .table th { color: var(--text); background: var(--card); }
+    hr { border: 0; border-top: 1px solid var(--border); margin: 32px 0; }
+    footer { margin-top: 48px; font-size: 0.8rem; color: #5f6b7a; }
+    footer a { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>AI Processing Disclosure</h1>
+    <p class="updated">Last updated: September 5, 2026</p>
+
+    <p>Several FreeSurf tools use artificial-intelligence models to produce their output. This page explains the AI
+    models we use, who runs them, what we send to them, and what happens to the results. It complements our
+    <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms of Service</a>.</p>
+
+    <h2>1. Where AI models run</h2>
+    <p>We choose the AI infrastructure that best fits each tool, and we may switch between providers over time. AI
+    processing currently runs on one or more of the following:</p>
+    <ul>
+      <li><strong>Together AI</strong> — a hosted, serverless GPU inference provider (used for most of our models today).</li>
+      <li><strong>OpenRouter</strong> — a hosted inference aggregator (used for some tools and fallbacks).</li>
+      <li><strong>Self-hosted RunPod</strong> — our own rented GPU infrastructure (used for specific models we run ourselves).</li>
+    </ul>
+    <p>We generally prefer <strong>open-source models</strong> (for example, open-weight text, vision, speech, and
+    text-to-speech models). We use a closed-source model only when it is necessary to achieve an acceptable result for
+    a particular feature.</p>
+
+    <h2>2. What we send to an AI provider</h2>
+    <p>Depending on the tool you are using, the <strong>inputs you provide</strong> are sent to the active provider's
+    infrastructure solely to generate the result you requested:</p>
+    <table class="table">
+      <thead><tr><th>Tool</th><th>Inputs sent to the AI provider</th></tr></thead>
+      <tbody>
+        <tr><td>Natural Reader</td><td>Text you ask to be read aloud</td></tr>
+        <tr><td>Transcriber</td><td>Audio you ask to be transcribed</td></tr>
+        <tr><td>Calorie Tracker</td><td>Food photos and/or food descriptions</td></tr>
+        <tr><td>English Tutor</td><td>Your spoken or typed replies, and context used to generate a correction</td></tr>
+      </tbody>
+    </table>
+    <p>Your inputs are shared only with the provider(s) running the model for that request. They are used strictly to
+    produce the output; we do not use them to sell to or profile you, and we instruct providers not to use submitted
+    content to train their models.</p>
+
+    <h2>3. What happens to the results</h2>
+    <p>The result returned by the AI provider is delivered back to you in the app. Depending on how you are using the
+    tool, results may be:</p>
+    <ul>
+      <li><strong>Stored locally</strong> on your device (for example, generated audio or saved recordings), and</li>
+      <li><strong>Associated with your account</strong> and stored in our database if you are signed in, so your history
+      and content can sync across devices.</li>
+    </ul>
+    <p>Where a result is associated with a user, it is tied to your account and subject to the same access, retention,
+    and deletion rights described in our <a href="/privacy">Privacy Policy</a>.</p>
+
+    <h2>4. Model training</h2>
+    <p>Content you submit is <strong>never used to train or fine-tune</strong> our models, and we do not permit the
+    providers we use to train on it for their own benefit.</p>
+
+    <h2>5. Data minimization</h2>
+    <p>We send only the information required for the specific request, we do not combine your AI inputs with unrelated
+    personal data, and we rely on providers that delete or do not retain submitted content beyond what is required to
+    fulfill the request. If you have questions, contact us at
+    <a href="mailto:support@freesurf.tools">support@freesurf.tools</a>.</p>
+
+    <hr />
+    <footer>
+      <a href="/">FreeSurf</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="/ai-processing">AI Processing</a>
+    </footer>
+  </div>
+</body>
+</html>
+`,
+    type: "text/html;charset=utf-8",
+  },
   "pages/privacy.html": {
     content: `<!DOCTYPE html>
 <html lang="en">
@@ -1588,12 +1684,12 @@ export default config;
       <li>Support requests and correspondence</li>
     </ul>
 
-    <p><strong>AI Processing:</strong> Some FreeSurf tools use AI models to generate results. These models run on our own GPU infrastructure (RunPod). <strong>We do not share your content with third-party AI companies such as OpenAI, Google, or Anthropic.</strong> Your text, audio, and photos are processed in memory and immediately discarded after the result is returned:</p>
-    <ul>
-      <li><strong>Natural Reader:</strong> Text is sent to our self-hosted Kokoro TTS server to generate speech audio.</li>
-      <li><strong>Transcriber:</strong> Audio is sent to our self-hosted Whisper transcription server.</li>
-      <li><strong>Calorie Tracker:</strong> Food photos are sent to our self-hosted vision AI server.</li>
-    </ul>
+    <p><strong>AI Processing:</strong> Some FreeSurf tools use AI models to generate results. Models run on hosted
+    inference providers (currently <strong>Together AI</strong>, <strong>OpenRouter</strong>, or our own self-hosted
+    <strong>RunPod</strong> GPU), and we may switch between them. We generally use open-source models. Your text,
+    audio, and photos are shared only with the provider running the model for that request, strictly to produce the
+    output, and are not used to train models. See our <a href="/ai-processing">AI Processing Disclosure</a> for full
+    details on providers, inputs, and what happens to results:</p>
 
     <h2>2. How We Use Information</h2>
     <ul>
@@ -1628,7 +1724,8 @@ export default config;
     <ul>
       <li><strong>Supabase</strong> — authentication and account data storage</li>
       <li><strong>Cloudflare</strong> — web hosting, Workers, R2 storage, and KV</li>
-      <li><strong>RunPod</strong> — GPU infrastructure for self-hosted AI models (Kokoro TTS, Whisper, vision models)</li>
+      <li><strong>Together AI / OpenRouter</strong> — hosted AI inference providers</li>
+      <li><strong>RunPod</strong> — our own GPU infrastructure for self-hosted AI models</li>
       <li><strong>Google AdMob / AppLovin MAX</strong> — in-app advertising</li>
     </ul>
     <p>These providers process data on our behalf to deliver specific parts of the service.</p>
@@ -1637,7 +1734,10 @@ export default config;
     <ul>
       <li><strong>Local data:</strong> Data stored on your device remains until you delete it or uninstall the app.</li>
       <li><strong>Account data:</strong> Retained while your account is active. You can delete your account by contacting us.</li>
-      <li><strong>AI processing:</strong> Submitted text, audio, and photos are processed in memory on our servers and returned as output. No user content is retained on AI servers after the result is returned. AI-generated content is saved locally on your device. If you choose to sign in, content may also sync to your account for cross-device access.</li>
+      <li><strong>AI processing:</strong> Submitted text, audio, and photos are sent to the active AI inference
+      provider to produce a result and are not retained there beyond the request. Generated results are saved locally
+      on your device; if you are signed in, they may also be stored in our database and associated with your account
+      for cross-device access. See our <a href="/ai-processing">AI Processing Disclosure</a>.</li>
       <li><strong>No model training:</strong> User content processed by our AI models is never used to train, fine-tune, or improve the models. Transcripts, audio, and images are used strictly for immediate real-time output.</li>
       <li><strong>Support requests:</strong> May be retained to resolve issues and document outcomes.</li>
     </ul>
@@ -1666,7 +1766,7 @@ export default config;
     <p>Planting Moon LLC<br />5830 E 2nd St, Ste 7000 #35119, Casper, WY 82609</p>
 
     <footer>
-      <a href="/">FreeSurf</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a>
+      <a href="/">FreeSurf</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="/ai-processing">AI Processing</a>
     </footer>
   </div>
 </body>
@@ -1966,18 +2066,8 @@ export default config;
     <priority>1.0</priority>
   </url>
 
-  <!-- Worker root (freesurf.tools) -->
-  <url>
-    <loc>https://freesurf.tools/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Public profile pages (dynamic — pattern: freesurf.tools/:username) -->
-  <!-- Individual profile URLs are user-generated and not enumerable here.
-       Consider a dynamically generated sitemap index if Google indexing of
-       profiles becomes a priority. -->
-
+  <!-- Public profile pages (dynamic — not listed individually here; freesurf.tools
+       itself is covered by the apex freesurf.tools/sitemap.xml). -->
 </urlset>
 `,
     type: "application/xml",

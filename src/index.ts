@@ -134,6 +134,15 @@ export default {
         });
       }
     }
+    if (path === "/ai-processing" || path === "/ai-processing.html") {
+      const asset = DASHBOARD["pages/ai-processing.html"];
+      if (asset) {
+        return new Response(asset.content, {
+          status: 200,
+          headers: { "Content-Type": "text/html;charset=utf-8" },
+        });
+      }
+    }
 
     // --- Avatar image ---
     const avatarMatch = path.match(/^\/avatar\/([a-z0-9._-]{3,30})$/);

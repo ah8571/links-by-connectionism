@@ -47,12 +47,12 @@
       <li>Support requests and correspondence</li>
     </ul>
 
-    <p><strong>AI Processing:</strong> Some FreeSurf tools use AI models to generate results. These models run on our own GPU infrastructure (RunPod). <strong>We do not share your content with third-party AI companies such as OpenAI, Google, or Anthropic.</strong> Your text, audio, and photos are processed in memory and immediately discarded after the result is returned:</p>
-    <ul>
-      <li><strong>Natural Reader:</strong> Text is sent to our self-hosted Kokoro TTS server to generate speech audio.</li>
-      <li><strong>Transcriber:</strong> Audio is sent to our self-hosted Whisper transcription server.</li>
-      <li><strong>Calorie Tracker:</strong> Food photos are sent to our self-hosted vision AI server.</li>
-    </ul>
+    <p><strong>AI Processing:</strong> Some FreeSurf tools use AI models to generate results. Models run on hosted
+    inference providers (currently <strong>Together AI</strong>, <strong>OpenRouter</strong>, or our own self-hosted
+    <strong>RunPod</strong> GPU), and we may switch between them. We generally use open-source models. Your text,
+    audio, and photos are shared only with the provider running the model for that request, strictly to produce the
+    output, and are not used to train models. See our <a href="/ai-processing">AI Processing Disclosure</a> for full
+    details on providers, inputs, and what happens to results:</p>
 
     <h2>2. How We Use Information</h2>
     <ul>
@@ -87,7 +87,8 @@
     <ul>
       <li><strong>Supabase</strong> — authentication and account data storage</li>
       <li><strong>Cloudflare</strong> — web hosting, Workers, R2 storage, and KV</li>
-      <li><strong>RunPod</strong> — GPU infrastructure for self-hosted AI models (Kokoro TTS, Whisper, vision models)</li>
+      <li><strong>Together AI / OpenRouter</strong> — hosted AI inference providers</li>
+      <li><strong>RunPod</strong> — our own GPU infrastructure for self-hosted AI models</li>
       <li><strong>Google AdMob / AppLovin MAX</strong> — in-app advertising</li>
     </ul>
     <p>These providers process data on our behalf to deliver specific parts of the service.</p>
@@ -96,7 +97,10 @@
     <ul>
       <li><strong>Local data:</strong> Data stored on your device remains until you delete it or uninstall the app.</li>
       <li><strong>Account data:</strong> Retained while your account is active. You can delete your account by contacting us.</li>
-      <li><strong>AI processing:</strong> Submitted text, audio, and photos are processed in memory on our servers and returned as output. No user content is retained on AI servers after the result is returned. AI-generated content is saved locally on your device. If you choose to sign in, content may also sync to your account for cross-device access.</li>
+      <li><strong>AI processing:</strong> Submitted text, audio, and photos are sent to the active AI inference
+      provider to produce a result and are not retained there beyond the request. Generated results are saved locally
+      on your device; if you are signed in, they may also be stored in our database and associated with your account
+      for cross-device access. See our <a href="/ai-processing">AI Processing Disclosure</a>.</li>
       <li><strong>No model training:</strong> User content processed by our AI models is never used to train, fine-tune, or improve the models. Transcripts, audio, and images are used strictly for immediate real-time output.</li>
       <li><strong>Support requests:</strong> May be retained to resolve issues and document outcomes.</li>
     </ul>
@@ -125,7 +129,7 @@
     <p>Planting Moon LLC<br />5830 E 2nd St, Ste 7000 #35119, Casper, WY 82609</p>
 
     <footer>
-      <a href="/">FreeSurf</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a>
+      <a href="/">FreeSurf</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="/ai-processing">AI Processing</a>
     </footer>
   </div>
 </body>
