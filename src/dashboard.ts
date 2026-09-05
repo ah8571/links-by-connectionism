@@ -1677,12 +1677,16 @@ export default config;
 
     <p><strong>With an account (optional):</strong> If you choose to create an account, we collect:</p>
     <ul>
-      <li>Email address and authentication credentials (via Supabase)</li>
+      <li><strong>Email address</strong> and authentication credentials (via Supabase) — collected when you create an account or sign in</li>
       <li>Invoice drafts, business profiles, client information, and saved invoices you choose to sync to your account</li>
       <li>Link-in-bio profile content including display name, bio, links, and avatar images</li>
       <li>Social media account connections and OAuth tokens for cross-posting (Post tool)</li>
       <li>Support requests and correspondence</li>
     </ul>
+    <p>If you sign in with Google or Apple, we receive the email address associated with that account and use it to
+    recognize you and, if you opt in, to send the Feedfree Digest or product updates. We do not need your full name to
+    operate the service, so we avoid storing additional profile details (such as your name or photo) from these sign-in
+    providers where possible.</p>
 
     <p><strong>AI Processing:</strong> Some FreeSurf tools use AI models to generate results. Models run on hosted
     inference providers (currently <strong>Together AI</strong>, <strong>OpenRouter</strong>, or our own self-hosted
