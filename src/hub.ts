@@ -141,7 +141,7 @@ export const HUB_HTML = `<!doctype html>
             <a href="${FREESURF.URLS.links}"><span class="app-icon"><i data-lucide="link"></i></span>Links</a>
             <a href="${FREESURF.URLS.post}"><span class="app-icon"><i data-lucide="send"></i></span>Post</a>
             <a href="${FREESURF.URLS.hire}"><span class="app-icon"><i data-lucide="users"></i></span>Hire</a>
-            <a href="https://github.com/ah8571" target="_blank" rel="noopener noreferrer"><span class="app-icon"><i data-lucide="github"></i></span>GitHub</a>
+            <a href="https://github.com/freesurf-ecosystem" target="_blank" rel="noopener noreferrer"><span class="app-icon"><i data-lucide="github"></i></span>GitHub</a>
           </div>
         </div>
       </div>
@@ -156,7 +156,7 @@ export const HUB_HTML = `<!doctype html>
         </p>
         <div class="cta-row">
           <a class="btn btn-primary" href="https://auth.${FREESURF.ROOT_DOMAIN}/?mode=signup">Get started — it's free</a>
-          <a class="btn btn-secondary" href="https://github.com/ah8571" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+          <a class="btn btn-secondary" href="https://github.com/freesurf-ecosystem" target="_blank" rel="noopener noreferrer">View on GitHub</a>
         </div>
       </section>
 
