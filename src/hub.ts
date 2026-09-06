@@ -7,6 +7,7 @@ export const HUB_HTML = `<!doctype html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Free Surf | Free Tools & Contractor Network</title>
   <link rel="icon" type="image/png" href="/favicon.png" />
+  <script src="https://unpkg.com/lucide@latest"></script>
   <meta name="description" content="Free Surf is an open-source platform connecting people directly with contractors — plus free tools for invoices, link-in-bio pages, cross-posting, and more. No middleman fees, no subscriptions." />
   <style>
     :root {
@@ -64,7 +65,8 @@ export const HUB_HTML = `<!doctype html>
       color: var(--muted); text-align: center; transition: background 0.15s;
     }
     .app-dropdown a:hover { background: rgba(255,255,255,0.05); color: var(--text); text-decoration: none; }
-    .app-dropdown .app-icon { font-size: 1.4rem; }
+    .app-dropdown .app-icon { color: #ffffff; display: flex; }
+    .app-dropdown .app-icon svg { width: 24px; height: 24px; }
 
     .hero {
       padding: 40px 0 24px;
@@ -113,37 +115,6 @@ export const HUB_HTML = `<!doctype html>
     .mini h3 { margin-top: 0; margin-bottom: 8px; font-size: 1rem; color: var(--accent-2); }
     .mini p { margin: 0; color: var(--muted); font-size: 0.92rem; }
 
-    /* Tools section */
-    .tools-heading {
-      margin-top: 48px; margin-bottom: 18px;
-      font-size: 1.2rem; color: var(--muted);
-      display: flex; align-items: center; gap: 10px;
-    }
-    .tools-heading::after {
-      content: ""; flex: 1; height: 1px; background: var(--border);
-    }
-
-    .tool-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 10px; margin-bottom: 32px;
-    }
-    .tool-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 12px 14px; border-radius: 10px;
-      border: 1px solid var(--border); background: rgba(13,21,49,0.4);
-      font-size: 0.9rem; transition: border-color 0.15s;
-    }
-    .tool-item:hover { border-color: var(--accent); text-decoration: none; }
-    .tool-item .ti { font-size: 1.2rem; }
-    .tool-item .tl { color: var(--muted); font-size: 0.75rem; }
-
-    .badge {
-      font-size: 0.65rem; font-weight: 700; padding: 1px 8px; border-radius: 999px;
-      margin-left: auto;
-    }
-    .badge-live { background: rgba(5,150,105,0.2); color: #34d399; }
-    .badge-wip { background: rgba(217,119,6,0.2); color: #fbbf24; }
-
     footer {
       margin: 48px 0 20px; color: var(--muted);
       font-size: 0.9rem; text-align: center;
@@ -152,10 +123,8 @@ export const HUB_HTML = `<!doctype html>
     @media (max-width: 860px) {
       .hero { grid-template-columns: 1fr; }
       .section { grid-template-columns: 1fr; }
-      .tool-grid { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 480px) {
-      .tool-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -168,11 +137,11 @@ export const HUB_HTML = `<!doctype html>
         <div class="app-launcher">
           <button class="app-launcher-btn" id="app-launcher-btn" aria-label="Free Surf tools" title="Free Surf tools">⋮⋮⋮</button>
           <div class="app-dropdown" id="app-dropdown">
-            <a href="${FREESURF.URLS.invoices}"><span class="app-icon">🧾</span>Invoices</a>
-            <a href="${FREESURF.URLS.links}"><span class="app-icon">🔗</span>Links</a>
-            <a href="${FREESURF.URLS.post}"><span class="app-icon">📢</span>Post</a>
-            <a href="${FREESURF.URLS.hire}"><span class="app-icon">🤝</span>Hire</a>
-            <a href="https://github.com/ah8571"><span class="app-icon">💻</span>GitHub</a>
+            <a href="${FREESURF.URLS.invoices}"><span class="app-icon"><i data-lucide="receipt"></i></span>Invoices</a>
+            <a href="${FREESURF.URLS.links}"><span class="app-icon"><i data-lucide="link"></i></span>Links</a>
+            <a href="${FREESURF.URLS.post}"><span class="app-icon"><i data-lucide="send"></i></span>Post</a>
+            <a href="${FREESURF.URLS.hire}"><span class="app-icon"><i data-lucide="users"></i></span>Hire</a>
+            <a href="https://github.com/ah8571" target="_blank" rel="noopener noreferrer"><span class="app-icon"><i data-lucide="github"></i></span>GitHub</a>
           </div>
         </div>
       </div>
@@ -219,36 +188,6 @@ export const HUB_HTML = `<!doctype html>
         <p>Invoices, link pages, cross-posting — all free, all open source.</p>
       </article>
     </section>
-
-    <!-- Tools -->
-    <h2 class="tools-heading">Free Surf tools</h2>
-    <div class="tool-grid">
-      <a href="${FREESURF.URLS.invoices}" class="tool-item">
-        <span class="ti">🧾</span>
-        <span>Invoices <span class="tl">invoices.${FREESURF.ROOT_DOMAIN}</span></span>
-        <span class="badge badge-live">Live</span>
-      </a>
-      <a href="${FREESURF.URLS.links}" class="tool-item">
-        <span class="ti">🔗</span>
-        <span>Links <span class="tl">links.${FREESURF.ROOT_DOMAIN}</span></span>
-        <span class="badge badge-live">Live</span>
-      </a>
-      <a href="${FREESURF.URLS.post}" class="tool-item">
-        <span class="ti">📢</span>
-        <span>Post <span class="tl">post.${FREESURF.ROOT_DOMAIN}</span></span>
-        <span class="badge badge-wip">Beta</span>
-      </a>
-      <a href="${FREESURF.URLS.hire}" class="tool-item">
-        <span class="ti">🤝</span>
-        <span>Hire <span class="tl">hire.${FREESURF.ROOT_DOMAIN}</span></span>
-        <span class="badge badge-wip">Coming soon</span>
-      </a>
-      <div class="tool-item" style="opacity:0.5;">
-        <span class="ti">📄</span>
-        <span>PDF <span class="tl">pdf.${FREESURF.ROOT_DOMAIN}</span></span>
-        <span class="badge" style="background:rgba(107,114,128,0.15);color:#9ca3af;">Planned</span>
-      </div>
-    </div>
 
     <footer class="freesurf-footer">
       <div class="freesurf-footer-inner">
@@ -299,6 +238,7 @@ export const HUB_HTML = `<!doctype html>
 
   <script>
     document.querySelector('.freesurf-footer-year').textContent = new Date().getFullYear();
+    if (window.lucide) { window.lucide.createIcons(); }
     const btn = document.getElementById('app-launcher-btn');
     const dropdown = document.getElementById('app-dropdown');
     btn.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('open'); });
