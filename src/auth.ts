@@ -80,25 +80,7 @@ export async function validateSupabaseJWT(
     const data = new TextEncoder().encode(`${parts[0]}.${parts[1]}`);
     const signature = base64urlDecode(parts[2]);
 
-    if (algInfo === "hmac") {
-      // HS256 — symmetric HMAC
-      if (!secret) {
-        console.log("[auth] FAIL: SUPABASE_JWT_SECRET is empty");
-        return null;
-      }
-      const key = await crypto.subtle.importKey(
-        "raw",
-        new TextEncoder().encode(secret),
-        { name: "HMAC", hash: "SHA-256" },
-        false,
-        ["verify"]
-      );
-      const valid = await crypto.subtle.verify("HMAC", key, signature, data);
-      if (!valid) {
-        console.log("[auth] FAIL: HS256 signature mismatch");
-        return null;
-      }
-    } else {
+    if (algInfo === "hmac") { console.log("[auth] REJECT legacy HS256 (not accepted)"); return null; } else {
       // ES256 / RS256 — asymmetric, fetch JWKS
       const keys = await fetchJWKS(supabaseUrl);
       const jwk = header.kid
