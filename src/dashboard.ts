@@ -1723,7 +1723,19 @@ export default config;
     </ul>
     <p>Non-personalized ads do not require tracking permission.</p>
 
-    <h2>4. Third-Party Services</h2>
+    <h2>4. Usage Analytics</h2>
+    <p>To understand how our tools are used and to improve them, we may collect <strong>product analytics</strong> about
+    how you interact with an app — for example, which screens and features you use, approximate session length, device
+    type and operating system, and crash/performance diagnostics. This analytics data is tied to an <strong>anonymous
+    or pseudonymous identifier</strong> and is not linked to your name or email.</p>
+    <p>We run our analytics on <strong>self-hosted, open-source software (PostHog)</strong> on our own infrastructure.
+    As a result, usage/interaction data is not shared with a third-party analytics vendor. We do not send your content
+    (text, audio, photos, invoices, transcripts, or posts) to analytics, and we do not record your screen or capture
+    sensitive content for analytics purposes.</p>
+    <p>You can opt out of analytics where the app provides that setting; otherwise, analytics uses the same
+    ad-tracking/privacy settings described above where applicable.</p>
+
+    <h2>5. Third-Party Services</h2>
     <p>FreeSurf uses the following infrastructure and service providers:</p>
     <ul>
       <li><strong>Supabase</strong> — authentication and account data storage</li>
@@ -1734,7 +1746,7 @@ export default config;
     </ul>
     <p>These providers process data on our behalf to deliver specific parts of the service.</p>
 
-    <h2>5. Data Retention &amp; Your Choices</h2>
+    <h2>6. Data Retention &amp; Your Choices</h2>
     <ul>
       <li><strong>Local data:</strong> Data stored on your device remains until you delete it or uninstall the app.</li>
       <li><strong>Account data:</strong> Retained while your account is active. You can delete your account by contacting us.</li>
@@ -1746,7 +1758,7 @@ export default config;
       <li><strong>Support requests:</strong> May be retained to resolve issues and document outcomes.</li>
     </ul>
 
-    <h2>6. GDPR &amp; CCPA Rights</h2>
+    <h2>7. GDPR &amp; CCPA Rights</h2>
     <p>If you are located in the European Economic Area (EEA) or California, you have the following rights regarding your personal data:</p>
     <ul>
       <li><strong>Right to access:</strong> Request a copy of personal data we hold about you.</li>
@@ -1756,10 +1768,10 @@ export default config;
     </ul>
     <p>To exercise these rights, contact us at <a href="mailto:support@freesurf.tools">support@freesurf.tools</a>. We will respond within 30 days. For EEA users, you also have the right to lodge a complaint with your local data protection authority.</p>
 
-    <h2>7. Children's Privacy</h2>
+    <h2>8. Children's Privacy</h2>
     <p>FreeSurf is not directed to children under 13, and we do not knowingly collect personal information from children under 13.</p>
 
-    <h2>8. Changes</h2>
+    <h2>9. Changes</h2>
     <p>We may update this Privacy Policy. Material changes will be noted with an updated effective date.</p>
 
     <hr />
