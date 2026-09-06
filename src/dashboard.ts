@@ -1622,7 +1622,7 @@ export default config;
     <p>We send only the information required for the specific request, we do not combine your AI inputs with unrelated
     personal data, and we rely on providers that delete or do not retain submitted content beyond what is required to
     fulfill the request. If you have questions, contact us at
-    <a href="mailto:support@Free Surf.tools">support@Free Surf.tools</a>.</p>
+    <a href="mailto:support@freesurf.tools">support@freesurf.tools</a>.</p>
 
     <hr />
     <footer>
@@ -1666,7 +1666,7 @@ export default config;
 
     <div class="entity">
       Free Surf is a product of <strong>Planting Moon LLC</strong>, located at 5830 E 2nd St, Ste 7000 #35119, Casper, Wyoming 82609.<br />
-      Contact: <a href="mailto:support@Free Surf.tools">support@Free Surf.tools</a>
+      Contact: <a href="mailto:support@freesurf.tools">support@freesurf.tools</a>
     </div>
 
     <p>This Privacy Policy explains how Free Surf collects, uses, stores, and shares information when you use our apps, websites, and services. Free Surf provides free utility tools including invoice generation, link-in-bio pages, social media cross-posting, text-to-speech reading, and related services.</p>
@@ -1766,7 +1766,7 @@ export default config;
       <li><strong>Right to opt out:</strong> Opt out of personalized advertising via your device's privacy settings or by limiting ad tracking.</li>
       <li><strong>Right to data portability:</strong> Request your data in a structured, machine-readable format.</li>
     </ul>
-    <p>To exercise these rights, contact us at <a href="mailto:support@Free Surf.tools">support@Free Surf.tools</a>. We will respond within 30 days. For EEA users, you also have the right to lodge a complaint with your local data protection authority.</p>
+    <p>To exercise these rights, contact us at <a href="mailto:support@freesurf.tools">support@freesurf.tools</a>. We will respond within 30 days. For EEA users, you also have the right to lodge a complaint with your local data protection authority.</p>
 
     <h2>8. Children's Privacy</h2>
     <p>Free Surf is not directed to children under 13, and we do not knowingly collect personal information from children under 13.</p>
@@ -1778,7 +1778,7 @@ export default config;
 
     <h2>Contact</h2>
     <p>For privacy questions, data requests, or account deletion:<br />
-    <a href="mailto:support@Free Surf.tools">support@Free Surf.tools</a></p>
+    <a href="mailto:support@freesurf.tools">support@freesurf.tools</a></p>
     <p>Planting Moon LLC<br />5830 E 2nd St, Ste 7000 #35119, Casper, WY 82609</p>
 
     <footer>
@@ -1918,10 +1918,10 @@ export default config;
       <div class="app-launcher">
         <button class="app-launcher-btn" id="app-launcher-btn" aria-label="Free Surf tools" title="Free Surf tools">⋮⋮⋮</button>
         <div class="app-dropdown" id="app-dropdown">
-          <a href="https://invoices.Free Surf.tools"><span class="app-icon">🧾</span>Invoices</a>
-          <a href="https://links.Free Surf.tools"><span class="app-icon">🔗</span>Links</a>
-          <a href="https://post.Free Surf.tools"><span class="app-icon">📢</span>Post</a>
-          <a href="https://auth.Free Surf.tools"><span class="app-icon">🔐</span>Auth</a>
+          <a href="https://invoices.freesurf.tools"><span class="app-icon">🧾</span>Invoices</a>
+          <a href="https://links.freesurf.tools"><span class="app-icon">🔗</span>Links</a>
+          <a href="https://post.freesurf.tools"><span class="app-icon">📢</span>Post</a>
+          <a href="https://auth.freesurf.tools"><span class="app-icon">🔐</span>Auth</a>
           <a href="https://github.com/Free Surf-ecosystem"><span class="app-icon">💻</span>GitHub</a>
         </div>
       </div>
@@ -1933,7 +1933,7 @@ export default config;
 
       <h2>Contact</h2>
       <p>Email us anytime. We respond within 24 hours.</p>
-      <a href="mailto:support@Free Surf.tools" class="email">support@Free Surf.tools</a>
+      <a href="mailto:support@freesurf.tools" class="email">support@freesurf.tools</a>
 
       <h2>Common questions</h2>
       <p><strong>Are Free Surf tools really free?</strong> Yes. All our tools — invoices, link-in-bio pages, cross-posting, text-to-speech, transcription, calorie tracking, and more — are free with no mandatory fees or subscriptions. Sign in is optional for cloud sync.</p>
@@ -1994,7 +1994,7 @@ export default config;
 
     <div class="entity">
       Free Surf is a product of <strong>Planting Moon LLC</strong>, located at 5830 E 2nd St, Ste 7000 #35119, Casper, Wyoming 82609.<br />
-      Contact: <a href="mailto:support@Free Surf.tools">support@Free Surf.tools</a>
+      Contact: <a href="mailto:support@freesurf.tools">support@freesurf.tools</a>
     </div>
 
     <p>These Terms of Use govern your access to and use of the Free Surf apps, websites, and services ("Free Surf," "we," "our," or "us"). By using Free Surf, you agree to these Terms of Use and our <a href="/privacy">Privacy Policy</a>.</p>
@@ -2056,7 +2056,7 @@ export default config;
 
     <h2>Contact</h2>
     <p>For terms, billing, support, or account questions:<br />
-    <a href="mailto:support@Free Surf.tools">support@Free Surf.tools</a></p>
+    <a href="mailto:support@freesurf.tools">support@freesurf.tools</a></p>
     <p>Planting Moon LLC<br />5830 E 2nd St, Ste 7000 #35119, Casper, WY 82609</p>
 
     <footer>
