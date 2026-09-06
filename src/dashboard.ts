@@ -313,7 +313,7 @@ a:hover { color: var(--accent-hover); }
   <meta name="description" content="Create your link-in-bio page for free. No monthly fees, no lock-in, open source. One link for all your content — ready in seconds.">
   <meta property="og:title" content="Free Link-in-Bio Page — No Fees, No Lock-in | Free Surf's Link-in-Bio">
   <meta property="og:description" content="Create your link-in-bio page for free. No monthly fees, no lock-in, open source.">
-  <meta property="og:url" content="https://links.Free Surf.tools/">
+  <meta property="og:url" content="https://links.freesurf.tools/">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Free Link-in-Bio Page — No Fees, No Lock-in | Free Surf's Link-in-Bio">
@@ -337,17 +337,17 @@ const API_BASE = location.hostname === "localhost" || location.hostname === "127
 const PUBLIC_BASE = API_BASE.replace("http://127.0.0.1:8787", "http://127.0.0.1:8787");
 
 // --- Cross-domain auth: try to restore Supabase session from shared cookie ---
-import { getSharedSession, signIn, signUp, oauthSignIn, clearSharedSession } from "./Free Surf-auth.js";
+import { getSharedSession, signIn, signUp, oauthSignIn, clearSharedSession } from "./freesurf-auth.js";
 const sharedSession = await getSharedSession();
 
 // --- State ---
 let currentUser = null;
-let sessionToken = sharedSession?.accessToken || localStorage.getItem("Free Surf_session") || null;
+let sessionToken = sharedSession?.accessToken || localStorage.getItem("freesurf_session") || null;
 let sessionEmail = sharedSession?.user?.email || null;
 
 // If we got a session from the shared cookie, persist it to localStorage
 if (sharedSession?.accessToken) {
-  localStorage.setItem("Free Surf_session", sharedSession.accessToken);
+  localStorage.setItem("freesurf_session", sharedSession.accessToken);
 }
 let currentView = "landing";
 let autoSaveTimer = null;
@@ -415,7 +415,7 @@ function render() {
     case "editor":     app.innerHTML = renderEditor(); bindEditor(); break;
     default:           app.innerHTML = renderLanding(); bindLanding();
   }
-  const yearEl = document.querySelector(".Free Surf-footer-year");
+  const yearEl = document.querySelector(".freesurf-footer-year");
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 }
 
@@ -489,40 +489,40 @@ function renderLanding() {
         </div>
       </div>
 
-      <footer class="Free Surf-footer">
-        <div class="Free Surf-footer-inner">
-          <div class="Free Surf-footer-brand">
-            <a href="https://Free Surf.tools" class="Free Surf-footer-logo">Free Surf</a>
-            <p class="Free Surf-footer-tagline">Free tools for freelancers & small businesses. No commissions, no lock-in, open source.</p>
+      <footer class="freesurf-footer">
+        <div class="freesurf-footer-inner">
+          <div class="freesurf-footer-brand">
+            <a href="https://freesurf.tools" class="freesurf-footer-logo">Free Surf</a>
+            <p class="freesurf-footer-tagline">Free tools for freelancers & small businesses. No commissions, no lock-in, open source.</p>
           </div>
-          <div class="Free Surf-footer-links">
-            <div class="Free Surf-footer-col">
-              <span class="Free Surf-footer-heading">Newsletter</span>
+          <div class="freesurf-footer-links">
+            <div class="freesurf-footer-col">
+              <span class="freesurf-footer-heading">Newsletter</span>
               <a href="https://feedfree.tech" target="_blank" rel="noopener">Feedfree Digest</a>
             </div>
-            <div class="Free Surf-footer-col">
-              <span class="Free Surf-footer-heading">Free tools</span>
-              <a href="https://invoices.Free Surf.tools">Invoices</a>
-              <a href="https://links.Free Surf.tools">Links</a>
-              <a href="https://post.Free Surf.tools">Post</a>
-              <a href="https://transcribe.Free Surf.tools">Meeting Transcriber</a>
-              <a href="https://calories.Free Surf.tools">Calorie Tracker</a>
+            <div class="freesurf-footer-col">
+              <span class="freesurf-footer-heading">Free tools</span>
+              <a href="https://invoices.freesurf.tools">Invoices</a>
+              <a href="https://links.freesurf.tools">Links</a>
+              <a href="https://post.freesurf.tools">Post</a>
+              <a href="https://transcribe.freesurf.tools">Meeting Transcriber</a>
+              <a href="https://calories.freesurf.tools">Calorie Tracker</a>
             </div>
-            <div class="Free Surf-footer-col">
-              <span class="Free Surf-footer-heading">Platform</span>
-              <a href="https://Free Surf.tools">Home</a>
-              <a href="https://github.com/Free Surf-ecosystem">GitHub</a>
+            <div class="freesurf-footer-col">
+              <span class="freesurf-footer-heading">Platform</span>
+              <a href="https://freesurf.tools">Home</a>
+              <a href="https://github.com/freesurf-ecosystem">GitHub</a>
             </div>
-            <div class="Free Surf-footer-col">
-              <span class="Free Surf-footer-heading">Legal</span>
-              <a href="https://Free Surf.tools/privacy">Privacy</a>
-              <a href="https://Free Surf.tools/terms">Terms</a>
-              <a href="mailto:hello@Free Surf.tools">Contact</a>
+            <div class="freesurf-footer-col">
+              <span class="freesurf-footer-heading">Legal</span>
+              <a href="https://freesurf.tools/privacy">Privacy</a>
+              <a href="https://freesurf.tools/terms">Terms</a>
+              <a href="mailto:hello@freesurf.tools">Contact</a>
             </div>
           </div>
         </div>
-        <div class="Free Surf-footer-bottom">
-          <span>&copy; <span class="Free Surf-footer-year"></span> Free Surf. Built for independent workers.</span>
+        <div class="freesurf-footer-bottom">
+          <span>&copy; <span class="freesurf-footer-year"></span> Free Surf. Built for independent workers.</span>
           <span>Part of the Free Surf ecosystem of free tools.</span>
         </div>
       </footer>
@@ -586,7 +586,7 @@ function bindLanding() {
         if (result) {
           sessionToken = result.accessToken;
           if (result.user?.email) sessionEmail = result.user.email;
-          localStorage.setItem("Free Surf_session", result.accessToken);
+          localStorage.setItem("freesurf_session", result.accessToken);
           loadProfileOrEditor();
         }
       } else {
@@ -594,7 +594,7 @@ function bindLanding() {
         if (result) {
           sessionToken = result.accessToken;
           if (result.user?.email) sessionEmail = result.user.email;
-          localStorage.setItem("Free Surf_session", result.accessToken);
+          localStorage.setItem("freesurf_session", result.accessToken);
           loadProfileOrEditor();
         } else {
           feedback.textContent = "Check your email to confirm your account.";
@@ -655,8 +655,8 @@ let usernameAvailable = false;
 function renderEditor() {
   const isNewUser = !currentUser;
   const profile = currentUser || { displayName: "", bio: "", avatarUrl: "", theme: "minimal-dark", links: [] };
-  const publicUrl = currentUser?.username ? \`https://Free Surf.tools/\${currentUser.username}\` : null;
-  const displayUrl = currentUser?.username ? \`Free Surf.tools/\${currentUser.username}\` : null;
+  const publicUrl = currentUser?.username ? \`https://freesurf.tools/\${currentUser.username}\` : null;
+  const displayUrl = currentUser?.username ? \`freesurf.tools/\${currentUser.username}\` : null;
 
   const PLATFORM_LABELS = { twitter: "Twitter / X", instagram: "Instagram", youtube: "YouTube", tiktok: "TikTok", github: "GitHub", linkedin: "LinkedIn" };
 
@@ -719,7 +719,7 @@ function renderEditor() {
         <div class="form-group" style="margin-top:1rem;">
           <label class="form-label">Your URL / handle</label>
           <div class="claim-form" style="margin-bottom:0;">
-            <div class="claim-prefix">Free Surf.tools/</div>
+            <div class="claim-prefix">freesurf.tools/</div>
             <input type="text" class="form-input" id="edit-username" value="\${escapeAttr(profile.username)}" maxlength="30" style="border-radius:0 var(--radius) var(--radius) 0;">
           </div>
           <p id="username-status" style="font-size:0.8rem; margin-top:0.35rem; min-height:1.2em;">&nbsp;</p>
@@ -733,7 +733,7 @@ function renderEditor() {
         <div class="form-group">
           <label class="form-label">Choose your URL</label>
           <div class="claim-form" style="margin-bottom:0;">
-            <div class="claim-prefix">Free Surf.tools/</div>
+            <div class="claim-prefix">freesurf.tools/</div>
             <input type="text" class="form-input" id="edit-username" placeholder="yourname" maxlength="30" style="border-radius:0 var(--radius) var(--radius) 0;">
           </div>
           <p id="username-status" style="font-size:0.8rem; margin-top:0.35rem; min-height:1.2em;">&nbsp;</p>
@@ -810,40 +810,40 @@ function renderEditor() {
       <!-- Save -->
       <button class="btn btn-primary btn-block" id="save-btn" style="margin-bottom:2rem;">\${isNewUser ? "Create My Page" : "Save Changes"}</button>
 
-      <footer class="Free Surf-footer">
-        <div class="Free Surf-footer-inner">
-          <div class="Free Surf-footer-brand">
-            <a href="https://Free Surf.tools" class="Free Surf-footer-logo">Free Surf</a>
-            <p class="Free Surf-footer-tagline">Free tools for freelancers & small businesses. No commissions, no lock-in, open source.</p>
+      <footer class="freesurf-footer">
+        <div class="freesurf-footer-inner">
+          <div class="freesurf-footer-brand">
+            <a href="https://freesurf.tools" class="freesurf-footer-logo">Free Surf</a>
+            <p class="freesurf-footer-tagline">Free tools for freelancers & small businesses. No commissions, no lock-in, open source.</p>
           </div>
-          <div class="Free Surf-footer-links">
-            <div class="Free Surf-footer-col">
-              <span class="Free Surf-footer-heading">Newsletter</span>
+          <div class="freesurf-footer-links">
+            <div class="freesurf-footer-col">
+              <span class="freesurf-footer-heading">Newsletter</span>
               <a href="https://feedfree.tech" target="_blank" rel="noopener">Feedfree Digest</a>
             </div>
-            <div class="Free Surf-footer-col">
-              <span class="Free Surf-footer-heading">Free tools</span>
-              <a href="https://invoices.Free Surf.tools">Invoices</a>
-              <a href="https://links.Free Surf.tools">Links</a>
-              <a href="https://post.Free Surf.tools">Post</a>
-              <a href="https://transcribe.Free Surf.tools">Meeting Transcriber</a>
-              <a href="https://calories.Free Surf.tools">Calorie Tracker</a>
+            <div class="freesurf-footer-col">
+              <span class="freesurf-footer-heading">Free tools</span>
+              <a href="https://invoices.freesurf.tools">Invoices</a>
+              <a href="https://links.freesurf.tools">Links</a>
+              <a href="https://post.freesurf.tools">Post</a>
+              <a href="https://transcribe.freesurf.tools">Meeting Transcriber</a>
+              <a href="https://calories.freesurf.tools">Calorie Tracker</a>
             </div>
-            <div class="Free Surf-footer-col">
-              <span class="Free Surf-footer-heading">Platform</span>
-              <a href="https://Free Surf.tools">Home</a>
-              <a href="https://github.com/Free Surf-ecosystem">GitHub</a>
+            <div class="freesurf-footer-col">
+              <span class="freesurf-footer-heading">Platform</span>
+              <a href="https://freesurf.tools">Home</a>
+              <a href="https://github.com/freesurf-ecosystem">GitHub</a>
             </div>
-            <div class="Free Surf-footer-col">
-              <span class="Free Surf-footer-heading">Legal</span>
-              <a href="https://Free Surf.tools/privacy">Privacy</a>
-              <a href="https://Free Surf.tools/terms">Terms</a>
-              <a href="mailto:hello@Free Surf.tools">Contact</a>
+            <div class="freesurf-footer-col">
+              <span class="freesurf-footer-heading">Legal</span>
+              <a href="https://freesurf.tools/privacy">Privacy</a>
+              <a href="https://freesurf.tools/terms">Terms</a>
+              <a href="mailto:hello@freesurf.tools">Contact</a>
             </div>
           </div>
         </div>
-        <div class="Free Surf-footer-bottom">
-          <span>&copy; <span class="Free Surf-footer-year"></span> Free Surf. Built for independent workers.</span>
+        <div class="freesurf-footer-bottom">
+          <span>&copy; <span class="freesurf-footer-year"></span> Free Surf. Built for independent workers.</span>
           <span>Part of the Free Surf ecosystem of free tools.</span>
         </div>
       </footer>
@@ -863,7 +863,7 @@ function bindEditor() {
   const copyBtn = document.getElementById("copy-url");
   if (copyBtn) {
     copyBtn.addEventListener("click", () => {
-      const url = \`https://Free Surf.tools/\${currentUser.username}\`;
+      const url = \`https://freesurf.tools/\${currentUser.username}\`;
       navigator.clipboard.writeText(url).then(() => {
         copyBtn.textContent = "Copied!";
         setTimeout(() => { copyBtn.textContent = "Copy"; }, 2000);
@@ -1104,12 +1104,12 @@ function bindEditor() {
 
   // Logout
   document.getElementById("logout-btn").addEventListener("click", async () => {
-    const { clearSharedSession } = await import("./Free Surf-auth.js");
+    const { clearSharedSession } = await import("./freesurf-auth.js");
     await clearSharedSession();
     sessionToken = null;
     currentUser = null;
     sessionEmail = null;
-    localStorage.removeItem("Free Surf_session");
+    localStorage.removeItem("freesurf_session");
     navigate("landing");
   });
 }
@@ -1124,7 +1124,7 @@ async function checkUsername(username, statusEl) {
     if (!input || input.value !== username) return;
 
     if (res.available) {
-      statusEl.textContent = "\\u2713 Free Surf.tools/" + username + " is available!";
+      statusEl.textContent = "\\u2713 freesurf.tools/" + username + " is available!";
       statusEl.style.color = "var(--success)";
       usernameAvailable = true;
     } else {
@@ -1331,7 +1331,7 @@ function escapeAttr(str) {
       return;
     } catch {
       sessionToken = null;
-      localStorage.removeItem("Free Surf_session");
+      localStorage.removeItem("freesurf_session");
     }
   }
 
@@ -1922,7 +1922,7 @@ export default config;
           <a href="https://links.freesurf.tools"><span class="app-icon">🔗</span>Links</a>
           <a href="https://post.freesurf.tools"><span class="app-icon">📢</span>Post</a>
           <a href="https://auth.freesurf.tools"><span class="app-icon">🔐</span>Auth</a>
-          <a href="https://github.com/Free Surf-ecosystem"><span class="app-icon">💻</span>GitHub</a>
+          <a href="https://github.com/freesurf-ecosystem"><span class="app-icon">💻</span>GitHub</a>
         </div>
       </div>
     </nav>
