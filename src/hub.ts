@@ -1,4 +1,4 @@
-import { Free Surf } from "./Free Surf.config";
+import { FREESURF } from "./freesurf.config";
 
 export const HUB_HTML = `<!doctype html>
 <html lang="en">
@@ -164,14 +164,14 @@ export const HUB_HTML = `<!doctype html>
     <nav class="nav">
       <div class="brand"><img class="brand-logo" src="/logo-white.png" alt="Free Surf logo" />Free Surf</div>
       <div class="nav-right">
-        <a href="https://auth.${Free Surf.ROOT_DOMAIN}" class="btn btn-secondary" style="padding:8px 14px;font-size:0.85rem;">Sign in</a>
+        <a href="https://auth.${FREESURF.ROOT_DOMAIN}" class="btn btn-secondary" style="padding:8px 14px;font-size:0.85rem;">Sign in</a>
         <div class="app-launcher">
           <button class="app-launcher-btn" id="app-launcher-btn" aria-label="Free Surf tools" title="Free Surf tools">⋮⋮⋮</button>
           <div class="app-dropdown" id="app-dropdown">
-            <a href="${Free Surf.URLS.invoices}"><span class="app-icon">🧾</span>Invoices</a>
-            <a href="${Free Surf.URLS.links}"><span class="app-icon">🔗</span>Links</a>
-            <a href="${Free Surf.URLS.post}"><span class="app-icon">📢</span>Post</a>
-            <a href="${Free Surf.URLS.hire}"><span class="app-icon">🤝</span>Hire</a>
+            <a href="${FREESURF.URLS.invoices}"><span class="app-icon">🧾</span>Invoices</a>
+            <a href="${FREESURF.URLS.links}"><span class="app-icon">🔗</span>Links</a>
+            <a href="${FREESURF.URLS.post}"><span class="app-icon">📢</span>Post</a>
+            <a href="${FREESURF.URLS.hire}"><span class="app-icon">🤝</span>Hire</a>
             <a href="https://github.com/ah8571"><span class="app-icon">💻</span>GitHub</a>
           </div>
         </div>
@@ -186,7 +186,7 @@ export const HUB_HTML = `<!doctype html>
           No platform percentage. No hidden upcharge. Plus free tools for invoices, link-in-bio pages, cross-posting, and more.
         </p>
         <div class="cta-row">
-          <a class="btn btn-primary" href="https://auth.${Free Surf.ROOT_DOMAIN}/?mode=signup">Get started — it's free</a>
+          <a class="btn btn-primary" href="https://auth.${FREESURF.ROOT_DOMAIN}/?mode=signup">Get started — it's free</a>
           <a class="btn btn-secondary" href="https://github.com/ah8571" target="_blank" rel="noopener noreferrer">View on GitHub</a>
         </div>
       </section>
@@ -223,29 +223,29 @@ export const HUB_HTML = `<!doctype html>
     <!-- Tools -->
     <h2 class="tools-heading">Free Surf tools</h2>
     <div class="tool-grid">
-      <a href="${Free Surf.URLS.invoices}" class="tool-item">
+      <a href="${FREESURF.URLS.invoices}" class="tool-item">
         <span class="ti">🧾</span>
-        <span>Invoices <span class="tl">invoices.${Free Surf.ROOT_DOMAIN}</span></span>
+        <span>Invoices <span class="tl">invoices.${FREESURF.ROOT_DOMAIN}</span></span>
         <span class="badge badge-live">Live</span>
       </a>
-      <a href="${Free Surf.URLS.links}" class="tool-item">
+      <a href="${FREESURF.URLS.links}" class="tool-item">
         <span class="ti">🔗</span>
-        <span>Links <span class="tl">links.${Free Surf.ROOT_DOMAIN}</span></span>
+        <span>Links <span class="tl">links.${FREESURF.ROOT_DOMAIN}</span></span>
         <span class="badge badge-live">Live</span>
       </a>
-      <a href="${Free Surf.URLS.post}" class="tool-item">
+      <a href="${FREESURF.URLS.post}" class="tool-item">
         <span class="ti">📢</span>
-        <span>Post <span class="tl">post.${Free Surf.ROOT_DOMAIN}</span></span>
+        <span>Post <span class="tl">post.${FREESURF.ROOT_DOMAIN}</span></span>
         <span class="badge badge-wip">Beta</span>
       </a>
-      <a href="${Free Surf.URLS.hire}" class="tool-item">
+      <a href="${FREESURF.URLS.hire}" class="tool-item">
         <span class="ti">🤝</span>
-        <span>Hire <span class="tl">hire.${Free Surf.ROOT_DOMAIN}</span></span>
+        <span>Hire <span class="tl">hire.${FREESURF.ROOT_DOMAIN}</span></span>
         <span class="badge badge-wip">Coming soon</span>
       </a>
       <div class="tool-item" style="opacity:0.5;">
         <span class="ti">📄</span>
-        <span>PDF <span class="tl">pdf.${Free Surf.ROOT_DOMAIN}</span></span>
+        <span>PDF <span class="tl">pdf.${FREESURF.ROOT_DOMAIN}</span></span>
         <span class="badge" style="background:rgba(107,114,128,0.15);color:#9ca3af;">Planned</span>
       </div>
     </div>
