@@ -250,13 +250,55 @@ export const HUB_HTML = `<!doctype html>
       </div>
     </div>
 
-    <footer>
-      © <span id="year"></span> Free Surf · Free tools, no bullshit. · <a href="https://feedfree.tech" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">Feedfree Digest</a>
+    <footer class="freesurf-footer">
+      <div class="freesurf-footer-inner">
+        <div class="freesurf-footer-brand">
+          <a href="https://freesurf.tools" class="freesurf-footer-logo">Free Surf</a>
+          <p class="freesurf-footer-tagline">Free tools for freelancers &amp; small businesses. No commissions, no lock-in, open source.</p>
+        </div>
+        <div class="freesurf-footer-links">
+          <div class="freesurf-footer-col"><span class="freesurf-footer-heading">Newsletter</span><a href="https://feedfree.tech" target="_blank" rel="noopener">Feedfree Digest</a></div>
+          <div class="freesurf-footer-col">
+            <span class="freesurf-footer-heading">Free tools</span>
+            <a href="https://invoices.freesurf.tools">Invoices</a>
+            <a href="https://links.freesurf.tools">Links</a>
+            <a href="https://post.freesurf.tools">Post</a>
+            <a href="https://transcribe.freesurf.tools">Meeting Transcriber</a>
+            <a href="https://calories.freesurf.tools">Calorie Tracker</a>
+          </div>
+          <div class="freesurf-footer-col">
+            <span class="freesurf-footer-heading">Platform</span>
+            <a href="https://freesurf.tools">Home</a>
+            <a href="https://github.com/freesurf-ecosystem">GitHub</a>
+          </div>
+          <div class="freesurf-footer-col">
+            <span class="freesurf-footer-heading">Legal</span>
+            <a href="https://freesurf.tools/privacy">Privacy</a>
+            <a href="https://freesurf.tools/terms">Terms</a>
+            <a href="mailto:hello@freesurf.tools">Contact</a>
+          </div>
+        </div>
+      </div>
+      <div class="freesurf-footer-bottom"><span>&copy; <span class="freesurf-footer-year"></span> Free Surf. Built for independent workers.</span><span>Part of the Free Surf ecosystem of free tools.</span></div>
     </footer>
+    <style>
+      .freesurf-footer { border-top: 1px solid #e2e6ed; background: #111937; padding: 40px 24px 24px; margin-top: 48px; font-family: Inter, Segoe UI, Roboto, Arial, sans-serif; color: #e8ecff; }
+      .freesurf-footer-inner { max-width: 960px; margin: 0 auto; display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
+      .freesurf-footer-brand { max-width: 300px; }
+      .freesurf-footer-logo { font-size: 1.1rem; font-weight: 700; color: #5b8cff; text-decoration: none; letter-spacing: -0.02em; }
+      .freesurf-footer-tagline { margin: 8px 0 0; font-size: 0.8125rem; color: #b3bddf; line-height: 1.5; }
+      .freesurf-footer-links { display: flex; gap: 48px; flex-wrap: wrap; }
+      .freesurf-footer-col { display: flex; flex-direction: column; gap: 8px; }
+      .freesurf-footer-heading { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #b3bddf; margin-bottom: 4px; }
+      .freesurf-footer-col a { font-size: 0.875rem; color: #8fa3d8; text-decoration: none; }
+      .freesurf-footer-col a:hover { color: #5b8cff; }
+      .freesurf-footer-bottom { max-width: 960px; margin: 28px auto 0; padding-top: 16px; border-top: 1px solid #2a3568; display: flex; justify-content: space-between; gap: 16px; font-size: 0.75rem; color: #8fa3d8; flex-wrap: wrap; }
+      @media (max-width: 640px) { .freesurf-footer-inner { flex-direction: column; gap: 24px; } .freesurf-footer-bottom { flex-direction: column; text-align: center; } }
+    </style>
   </div>
 
   <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
+    document.querySelector('.freesurf-footer-year').textContent = new Date().getFullYear();
     const btn = document.getElementById('app-launcher-btn');
     const dropdown = document.getElementById('app-dropdown');
     btn.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('open'); });
