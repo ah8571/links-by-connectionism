@@ -5,10 +5,10 @@ export const HUB_HTML = `<!doctype html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Free Surf | Free Tools</title>
+  <title>FreeSurf | Free Tools</title>
   <link rel="icon" type="image/png" href="/favicon.png" />
   <script src="https://unpkg.com/lucide@latest"></script>
-  <meta name="description" content="Free Surf — a free, open-source ecosystem of tools for invoices, link-in-bio pages, cross-posting, transcription, and more. No subscriptions." />
+  <meta name="description" content="FreeSurf — a free, open-source ecosystem of tools for invoices, link-in-bio pages, cross-posting, transcription, and more. No subscriptions." />
   <style>
     :root {
       --bg: #0a0a0a;
@@ -128,11 +128,11 @@ export const HUB_HTML = `<!doctype html>
 <body>
   <div class="wrap">
     <nav class="nav">
-      <div class="brand"><img class="brand-logo" src="/logo-white.png" alt="Free Surf logo" />Free Surf</div>
+      <div class="brand"><img class="brand-logo" src="/logo-white.png" alt="FreeSurf logo" />FreeSurf</div>
       <div class="nav-right">
         <a href="https://auth.${FREESURF.ROOT_DOMAIN}" class="btn btn-secondary" style="padding:8px 14px;font-size:0.85rem;">Sign in</a>
         <div class="app-launcher">
-          <button class="app-launcher-btn" id="app-launcher-btn" aria-label="Free Surf tools" title="Free Surf tools">◫</button>
+          <button class="app-launcher-btn" id="app-launcher-btn" aria-label="FreeSurf tools" title="FreeSurf tools">◫</button>
           <div class="app-dropdown" id="app-dropdown">
             <a href="${FREESURF.URLS.invoices}"><span class="app-icon"><i data-lucide="receipt"></i></span>Invoices</a>
             <a href="${FREESURF.URLS.links}"><span class="app-icon"><i data-lucide="link"></i></span>Links</a>
@@ -148,7 +148,7 @@ export const HUB_HTML = `<!doctype html>
       <section>
         <h1>Free tools, no subscriptions.</h1>
         <p class="lead">
-          Free Surf is a free, open-source ecosystem of tools for freelancers and small businesses —
+          FreeSurf is a free, open-source ecosystem of tools for freelancers and small businesses —
           invoices, link-in-bio pages, cross-posting, transcription, and more. No middleman fees, no lock-in.
         </p>
         <div class="cta-row">
@@ -180,7 +180,7 @@ export const HUB_HTML = `<!doctype html>
     <footer class="freesurf-footer">
       <div class="freesurf-footer-inner">
         <div class="freesurf-footer-brand">
-          <a href="https://freesurf.tools" class="freesurf-footer-logo">Free Surf</a>
+          <a href="https://freesurf.tools" class="freesurf-footer-logo">FreeSurf</a>
           <p class="freesurf-footer-tagline">Free tools for freelancers &amp; small businesses. No commissions, no lock-in, open source.</p>
         </div>
         <div class="freesurf-footer-links">
@@ -207,7 +207,7 @@ export const HUB_HTML = `<!doctype html>
         </div>
       </div>
       <div class="freesurf-footer-bottom">
-        <span>&copy; <span class="freesurf-footer-year"></span> Free Surf. Built for independent workers.</span>
+        <span>&copy; <span class="freesurf-footer-year"></span> FreeSurf. Built for independent workers.</span>
         <button class="footer-theme-toggle" id="btn-theme-toggle" title="Toggle dark mode">◐</button>
       </div>
     </footer>
@@ -217,13 +217,13 @@ export const HUB_HTML = `<!doctype html>
     document.querySelector('.freesurf-footer-year').textContent = new Date().getFullYear();
     if (window.lucide) { window.lucide.createIcons(); }
     (function(){
-      const t = localStorage.getItem('Free Surf-theme');
+      const t = localStorage.getItem('freesurf-theme');
       if (t === 'light') document.documentElement.dataset.theme = 'light';
     })();
     document.getElementById('btn-theme-toggle').addEventListener('click', () => {
       const light = document.documentElement.dataset.theme === 'light';
       document.documentElement.dataset.theme = light ? '' : 'light';
-      localStorage.setItem('Free Surf-theme', light ? '' : 'light');
+      localStorage.setItem('freesurf-theme', light ? '' : 'light');
     });
     const btn = document.getElementById('app-launcher-btn');
     const dropdown = document.getElementById('app-dropdown');

@@ -96,7 +96,7 @@ function render() {
 function renderLanding() {
   return `
     <header class="header">
-      <div class="header-logo"><span style="color:var(--accent)">Free Surf's</span> Link-in-Bio</div>
+      <div class="header-logo"><span style="color:var(--accent)">FreeSurf's</span> Link-in-Bio</div>
     </header>
     <div class="container">
       <div class="hero centered">
@@ -161,7 +161,7 @@ function renderLanding() {
       <footer class="freesurf-footer">
         <div class="freesurf-footer-inner">
           <div class="freesurf-footer-brand">
-            <a href="https://freesurf.tools" class="freesurf-footer-logo">Free Surf</a>
+            <a href="https://freesurf.tools" class="freesurf-footer-logo">FreeSurf</a>
             <p class="freesurf-footer-tagline">Free tools for freelancers & small businesses. No commissions, no lock-in, open source.</p>
           </div>
           <div class="freesurf-footer-links">
@@ -191,8 +191,8 @@ function renderLanding() {
           </div>
         </div>
         <div class="freesurf-footer-bottom">
-          <span>&copy; <span class="freesurf-footer-year"></span> Free Surf. Built for independent workers.</span>
-          <span>Part of the Free Surf ecosystem of free tools.</span>
+          <span>&copy; <span class="freesurf-footer-year"></span> FreeSurf. Built for independent workers.</span>
+          <span>Part of the FreeSurf ecosystem of free tools.</span>
         </div>
       </footer>
     </div>
@@ -370,7 +370,7 @@ function renderEditor() {
 
   return `
     <header class="header">
-      <a href="/" class="header-logo" id="nav-home"><span style="color:var(--accent)">Free Surf's</span> Link-in-Bio</a>
+      <a href="/" class="header-logo" id="nav-home"><span style="color:var(--accent)">FreeSurf's</span> Link-in-Bio</a>
       <nav class="header-nav">
         ${currentUser ? `<a href="${publicUrl.startsWith("http") ? publicUrl : "https://" + publicUrl}" target="_blank" class="btn btn-secondary btn-sm">View Page</a>` : ""}
         <button class="btn btn-secondary btn-sm" id="logout-btn">Log out</button>
@@ -482,7 +482,7 @@ function renderEditor() {
       <footer class="freesurf-footer">
         <div class="freesurf-footer-inner">
           <div class="freesurf-footer-brand">
-            <a href="https://freesurf.tools" class="freesurf-footer-logo">Free Surf</a>
+            <a href="https://freesurf.tools" class="freesurf-footer-logo">FreeSurf</a>
             <p class="freesurf-footer-tagline">Free tools for freelancers & small businesses. No commissions, no lock-in, open source.</p>
           </div>
           <div class="freesurf-footer-links">
@@ -512,8 +512,8 @@ function renderEditor() {
           </div>
         </div>
         <div class="freesurf-footer-bottom">
-          <span>&copy; <span class="freesurf-footer-year"></span> Free Surf. Built for independent workers.</span>
-          <span>Part of the Free Surf ecosystem of free tools.</span>
+          <span>&copy; <span class="freesurf-footer-year"></span> FreeSurf. Built for independent workers.</span>
+          <span>Part of the FreeSurf ecosystem of free tools.</span>
         </div>
       </footer>
     </div>

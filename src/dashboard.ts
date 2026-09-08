@@ -309,14 +309,14 @@ a:hover { color: var(--accent-hover); }
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Free Link-in-Bio Page — No Fees, No Lock-in | Free Surf's Link-in-Bio</title>
+  <title>Free Link-in-Bio Page — No Fees, No Lock-in | FreeSurf's Link-in-Bio</title>
   <meta name="description" content="Create your link-in-bio page for free. No monthly fees, no lock-in, open source. One link for all your content — ready in seconds.">
-  <meta property="og:title" content="Free Link-in-Bio Page — No Fees, No Lock-in | Free Surf's Link-in-Bio">
+  <meta property="og:title" content="Free Link-in-Bio Page — No Fees, No Lock-in | FreeSurf's Link-in-Bio">
   <meta property="og:description" content="Create your link-in-bio page for free. No monthly fees, no lock-in, open source.">
   <meta property="og:url" content="https://links.freesurf.tools/">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Free Link-in-Bio Page — No Fees, No Lock-in | Free Surf's Link-in-Bio">
+  <meta name="twitter:title" content="Free Link-in-Bio Page — No Fees, No Lock-in | FreeSurf's Link-in-Bio">
   <meta name="twitter:description" content="Create your link-in-bio page for free. No monthly fees, no lock-in, open source.">
   <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -427,7 +427,7 @@ function render() {
 function renderLanding() {
   return \`
     <header class="header">
-      <div class="header-logo"><span style="color:var(--accent)">Free Surf's</span> Link-in-Bio</div>
+      <div class="header-logo"><span style="color:var(--accent)">FreeSurf's</span> Link-in-Bio</div>
     </header>
     <div class="container">
       <div class="hero centered">
@@ -492,7 +492,7 @@ function renderLanding() {
       <footer class="freesurf-footer">
         <div class="freesurf-footer-inner">
           <div class="freesurf-footer-brand">
-            <a href="https://freesurf.tools" class="freesurf-footer-logo">Free Surf</a>
+            <a href="https://freesurf.tools" class="freesurf-footer-logo">FreeSurf</a>
             <p class="freesurf-footer-tagline">Free tools for freelancers & small businesses. No commissions, no lock-in, open source.</p>
           </div>
           <div class="freesurf-footer-links">
@@ -522,8 +522,8 @@ function renderLanding() {
           </div>
         </div>
         <div class="freesurf-footer-bottom">
-          <span>&copy; <span class="freesurf-footer-year"></span> Free Surf. Built for independent workers.</span>
-          <span>Part of the Free Surf ecosystem of free tools.</span>
+          <span>&copy; <span class="freesurf-footer-year"></span> FreeSurf. Built for independent workers.</span>
+          <span>Part of the FreeSurf ecosystem of free tools.</span>
         </div>
       </footer>
     </div>
@@ -701,7 +701,7 @@ function renderEditor() {
 
   return \`
     <header class="header">
-      <a href="/" class="header-logo" id="nav-home"><span style="color:var(--accent)">Free Surf's</span> Link-in-Bio</a>
+      <a href="/" class="header-logo" id="nav-home"><span style="color:var(--accent)">FreeSurf's</span> Link-in-Bio</a>
       <nav class="header-nav">
         \${currentUser ? \`<a href="\${publicUrl.startsWith("http") ? publicUrl : "https://" + publicUrl}" target="_blank" class="btn btn-secondary btn-sm">View Page</a>\` : ""}
         <button class="btn btn-secondary btn-sm" id="logout-btn">Log out</button>
@@ -813,7 +813,7 @@ function renderEditor() {
       <footer class="freesurf-footer">
         <div class="freesurf-footer-inner">
           <div class="freesurf-footer-brand">
-            <a href="https://freesurf.tools" class="freesurf-footer-logo">Free Surf</a>
+            <a href="https://freesurf.tools" class="freesurf-footer-logo">FreeSurf</a>
             <p class="freesurf-footer-tagline">Free tools for freelancers & small businesses. No commissions, no lock-in, open source.</p>
           </div>
           <div class="freesurf-footer-links">
@@ -843,8 +843,8 @@ function renderEditor() {
           </div>
         </div>
         <div class="freesurf-footer-bottom">
-          <span>&copy; <span class="freesurf-footer-year"></span> Free Surf. Built for independent workers.</span>
-          <span>Part of the Free Surf ecosystem of free tools.</span>
+          <span>&copy; <span class="freesurf-footer-year"></span> FreeSurf. Built for independent workers.</span>
+          <span>Part of the FreeSurf ecosystem of free tools.</span>
         </div>
       </footer>
     </div>
@@ -1544,8 +1544,8 @@ export default config;
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Processing — Free Surf</title>
-  <meta name="description" content="How Free Surf processes your data with AI models, which providers we use, and what happens to the results." />
+  <title>AI Processing — FreeSurf</title>
+  <meta name="description" content="How FreeSurf processes your data with AI models, which providers we use, and what happens to the results." />
   <style>
     :root { --bg: #0b1020; --card: #111937; --text: #e8ecff; --muted: #b3bddf; --accent: #5b8cff; --border: #2a3568; }
     * { box-sizing: border-box; }
@@ -1571,7 +1571,7 @@ export default config;
     <h1>AI Processing Disclosure</h1>
     <p class="updated">Last updated: September 5, 2026</p>
 
-    <p>Several Free Surf tools use artificial-intelligence models to produce their output. This page explains the AI
+    <p>Several FreeSurf tools use artificial-intelligence models to produce their output. This page explains the AI
     models we use, who runs them, what we send to them, and what happens to the results. It complements our
     <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms of Service</a>.</p>
 
@@ -1626,7 +1626,7 @@ export default config;
 
     <hr />
     <footer>
-      <a href="/">Free Surf</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="/ai-processing">AI Processing</a>
+      <a href="/">FreeSurf</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="/ai-processing">AI Processing</a>
     </footer>
   </div>
 </body>
@@ -1640,8 +1640,8 @@ export default config;
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Privacy Policy — Free Surf</title>
-  <meta name="description" content="Privacy policy for Free Surf — free tools for freelancers and small businesses." />
+  <title>Privacy Policy — FreeSurf</title>
+  <meta name="description" content="Privacy policy for FreeSurf — free tools for freelancers and small businesses." />
   <style>
     :root { --bg: #0b1020; --card: #111937; --text: #e8ecff; --muted: #b3bddf; --accent: #5b8cff; --border: #2a3568; }
     * { box-sizing: border-box; }
@@ -1665,15 +1665,15 @@ export default config;
     <p class="updated">Last updated: August 7, 2026</p>
 
     <div class="entity">
-      Free Surf is a product of <strong>Planting Moon LLC</strong>, located at 5830 E 2nd St, Ste 7000 #35119, Casper, Wyoming 82609.<br />
+      FreeSurf is a product of <strong>Planting Moon LLC</strong>, located at 5830 E 2nd St, Ste 7000 #35119, Casper, Wyoming 82609.<br />
       Contact: <a href="mailto:support@freesurf.tools">support@freesurf.tools</a>
     </div>
 
-    <p>This Privacy Policy explains how Free Surf collects, uses, stores, and shares information when you use our apps, websites, and services. Free Surf provides free utility tools including invoice generation, link-in-bio pages, social media cross-posting, text-to-speech reading, and related services.</p>
+    <p>This Privacy Policy explains how FreeSurf collects, uses, stores, and shares information when you use our apps, websites, and services. FreeSurf provides free utility tools including invoice generation, link-in-bio pages, social media cross-posting, text-to-speech reading, and related services.</p>
 
     <h2>1. Information We Collect</h2>
 
-    <p><strong>Without an account:</strong> Most Free Surf tools work without creating an account. When you use tools without signing in, your data (invoice drafts, generated audio, saved recordings, transcriptions) is stored locally on your device. We do not collect or have access to this locally stored data.</p>
+    <p><strong>Without an account:</strong> Most FreeSurf tools work without creating an account. When you use tools without signing in, your data (invoice drafts, generated audio, saved recordings, transcriptions) is stored locally on your device. We do not collect or have access to this locally stored data.</p>
 
     <p><strong>With an account (optional):</strong> If you choose to create an account, we collect:</p>
     <ul>
@@ -1688,7 +1688,7 @@ export default config;
     operate the service, so we avoid storing additional profile details (such as your name or photo) from these sign-in
     providers where possible.</p>
 
-    <p><strong>AI Processing:</strong> Some Free Surf tools use AI models to generate results. Models run on hosted
+    <p><strong>AI Processing:</strong> Some FreeSurf tools use AI models to generate results. Models run on hosted
     inference providers (currently <strong>Together AI</strong>, <strong>OpenRouter</strong>, or our own self-hosted
     <strong>RunPod</strong> GPU), and we may switch between them. We generally use open-source models. Your text,
     audio, and photos are shared only with the provider running the model for that request, strictly to produce the
@@ -1707,14 +1707,14 @@ export default config;
     <p>We do not sell personal information. We do not use your invoice data, link profiles, posts, or AI-generated content for advertising purposes.</p>
 
     <h2>3. Advertising &amp; Third-Party Ad Networks</h2>
-    <p>Free Surf apps display advertisements through third-party ad networks such as Google AdMob, AppLovin MAX, and similar providers. To serve and measure ads, these networks may collect:</p>
+    <p>FreeSurf apps display advertisements through third-party ad networks such as Google AdMob, AppLovin MAX, and similar providers. To serve and measure ads, these networks may collect:</p>
     <ul>
       <li><strong>Identifiers:</strong> Device advertising ID (IDFA on iOS, AAID on Android)</li>
       <li><strong>Location:</strong> Coarse location derived from IP address (not precise GPS)</li>
       <li><strong>Usage Data:</strong> Product interaction data (e.g., ad views, clicks)</li>
       <li><strong>Diagnostics:</strong> Crash logs and performance data</li>
     </ul>
-    <p>This data is shared with our ad mediation partners solely for ad delivery and measurement. No personal information from your Free Surf account or tool usage (invoices, transcripts, meal logs, recordings) is shared with advertisers. Ad-supported functionality is disclosed in each app's store listing.</p>
+    <p>This data is shared with our ad mediation partners solely for ad delivery and measurement. No personal information from your FreeSurf account or tool usage (invoices, transcripts, meal logs, recordings) is shared with advertisers. Ad-supported functionality is disclosed in each app's store listing.</p>
     <p><strong>Android Advertising ID (AD_ID):</strong> On Android devices, the Google Mobile Ads SDK accesses the Android Advertising ID for ad targeting, frequency capping, conversion tracking, and fraud prevention. The <code>com.google.android.gms.permission.AD_ID</code> permission is automatically included in our apps through the AdMob SDK library manifest. This permission is used solely to access the advertising identifier — no other Android permissions are requested for advertising purposes.</p>
     <p>Before personalized ads are served, the app will request permission via Apple's App Tracking Transparency (ATT) prompt or Android's equivalent. You may opt out at any time through your device's privacy settings:</p>
     <ul>
@@ -1736,7 +1736,7 @@ export default config;
     ad-tracking/privacy settings described above where applicable.</p>
 
     <h2>5. Third-Party Services</h2>
-    <p>Free Surf uses the following infrastructure and service providers:</p>
+    <p>FreeSurf uses the following infrastructure and service providers:</p>
     <ul>
       <li><strong>Supabase</strong> — authentication and account data storage</li>
       <li><strong>Cloudflare</strong> — web hosting, Workers, R2 storage, and KV</li>
@@ -1769,7 +1769,7 @@ export default config;
     <p>To exercise these rights, contact us at <a href="mailto:support@freesurf.tools">support@freesurf.tools</a>. We will respond within 30 days. For EEA users, you also have the right to lodge a complaint with your local data protection authority.</p>
 
     <h2>8. Children's Privacy</h2>
-    <p>Free Surf is not directed to children under 13, and we do not knowingly collect personal information from children under 13.</p>
+    <p>FreeSurf is not directed to children under 13, and we do not knowingly collect personal information from children under 13.</p>
 
     <h2>9. Changes</h2>
     <p>We may update this Privacy Policy. Material changes will be noted with an updated effective date.</p>
@@ -1782,7 +1782,7 @@ export default config;
     <p>Planting Moon LLC<br />5830 E 2nd St, Ste 7000 #35119, Casper, WY 82609</p>
 
     <footer>
-      <a href="/">Free Surf</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="/ai-processing">AI Processing</a>
+      <a href="/">FreeSurf</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="/ai-processing">AI Processing</a>
     </footer>
   </div>
 </body>
@@ -1795,8 +1795,8 @@ export default config;
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Support — Free Surf</title>
-  <meta name="description" content="Get help with Free Surf — free, open-source tools and a direct contractor network with no middleman fees." />
+  <title>Support — FreeSurf</title>
+  <meta name="description" content="Get help with FreeSurf — free, open-source tools and a direct contractor network with no middleman fees." />
   <style>
     :root {
       --bg: #0a0a0c;
@@ -1914,9 +1914,9 @@ export default config;
 <body>
   <div class="wrap">
     <nav class="nav">
-      <a class="brand" href="/" style="color:inherit;text-decoration:none;">Free Surf</a>
+      <a class="brand" href="/" style="color:inherit;text-decoration:none;">FreeSurf</a>
       <div class="app-launcher">
-        <button class="app-launcher-btn" id="app-launcher-btn" aria-label="Free Surf tools" title="Free Surf tools">⋮⋮⋮</button>
+        <button class="app-launcher-btn" id="app-launcher-btn" aria-label="FreeSurf tools" title="FreeSurf tools">⋮⋮⋮</button>
         <div class="app-dropdown" id="app-dropdown">
           <a href="https://invoices.freesurf.tools"><span class="app-icon">🧾</span>Invoices</a>
           <a href="https://links.freesurf.tools"><span class="app-icon">🔗</span>Links</a>
@@ -1936,14 +1936,14 @@ export default config;
       <a href="mailto:support@freesurf.tools" class="email">support@freesurf.tools</a>
 
       <h2>Common questions</h2>
-      <p><strong>Are Free Surf tools really free?</strong> Yes. All our tools — invoices, link-in-bio pages, cross-posting, text-to-speech, transcription, calorie tracking, and more — are free with no mandatory fees or subscriptions. Sign in is optional for cloud sync.</p>
+      <p><strong>Are FreeSurf tools really free?</strong> Yes. All our tools — invoices, link-in-bio pages, cross-posting, text-to-speech, transcription, calorie tracking, and more — are free with no mandatory fees or subscriptions. Sign in is optional for cloud sync.</p>
       <p><strong>Where is my data stored?</strong> Data is saved locally on your device by default. If you sign in, it syncs to your account so you can access it across devices.</p>
-      <p><strong>How does the contractor network work?</strong> Clients and contractors connect directly with transparent, upfront rates. Free Surf takes zero platform percentage — you keep everything you earn.</p>
+      <p><strong>How does the contractor network work?</strong> Clients and contractors connect directly with transparent, upfront rates. FreeSurf takes zero platform percentage — you keep everything you earn.</p>
       <p><strong>Can I delete my account?</strong> Yes — email us at the address above with "Account deletion request" and we'll remove all your data within 48 hours.</p>
     </div>
 
     <footer>
-      &copy; <span id="year"></span> Free Surf &middot;
+      &copy; <span id="year"></span> FreeSurf &middot;
       <a href="/">Home</a> &middot;
       <a href="/privacy">Privacy</a> &middot;
       <a href="/terms">Terms</a>
@@ -1968,8 +1968,8 @@ export default config;
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Terms of Use — Free Surf</title>
-  <meta name="description" content="Terms of use for Free Surf — free tools for freelancers and small businesses." />
+  <title>Terms of Use — FreeSurf</title>
+  <meta name="description" content="Terms of use for FreeSurf — free tools for freelancers and small businesses." />
   <style>
     :root { --bg: #0b1020; --card: #111937; --text: #e8ecff; --muted: #b3bddf; --accent: #5b8cff; --border: #2a3568; }
     * { box-sizing: border-box; }
@@ -1993,14 +1993,14 @@ export default config;
     <p class="updated">Last updated: August 2, 2026</p>
 
     <div class="entity">
-      Free Surf is a product of <strong>Planting Moon LLC</strong>, located at 5830 E 2nd St, Ste 7000 #35119, Casper, Wyoming 82609.<br />
+      FreeSurf is a product of <strong>Planting Moon LLC</strong>, located at 5830 E 2nd St, Ste 7000 #35119, Casper, Wyoming 82609.<br />
       Contact: <a href="mailto:support@freesurf.tools">support@freesurf.tools</a>
     </div>
 
-    <p>These Terms of Use govern your access to and use of the Free Surf apps, websites, and services ("Free Surf," "we," "our," or "us"). By using Free Surf, you agree to these Terms of Use and our <a href="/privacy">Privacy Policy</a>.</p>
+    <p>These Terms of Use govern your access to and use of the FreeSurf apps, websites, and services ("FreeSurf," "we," "our," or "us"). By using FreeSurf, you agree to these Terms of Use and our <a href="/privacy">Privacy Policy</a>.</p>
 
     <h2>1. Service Description</h2>
-    <p>Free Surf provides free utility tools for freelancers and small businesses, including:</p>
+    <p>FreeSurf provides free utility tools for freelancers and small businesses, including:</p>
     <ul>
       <li><strong>Invoices:</strong> Invoice creation, PDF export, and draft management</li>
       <li><strong>Links:</strong> Link-in-bio profile pages</li>
@@ -2009,15 +2009,15 @@ export default config;
       <li><strong>Transcriber:</strong> Speech-to-text transcription</li>
       <li><strong>Calorie Tracker:</strong> Photo-based food nutrition analysis</li>
     </ul>
-    <p>Some features use AI systems to generate outputs. AI-generated content may be incomplete, inaccurate, or unsuitable for high-stakes decisions. You are responsible for reviewing and using AI outputs appropriately. Free Surf does not provide legal, tax, accounting, medical, or nutritional advice.</p>
+    <p>Some features use AI systems to generate outputs. AI-generated content may be incomplete, inaccurate, or unsuitable for high-stakes decisions. You are responsible for reviewing and using AI outputs appropriately. FreeSurf does not provide legal, tax, accounting, medical, or nutritional advice.</p>
 
     <h2>2. Eligibility and Accounts</h2>
-    <p>Most Free Surf tools work without an account. You may optionally create an account to sync data across devices. You are responsible for maintaining the confidentiality of your login credentials and for all activity under your account. You may not use Free Surf in violation of law, to infringe the rights of others, or to submit harmful, fraudulent, or abusive content.</p>
+    <p>Most FreeSurf tools work without an account. You may optionally create an account to sync data across devices. You are responsible for maintaining the confidentiality of your login credentials and for all activity under your account. You may not use FreeSurf in violation of law, to infringe the rights of others, or to submit harmful, fraudulent, or abusive content.</p>
 
     <h2>3. Acceptable Use</h2>
     <p>You agree not to:</p>
     <ul>
-      <li>Use Free Surf for unlawful harassment, fraud, or abuse</li>
+      <li>Use FreeSurf for unlawful harassment, fraud, or abuse</li>
       <li>Attempt to access another user's data or account</li>
       <li>Upload content you do not have permission to use</li>
       <li>Interfere with or disrupt the service or its infrastructure</li>
@@ -2026,22 +2026,22 @@ export default config;
     </ul>
 
     <h2>4. Your Content & AI Processing</h2>
-    <p>You retain ownership of the content you create using Free Surf (invoices, link profiles, posts, generated audio, transcriptions, etc.). AI-powered features in Free Surf apps (Natural Reader, Transcriber, Calorie Tracker) run on our own GPU infrastructure. Your text, audio, and photos are processed in memory on our servers and returned as output. <strong>We do not share your content with third-party AI companies such as OpenAI, Google, or Anthropic.</strong> No AI provider outside of Free Surf's infrastructure receives, stores, or trains on your data. User content is never used to train, fine-tune, or improve AI models.</p>
+    <p>You retain ownership of the content you create using FreeSurf (invoices, link profiles, posts, generated audio, transcriptions, etc.). AI-powered features in FreeSurf apps (Natural Reader, Transcriber, Calorie Tracker) run on our own GPU infrastructure. Your text, audio, and photos are processed in memory on our servers and returned as output. <strong>We do not share your content with third-party AI companies such as OpenAI, Google, or Anthropic.</strong> No AI provider outside of FreeSurf's infrastructure receives, stores, or trains on your data. User content is never used to train, fine-tune, or improve AI models.</p>
 
     <h2>5. Local Storage & Account Sync</h2>
     <p>When used without an account, your data is stored locally on your device. We do not have access to locally stored data. If you choose to create an account, selected data may sync to our servers for cross-device access. You may delete synced data by contacting us or through in-app account management.</p>
 
     <h2>6. Subscriptions and Billing</h2>
-    <p>Free Surf tools are free to use with advertising. In the future, optional subscriptions may be offered to remove advertisements across the Free Surf ecosystem. Subscriptions will be purchased through the Apple App Store or Google Play Store and will be governed by those platforms' billing terms. Free Surf's core tools will remain available at no cost.</p>
+    <p>FreeSurf tools are free to use with advertising. In the future, optional subscriptions may be offered to remove advertisements across the FreeSurf ecosystem. Subscriptions will be purchased through the Apple App Store or Google Play Store and will be governed by those platforms' billing terms. FreeSurf's core tools will remain available at no cost.</p>
 
     <h2>7. Intellectual Property</h2>
-    <p>Free Surf and its service materials (excluding user-generated content) are owned by Planting Moon LLC or our licensors. The Free Surf name, logo, and brand are trademarks of Planting Moon LLC. Portions of the Free Surf platform are open source and subject to their respective licenses.</p>
+    <p>FreeSurf and its service materials (excluding user-generated content) are owned by Planting Moon LLC or our licensors. The FreeSurf name, logo, and brand are trademarks of Planting Moon LLC. Portions of the FreeSurf platform are open source and subject to their respective licenses.</p>
 
     <h2>8. Third-Party Services</h2>
-    <p>Free Surf integrates with third-party platforms and services. Your use of those services may be subject to their respective terms and policies. Free Surf is not responsible for the content, functionality, or practices of third-party services.</p>
+    <p>FreeSurf integrates with third-party platforms and services. Your use of those services may be subject to their respective terms and policies. FreeSurf is not responsible for the content, functionality, or practices of third-party services.</p>
 
     <h2>9. Disclaimers and Limitation of Liability</h2>
-    <p>Free Surf is provided on an "as is" and "as available" basis. To the maximum extent permitted by law:</p>
+    <p>FreeSurf is provided on an "as is" and "as available" basis. To the maximum extent permitted by law:</p>
     <ul>
       <li>We disclaim all warranties not expressly stated in these terms.</li>
       <li>We are not liable for indirect, incidental, special, consequential, or punitive damages.</li>
@@ -2050,7 +2050,7 @@ export default config;
     </ul>
 
     <h2>10. Changes</h2>
-    <p>We may update these Terms of Use from time to time. Material changes will be noted with an updated effective date. Continued use of Free Surf after changes constitutes acceptance of the updated terms.</p>
+    <p>We may update these Terms of Use from time to time. Material changes will be noted with an updated effective date. Continued use of FreeSurf after changes constitutes acceptance of the updated terms.</p>
 
     <hr />
 
@@ -2060,7 +2060,7 @@ export default config;
     <p>Planting Moon LLC<br />5830 E 2nd St, Ste 7000 #35119, Casper, WY 82609</p>
 
     <footer>
-      <a href="/">Free Surf</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a>
+      <a href="/">FreeSurf</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a>
     </footer>
   </div>
 </body>
